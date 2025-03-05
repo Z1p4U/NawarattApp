@@ -10,12 +10,15 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient"; // For Expo projects
 import Svg, { ClipPath, Defs, G, Path, Rect } from "react-native-svg";
-import Carousel from "react-native-reanimated-carousel";
+import ImageCarousel, {
+  ImageCarouselItem,
+} from "@/components/Home/ImageCarousel"; // adjust path if needed
+import DiscoverCarousel, {
+  DiscoverCarouselItem,
+} from "@/components/Home/DiscoverCarousel"; // adjust path if needed
 
 export default function HomeScreen() {
-  const { width } = Dimensions.get("window");
-
-  const carouselData = [
+  const carouselData: ImageCarouselItem[] = [
     {
       id: "1",
       image:
@@ -36,12 +39,17 @@ export default function HomeScreen() {
     },
   ];
 
-  const renderCarouselItem = ({ item }: any) => {
-    return <Image source={{ uri: item.image }} style={styles.carouselImage} />;
-  };
+  const discoverCarouselData: DiscoverCarouselItem[] = [
+    { id: "1", title: "Pain Relief & Fever", target: "Page1" },
+    { id: "2", title: "Cough & Flu", target: "Page2" },
+    { id: "3", title: "Digestive Health", target: "Page3" },
+    { id: "4", title: "Eye & Ear Care", target: "Page4" },
+    { id: "5", title: "Pain Relief & Fever", target: "Page5" },
+  ];
 
   return (
     <ScrollView style={styles.container}>
+      {/* Head Section Start */}
       <LinearGradient
         colors={["#53CAFE", "#2555E7"]}
         start={{ x: 0.0, y: 0.0 }}
@@ -76,21 +84,22 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Carousel Container */}
-        <View style={styles.carouselContainer}>
-          <Carousel
-            loop
-            width={width}
-            height={180}
-            data={carouselData}
-            renderItem={renderCarouselItem}
-            autoPlay={true}
-            autoPlayInterval={5000}
-          />
-        </View>
+        {/* Use the ImageCarousel component */}
+        <ImageCarousel data={carouselData} />
       </LinearGradient>
+      {/* Head Section End */}
 
-      {/* Additional content */}
+      {/* Discover Section Start */}
+      <View style={styles.discover}>
+        <Text style={styles.discoverName}>Discover</Text>
+        <Text style={styles.discoverText}>
+          Essential Medicines & Health Solutions
+        </Text>
+        <View style={styles.discoverCarousel}>
+          <DiscoverCarousel data={discoverCarouselData} />
+        </View>
+      </View>
+      {/* Discover Section End */}
     </ScrollView>
   );
 }
@@ -100,6 +109,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
+  // Head Section
   banner: {
     minHeight: 220,
     justifyContent: "center",
@@ -155,5 +165,26 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     resizeMode: "cover",
+  },
+  // Head Section
+
+  // Discover Section
+  discover: {
+    marginTop: 80,
+    paddingHorizontal: 18,
+  },
+  discoverName: {
+    fontSize: 26,
+    fontWeight: "500",
+    fontFamily: "Saira-Medium",
+  },
+  discoverText: {
+    fontSize: 12,
+    color: "#333",
+    marginBottom: 15,
+    fontFamily: "Saira-Regular",
+  },
+  discoverCarousel: {
+    width: "100%",
   },
 });
