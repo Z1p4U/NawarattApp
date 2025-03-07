@@ -23,9 +23,9 @@ const DiscoverCarousel: React.FC<DiscoverCarouselProps> = ({ data }) => {
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
       {data.map((item) => (
         <TouchableOpacity
-          key={item.id}
+          key={item?.id}
           style={styles.tagContainer}
-          onPress={() => console.log("Navigate to", item.target)}
+          onPress={() => console.log("Navigate to", item?.target)}
         >
           <LinearGradient
             colors={["#54CAFF", "#275AE8"]}
@@ -33,7 +33,7 @@ const DiscoverCarousel: React.FC<DiscoverCarouselProps> = ({ data }) => {
             end={{ x: 1, y: 0 }}
             style={styles.tag}
           >
-            <Text style={styles.tagText}>{item.title}</Text>
+            <Text style={styles.tagText}>{item?.title}</Text>
           </LinearGradient>
         </TouchableOpacity>
       ))}
