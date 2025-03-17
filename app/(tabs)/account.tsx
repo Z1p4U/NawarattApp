@@ -1,5 +1,7 @@
 import HeadSection from "@/components/Account/HeadSection";
+import HeadLine from "@/components/ui/HeadLine";
 import { LinearGradient } from "expo-linear-gradient";
+import { Link } from "expo-router";
 import {
   ScrollView,
   StyleSheet,
@@ -12,12 +14,7 @@ import Svg, { Path } from "react-native-svg";
 export default function Account() {
   return (
     <>
-      <LinearGradient
-        colors={["#53CAFE", "#2555E7"]}
-        start={{ x: 0.0, y: 0.0 }}
-        end={{ x: 1.0, y: 0.0 }}
-        style={styles.headLine}
-      ></LinearGradient>
+      <HeadLine />
       <ScrollView style={styles.container}>
         {/* Head Section Start */}
         <HeadSection />
@@ -77,22 +74,27 @@ export default function Account() {
             </TouchableOpacity>
           </View>
 
-          <View>
-            <LinearGradient
-              colors={["#54CAFF", "#275AE8"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.chat}
+          <LinearGradient
+            colors={["#54CAFF", "#275AE8"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.chat}
+          >
+            <Svg width={22} height={24} viewBox="0 0 26 24" fill="none">
+              <Path
+                d="M13 .75c6.875 0 12.5 4.475 12.5 10s-5.625 10-12.5 10c-1.55 0-3.037-.225-4.412-.625C4.938 23.25.5 23.25.5 23.25c2.913-2.913 3.375-4.875 3.438-5.625C1.812 15.838.5 13.412.5 10.75c0-5.525 5.625-10 12.5-10z"
+                fill="#fff"
+              />
+            </Svg>
+            <Link
+              href={{
+                pathname: "/login",
+              }}
+              style={styles.chatText}
             >
-              <Svg width={22} height={24} viewBox="0 0 26 24" fill="none">
-                <Path
-                  d="M13 .75c6.875 0 12.5 4.475 12.5 10s-5.625 10-12.5 10c-1.55 0-3.037-.225-4.412-.625C4.938 23.25.5 23.25.5 23.25c2.913-2.913 3.375-4.875 3.438-5.625C1.812 15.838.5 13.412.5 10.75c0-5.525 5.625-10 12.5-10z"
-                  fill="#fff"
-                />
-              </Svg>
-              <Text style={styles.chatText}>Chat with Admin</Text>
-            </LinearGradient>
-          </View>
+              Chat with Admin
+            </Link>
+          </LinearGradient>
         </View>
         {/* Body Section End */}
       </ScrollView>
@@ -102,14 +104,9 @@ export default function Account() {
 
 const styles = StyleSheet.create({
   container: {
+    paddingTop: 40,
     flex: 1,
     backgroundColor: "#fff",
-  },
-  headLine: {
-    height: 40,
-    position: "fixed",
-    top: 0,
-    zIndex: 100,
   },
   bodyContent: {
     marginTop: 25,

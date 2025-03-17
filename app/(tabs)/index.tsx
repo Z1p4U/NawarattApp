@@ -20,6 +20,7 @@ import ProductSlider, {
   ProductSliderItem,
 } from "@/components/ui/ProductSlider";
 import BrandList from "@/components/Home/BrandList";
+import HeadLine from "@/components/ui/HeadLine";
 
 export default function HomeScreen() {
   const carouselData: ImageCarouselItem[] = [
@@ -91,12 +92,7 @@ export default function HomeScreen() {
 
   return (
     <>
-      <LinearGradient
-        colors={["#53CAFE", "#2555E7"]}
-        start={{ x: 0.0, y: 0.0 }}
-        end={{ x: 1.0, y: 0.0 }}
-        style={styles.headLine}
-      ></LinearGradient>
+      <HeadLine />
       <ScrollView style={styles.container}>
         {/* Head Section Start */}
         <LinearGradient
@@ -215,13 +211,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   // Head Section
-  headLine: {
-    height: 40,
-    position: "fixed",
-    top: 0,
-    zIndex: 100,
-    marginBottom: -40,
-  },
   banner: {
     minHeight: 220,
     justifyContent: "center",

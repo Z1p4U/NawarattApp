@@ -2,7 +2,6 @@ import { Tabs } from "expo-router";
 import React from "react";
 import { Platform, StyleSheet } from "react-native";
 import { HapticTab } from "@/components/HapticTab";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import Svg, {
   Path,
   Defs,
@@ -11,8 +10,6 @@ import Svg, {
 } from "react-native-svg";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
@@ -168,6 +165,12 @@ export default function TabLayout() {
               />
             </Svg>
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="searchedProductList"
+        options={{
+          href: null, // This hides the tab from the tab bar
         }}
       />
     </Tabs>

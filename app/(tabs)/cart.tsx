@@ -1,10 +1,14 @@
+import HeadLine from "@/components/ui/HeadLine";
 import { ScrollView, StyleSheet, Text } from "react-native";
 
 export default function Cart() {
   return (
-    <ScrollView style={styles.container}>
-      <Text>Cart</Text>
-    </ScrollView>
+    <>
+      <HeadLine />
+      <ScrollView style={styles.container}>
+        <Text>Cart</Text>
+      </ScrollView>
+    </>
   );
 }
 

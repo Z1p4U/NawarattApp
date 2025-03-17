@@ -1,12 +1,12 @@
 import HeadLine from "@/components/ui/HeadLine";
 import { ScrollView, StyleSheet, Text } from "react-native";
 
-export default function Favorites() {
+export default function searchedProductList() {
   return (
     <>
       <HeadLine />
       <ScrollView style={styles.container}>
-        <Text>Favorites</Text>
+        <Text style={{ marginTop: 220, color: "black" }}>Hello</Text>
       </ScrollView>
     </>
   );
