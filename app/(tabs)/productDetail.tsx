@@ -1,7 +1,7 @@
 import HeadLine from "@/components/ui/HeadLine";
 import { ScrollView, StyleSheet, Text } from "react-native";
 
-export default function searchedProductList() {
+export default function productDetail() {
   return (
     <>
       <HeadLine />
