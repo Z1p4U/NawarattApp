@@ -15,7 +15,11 @@ const ProductCard: React.FC<{ item: ProductCardProps }> = ({ item }) => {
 
   return (
     <>
-      <Link href={"/productDetail"} style={styles.productCard} key={item?.id}>
+      <Link
+        href={`/productDetail?id=${item?.id}`}
+        style={styles.productCard}
+        key={item?.id}
+      >
         <View style={{ position: "relative" }}>
           <Image source={{ uri: item?.image }} style={styles.productImage} />
           <TouchableOpacity style={styles.favButton}>
@@ -86,6 +90,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     fontFamily: "Saira-Regular",
   },
+
   favButton: {
     width: 34,
     height: 34,
