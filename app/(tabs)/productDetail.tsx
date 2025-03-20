@@ -1,8 +1,10 @@
 import ExpandableDescription from "@/components/ProductDetail/ExpandableDescription";
+import QuantityConfirmModal from "@/components/ProductDetail/QuantityConfirmModal";
 import HeadLine from "@/components/ui/HeadLine";
+import QuantityControl from "@/components/ui/QuantityControl";
 import { LinearGradient } from "expo-linear-gradient";
-import { Link } from "expo-router";
-import { useSearchParams } from "expo-router/build/hooks";
+import { useRouter, useSearchParams } from "expo-router/build/hooks";
+import { useState } from "react";
 import {
   Dimensions,
   Image,
@@ -19,8 +21,8 @@ export default function ProductDetail() {
   const { width } = Dimensions.get("window");
   const searchParams = useSearchParams();
   const productId = searchParams.get("id");
+  const router = useRouter();
 
-  // Mock Data (In real case, fetch using productId)
   const data = {
     id: 1,
     images: [
@@ -37,7 +39,37 @@ export default function ProductDetail() {
     },
   };
 
+  const [modalVisible, setModalVisible] = useState(false);
+  const [payload, setPayload] = useState({
+    productId: productId,
+    count: 1,
+    total: data?.price,
+    option: "Order မှဖယ်ရှားပေးပါ",
+  });
+
   const addedInWishlist = true;
+
+  const updateQuantity = (newCount: number) => {
+    setPayload((prev) => ({
+      ...prev,
+      count: newCount,
+      total: newCount * data?.price,
+    }));
+  };
+  const handleConfirm = () => {
+    console.log("Added to Cart:", payload);
+
+    setModalVisible(false);
+    setPayload((prev) => ({
+      ...prev,
+      count: 1,
+      total: data?.price,
+      option: "Order မှဖယ်ရှားပေးပါ",
+    }));
+
+    // Navigate to a new route (e.g., cart page)
+    router.push("/cart");
+  };
 
   const renderItem = ({ item }: any) => (
     <Image source={{ uri: item }} style={styles.carouselImage} />
@@ -89,29 +121,44 @@ export default function ProductDetail() {
             <Text style={styles.productCategoryText}> {data?.shop?.name}</Text>
           </View>
 
+          {/* ExpandableDescription */}
           <ExpandableDescription description={data.description} />
+          {/* ExpandableDescription */}
 
           <View style={styles.rowBetween}>
-            <Image source={{ uri: data?.shop?.logo }} style={styles.shopImg} />
-            <Text style={styles.totalText}>Total : {data?.price} Ks</Text>
+            {/* QuantityControl */}
+            <QuantityControl count={payload?.count} setCount={updateQuantity} />
+            {/* QuantityControl */}
+
+            <Text style={styles.totalText}>
+              Total : {payload?.total?.toLocaleString()} Ks
+            </Text>
           </View>
 
-          <LinearGradient
-            colors={["#54CAFF", "#275AE8"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.chat}
+          <TouchableOpacity
+            style={{ marginTop: 35 }}
+            onPress={() => setModalVisible(true)}
           >
-            <Link
-              href={{
-                pathname: "/cart",
-              }}
-              style={styles.chatText}
+            <LinearGradient
+              colors={["#54CAFF", "#275AE8"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.chat}
             >
-              Add To Cart
-            </Link>
-          </LinearGradient>
+              <Text style={styles.chatText}>Add To Cart</Text>
+            </LinearGradient>
+          </TouchableOpacity>
         </View>
+
+        {/* QuantityConfirmModal */}
+        <QuantityConfirmModal
+          visible={modalVisible}
+          selectedOption={payload?.option}
+          onSelect={(option) => setPayload((prev) => ({ ...prev, option }))}
+          onConfirm={handleConfirm}
+          onClose={() => setModalVisible(false)}
+        />
+        {/* QuantityConfirmModal */}
       </ScrollView>
     </>
   );
@@ -142,7 +189,8 @@ const styles = StyleSheet.create({
   productDetailInfoContainer: {
     backgroundColor: "#fff",
     paddingHorizontal: 20,
-    paddingVertical: 20,
+    paddingTop: 20,
+    paddingBottom: 100,
     marginTop: -50,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
@@ -189,19 +237,20 @@ const styles = StyleSheet.create({
     backgroundColor: "#F2F3F4",
   },
   chat: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
     borderRadius: 18,
-    marginTop: 20,
     display: "flex",
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 15,
   },
   chatText: {
+    width: "100%",
+    height: "100%",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    textAlign: "center",
     color: "#fff",
-    fontSize: 15,
+    fontSize: 18,
     fontWeight: "500",
     fontFamily: "Saira-Medium",
   },

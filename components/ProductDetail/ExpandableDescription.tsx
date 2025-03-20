@@ -32,7 +32,9 @@ const ExpandableDescription: React.FC<ExpandableDescriptionProps> = ({
 export default ExpandableDescription;
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    marginVertical: 10,
+  },
   description: {
     fontSize: 14,
     lineHeight: 20,
@@ -40,7 +42,7 @@ const styles = StyleSheet.create({
     textAlign: "justify",
   },
   seeMoreText: {
-    marginTop: 5,
+    marginTop: 6,
     color: "#007BFF",
     fontSize: 14,
     fontWeight: "500",
