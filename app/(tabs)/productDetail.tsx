@@ -2,12 +2,15 @@ import ExpandableDescription from "@/components/ProductDetail/ExpandableDescript
 import QuantityConfirmModal from "@/components/ProductDetail/QuantityConfirmModal";
 import HeadLine from "@/components/ui/HeadLine";
 import QuantityControl from "@/components/ui/QuantityControl";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter, useSearchParams } from "expo-router/build/hooks";
 import { useState } from "react";
 import {
   Dimensions,
   Image,
+  Modal,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -41,10 +44,11 @@ export default function ProductDetail() {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [payload, setPayload] = useState({
-    productId: productId,
+    productId,
     count: 1,
     total: data?.price,
     option: "Order မှဖယ်ရှားပေးပါ",
+    pdData: data,
   });
 
   const addedInWishlist = true;
@@ -56,19 +60,29 @@ export default function ProductDetail() {
       total: newCount * data?.price,
     }));
   };
-  const handleConfirm = () => {
-    console.log("Added to Cart:", payload);
 
-    setModalVisible(false);
-    setPayload((prev) => ({
-      ...prev,
-      count: 1,
-      total: data?.price,
-      option: "Order မှဖယ်ရှားပေးပါ",
-    }));
+  const handleConfirm = async () => {
+    try {
+      const cartData = await AsyncStorage.getItem("cart");
+      const cart = cartData ? JSON.parse(cartData) : [];
 
-    // Navigate to a new route (e.g., cart page)
-    router.push("/cart");
+      cart.push(payload);
+
+      await AsyncStorage.setItem("cart", JSON.stringify(cart));
+
+      // Reset modal and payload state
+      setModalVisible(false);
+      setPayload((prev) => ({
+        ...prev,
+        count: 1,
+        total: data?.price,
+        option: "Order မှဖယ်ရှားပေးပါ",
+      }));
+
+      router.push("/cart");
+    } catch (error) {
+      console.error("Error saving to cart:", error);
+    }
   };
 
   const renderItem = ({ item }: any) => (
@@ -78,6 +92,7 @@ export default function ProductDetail() {
   return (
     <>
       <HeadLine />
+
       <ScrollView style={styles.container}>
         <Carousel
           loop
@@ -136,8 +151,11 @@ export default function ProductDetail() {
           </View>
 
           <TouchableOpacity
-            style={{ marginTop: 35 }}
-            onPress={() => setModalVisible(true)}
+            style={{ marginTop: 30 }}
+            onPress={() => {
+              console.log("Modal Visible:", modalVisible); // Check if this is updating
+              setModalVisible(true);
+            }}
           >
             <LinearGradient
               colors={["#54CAFF", "#275AE8"]}
@@ -151,13 +169,15 @@ export default function ProductDetail() {
         </View>
 
         {/* QuantityConfirmModal */}
-        <QuantityConfirmModal
-          visible={modalVisible}
-          selectedOption={payload?.option}
-          onSelect={(option) => setPayload((prev) => ({ ...prev, option }))}
-          onConfirm={handleConfirm}
-          onClose={() => setModalVisible(false)}
-        />
+        <SafeAreaView style={{ flex: 1 }}>
+          <QuantityConfirmModal
+            modalVisible={modalVisible}
+            selectedOption={payload?.option}
+            onSelect={(option) => setPayload((prev) => ({ ...prev, option }))}
+            onConfirm={handleConfirm}
+            onClose={() => setModalVisible(false)}
+          />
+        </SafeAreaView>
         {/* QuantityConfirmModal */}
       </ScrollView>
     </>
@@ -166,10 +186,11 @@ export default function ProductDetail() {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 40,
     backgroundColor: "#fff",
+    position: "relative",
   },
   rowBetween: {
+    width: "100%",
     display: "flex",
     flexDirection: "row",
     alignItems: "center",

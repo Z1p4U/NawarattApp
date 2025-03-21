@@ -1,8 +1,16 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { View, Text, Modal, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  Modal,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+  SafeAreaView,
+} from "react-native";
 
 interface QuantityConfirmModalProps {
-  visible: boolean;
+  modalVisible: boolean;
   selectedOption: string;
   onSelect: (option: string) => void;
   onConfirm: () => void;
@@ -10,7 +18,7 @@ interface QuantityConfirmModalProps {
 }
 
 const QuantityConfirmModal: React.FC<QuantityConfirmModalProps> = ({
-  visible,
+  modalVisible,
   selectedOption,
   onSelect,
   onConfirm,
@@ -23,14 +31,10 @@ const QuantityConfirmModal: React.FC<QuantityConfirmModalProps> = ({
   ];
 
   return (
-    <Modal transparent visible={visible} animationType="fade">
+    <Modal transparent visible={modalVisible} animationType="fade">
       {/* Close modal when clicking outside */}
-      <TouchableOpacity
-        style={styles.modalBackground}
-        activeOpacity={1}
-        onPress={onClose}
-      >
-        <View style={styles.modalContainer}>
+      <SafeAreaView style={styles.modalBackground}>
+        <SafeAreaView style={styles.modalContainer}>
           <Text style={styles.title}>
             ယခုမှာယူသောပစ္စည်းအား မရနိုင်ပါက (သို့မဟုတ်) အရေအတွက်
             အတိအကျမရနိုင်ပါက မည်သို့ ပြုလုပ်ပေးရမည်နည်း??
@@ -64,8 +68,8 @@ const QuantityConfirmModal: React.FC<QuantityConfirmModalProps> = ({
               <Text style={styles.buttonText}>Confirm</Text>
             </LinearGradient>
           </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
+        </SafeAreaView>
+      </SafeAreaView>
     </Modal>
   );
 };
@@ -74,10 +78,13 @@ export default QuantityConfirmModal;
 
 const styles = StyleSheet.create({
   modalBackground: {
-    flex: 1,
+    position: "absolute",
     backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
+    // width: Dimensions.get("window").width,
+    // height: Dimensions.get("window").height,
+    inset: 1,
   },
   modalContainer: {
     width: "95%",

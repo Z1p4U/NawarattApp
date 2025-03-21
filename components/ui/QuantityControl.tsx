@@ -12,7 +12,7 @@ export default function QuantityControl({
   setCount,
 }: QuantityControlProps) {
   return (
-    <View style={styles.rowBetween}>
+    <View style={styles.row}>
       <TouchableOpacity onPress={() => setCount(Math.max(1, count - 1))}>
         <LinearGradient
           colors={["#54CAFF", "#275AE8"]}
@@ -50,22 +50,21 @@ export default function QuantityControl({
 }
 
 const styles = StyleSheet.create({
-  rowBetween: {
+  row: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
   },
   quantityControlBtn: {
-    borderRadius: "100%",
-    width: 30,
-    height: 30,
+    borderRadius: 100000,
+    width: 25,
+    height: 25,
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
   },
   quantityTextContainer: {
     backgroundColor: "#F2F3F4",
-    width: 65,
+    width: 55,
     display: "flex",
     justifyContent: "center",
     alignItems: "center",

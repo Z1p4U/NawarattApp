@@ -7,7 +7,6 @@ import Svg, {
   Defs,
   LinearGradient as SvgLinearGradient,
   Stop,
-  LinearGradient,
 } from "react-native-svg";
 
 export default function TabLayout() {

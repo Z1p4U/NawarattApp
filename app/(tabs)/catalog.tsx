@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import SearchComponent from "@/components/ui/SearchComponent";
 import ProductCard from "@/components/ui/ProductCard";
 import Svg, { Path } from "react-native-svg";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function Catalog() {
   const data = [
@@ -47,7 +48,14 @@ export default function Catalog() {
     <>
       <HeadLine />
       <ScrollView style={styles.container}>
-        <SearchComponent />
+        <LinearGradient
+          colors={["#53CAFE", "#2555E7"]}
+          start={{ x: 0.0, y: 0.0 }}
+          end={{ x: 1.0, y: 0.0 }}
+          style={styles.banner}
+        >
+          <SearchComponent />
+        </LinearGradient>
 
         <View style={styles.menu}>
           <Text style={styles.menuText}>All Products</Text>
@@ -78,6 +86,16 @@ export default function Catalog() {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fff",
+  },
+  banner: {
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    minHeight: 100,
+    padding: 15,
+    marginBottom: 20,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-end",
   },
   menu: {
     display: "flex",

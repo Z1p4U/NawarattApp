@@ -16,10 +16,9 @@ export default function HeadLine() {
 
 const styles = StyleSheet.create({
   headLine: {
-    height: 40,
+    height: 45,
     position: "fixed",
     top: 0,
     zIndex: 100,
-    marginBottom: -40,
   },
 });
