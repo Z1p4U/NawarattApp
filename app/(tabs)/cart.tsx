@@ -1,44 +1,68 @@
-import HeadLine from "@/components/ui/HeadLine";
-import QuantityControl from "@/components/ui/QuantityControl";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { LinearGradient } from "expo-linear-gradient";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Image,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  Image,
+  Dimensions,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LinearGradient } from "expo-linear-gradient";
+import HeadLine from "@/components/ui/HeadLine";
+import QuantityControl from "@/components/ui/QuantityControl";
+
+// Define the shape of your cart item
+interface ProductData {
+  id: number;
+  images: string[];
+  name: string;
+  category: string[];
+  price: number;
+}
+
+interface CartItem {
+  pdData: ProductData;
+  count: number;
+  total: number;
+}
 
 export default function Cart() {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<CartItem[]>([]);
 
+  // Fetch cart items from AsyncStorage
   const getCartItems = async () => {
     try {
       const storedData = await AsyncStorage.getItem("cart");
       if (storedData) {
-        const parsedData = JSON.parse(storedData);
-        setData(parsedData); // Update state with the cart items from AsyncStorage
+        const parsedData: CartItem[] = JSON.parse(storedData);
+        setData(parsedData);
       }
     } catch (error) {
       console.error("Error fetching cart:", error);
     }
   };
 
+  // On component mount, load cart items
   useEffect(() => {
     getCartItems();
   }, []);
 
-  // Update Item Quantity
-  const updateQuantity = async (productId, newCount) => {
+  // Update quantity for a given product
+  const updateQuantity = async (productId: number, newCount: number) => {
     try {
-      const updatedCart = data.map((item) =>
-        item.pdData.id === productId
-          ? { ...item, count: newCount, total: newCount * item.pdData.price }
-          : item
-      );
+      const updatedCart = data.map((item) => {
+        if (item.pdData.id === productId) {
+          return {
+            ...item,
+            count: newCount,
+            total: newCount * item.pdData.price,
+          };
+        }
+        return item;
+      });
 
       setData(updatedCart);
       await AsyncStorage.setItem("cart", JSON.stringify(updatedCart));
@@ -47,6 +71,7 @@ export default function Cart() {
     }
   };
 
+  // Clear the entire cart
   const clearCart = async () => {
     try {
       await AsyncStorage.removeItem("cart");
@@ -56,14 +81,19 @@ export default function Cart() {
     }
   };
 
+  // Calculate total price for all items
   const calculateTotal = () => {
     return data.reduce((acc, item) => acc + item.total, 0);
   };
 
   return (
-    <>
+    <SafeAreaView style={styles.safeArea}>
       <HeadLine />
-      <ScrollView style={styles.container}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Banner */}
         <LinearGradient
           colors={["#53CAFE", "#2555E7"]}
           start={{ x: 0.0, y: 0.0 }}
@@ -73,20 +103,19 @@ export default function Cart() {
           <Text style={styles.headText}>Cart</Text>
         </LinearGradient>
 
-        <View>
-          <TouchableOpacity
-            style={styles.clearContainer}
-            onPress={() => clearCart()}
-          >
+        {/* Clear Cart Button */}
+        <View style={styles.clearContainer}>
+          <TouchableOpacity onPress={clearCart}>
             <Text style={styles.clearText}>Clear Cart</Text>
           </TouchableOpacity>
         </View>
 
+        {/* Cart Items */}
         <View style={styles.column}>
           {data.map((item, index) => (
             <View key={index} style={styles.pdCard}>
               <Image
-                source={{ uri: item?.pdData?.images[0] }}
+                source={{ uri: item.pdData.images[0] }}
                 style={styles.pdCardImg}
               />
               <View style={styles.pdCardInfo}>
@@ -95,19 +124,21 @@ export default function Cart() {
                   ellipsizeMode="tail"
                   style={styles.pdCardName}
                 >
-                  {item?.pdData?.name}
+                  {item.pdData.name}
                 </Text>
                 <Text style={styles.pdCardCat}>
-                  {item?.pdData?.category.join(" , ")}
+                  {item.pdData.category.join(" , ")}
                 </Text>
+
                 <View style={styles.pdCardQuantity}>
                   <Text style={styles.totalText}>
-                    {item?.total?.toLocaleString()} Ks
+                    {item.total.toLocaleString()} Ks
                   </Text>
 
+                  {/* Quantity Control */}
                   <View style={{ width: "100%" }}>
                     <QuantityControl
-                      count={item?.count}
+                      count={item.count}
                       setCount={(newCount) =>
                         updateQuantity(item.pdData.id, newCount)
                       }
@@ -118,36 +149,43 @@ export default function Cart() {
             </View>
           ))}
         </View>
-
-        <View style={styles.confirmComponent}>
-          <View style={styles.confirmComponentInfo}>
-            <Text style={styles.confirmComponentText}>Delivery Fee - Free</Text>
-            <Text style={styles.confirmComponentTotal}>
-              Total - {calculateTotal()?.toLocaleString()} Ks
-            </Text>
-          </View>
-
-          <TouchableOpacity>
-            <LinearGradient
-              colors={["#54CAFF", "#275AE8"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.confirmButton}
-            >
-              <Text style={styles.buttonText}>Checkout ({data?.length})</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
       </ScrollView>
-    </>
+
+      {/* Bottom Checkout Section */}
+      <View style={styles.confirmComponent}>
+        <View style={styles.confirmComponentInfo}>
+          <Text style={styles.confirmComponentText}>Delivery Fee - Free</Text>
+          <Text style={styles.confirmComponentTotal}>
+            Total - {calculateTotal().toLocaleString()} Ks
+          </Text>
+        </View>
+
+        <TouchableOpacity>
+          <LinearGradient
+            colors={["#54CAFF", "#275AE8"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.confirmButton}
+          >
+            <Text style={styles.buttonText}>Checkout ({data.length})</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
+    flex: 1,
     backgroundColor: "#fff",
+  },
+  container: {
     flex: 1,
     position: "relative",
+  },
+  scrollContent: {
+    paddingBottom: 120, // ensure space for bottom checkout bar
   },
   banner: {
     borderBottomLeftRadius: 30,
@@ -162,10 +200,23 @@ const styles = StyleSheet.create({
   headText: {
     marginTop: 10,
     fontSize: 22,
-    fontWeight: 500,
+    fontWeight: "500",
     color: "#ffffff",
     textAlign: "center",
     fontFamily: "Saira-Medium",
+  },
+  clearContainer: {
+    paddingHorizontal: 20,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginBottom: 10,
+  },
+  clearText: {
+    fontSize: 14,
+    color: "#ff0000",
+    fontFamily: "Saira-Bold",
+    letterSpacing: 2,
   },
   column: {
     gap: 20,
@@ -185,7 +236,6 @@ const styles = StyleSheet.create({
     width: 75,
     height: 75,
     borderRadius: 5,
-    objectFit: "contain",
     backgroundColor: "#ddd",
   },
   pdCardInfo: {
@@ -194,11 +244,10 @@ const styles = StyleSheet.create({
   },
   pdCardName: {
     fontSize: 15,
-    fontWeight: 700,
+    fontWeight: "700",
     color: "#000000",
-    fontFamily: "Saira-bold",
+    fontFamily: "Saira-Bold",
     width: 260,
-    textOverflow: "hidden",
   },
   pdCardCat: {
     fontSize: 12,
@@ -217,37 +266,22 @@ const styles = StyleSheet.create({
     fontFamily: "Saira-Medium",
     width: 90,
   },
-
-  clearContainer: {
-    paddingHorizontal: 20,
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    marginBottom: 10,
-  },
-  clearText: {
-    fontSize: 14,
-    color: "#ff0000",
-    fontFamily: "Saira-Bold",
-    letterSpacing: 2,
-  },
-
   confirmComponent: {
     position: "absolute",
-    bottom: -200,
     left: 0,
     right: 0,
+    bottom: 20,
     paddingVertical: 20,
     paddingHorizontal: 15,
     backgroundColor: "#fff",
     borderRadius: 20,
-    boxShadow: "0px 0px 10px 2px #0000000D",
+    shadowColor: "#000",
+    boxShadow: "0px 0px 15px 5px #0000000D",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginHorizontal: 15,
+    marginHorizontal: 10,
   },
-
   confirmComponentInfo: {
     gap: 5,
   },
@@ -261,7 +295,6 @@ const styles = StyleSheet.create({
     color: "#000000",
     fontFamily: "Saira-Regular",
   },
-
   confirmButton: {
     borderRadius: 15,
     flexDirection: "row",
