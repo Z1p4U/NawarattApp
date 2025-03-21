@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -13,6 +13,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import HeadLine from "@/components/ui/HeadLine";
 import QuantityControl from "@/components/ui/QuantityControl";
+import { useFocusEffect } from "expo-router";
 
 // Define the shape of your cart item
 interface ProductData {
@@ -39,6 +40,8 @@ export default function Cart() {
       if (storedData) {
         const parsedData: CartItem[] = JSON.parse(storedData);
         setData(parsedData);
+      } else {
+        setData([]);
       }
     } catch (error) {
       console.error("Error fetching cart:", error);
@@ -46,9 +49,11 @@ export default function Cart() {
   };
 
   // On component mount, load cart items
-  useEffect(() => {
-    getCartItems();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      getCartItems();
+    }, [])
+  );
 
   // Update quantity for a given product
   const updateQuantity = async (productId: number, newCount: number) => {
