@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     overflow: "hidden",
     marginTop: 30,
-    marginBottom: -150,
+    marginBottom: -110,
     boxShadow: "0px 4px 4px 0px #00000026",
   },
   carouselImage: {

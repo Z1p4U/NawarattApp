@@ -6,40 +6,70 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
+  ActivityIndicator,
+  Alert,
+  ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import useAuth from "@/redux/hooks/auth/useAuth"; // Import useAuth
+import Svg, { Path } from "react-native-svg";
 
 export default function LoginScreen() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const { login } = useAuth();
+
+  const [credential, setCredential] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    if (!credential || !password) {
+      Alert.alert("Error", "Please enter email and password.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await login(credential, password);
+      Alert.alert("Success", res?.message);
+      router.push("/");
+    } catch (error: any) {
+      const errorMessage = error?.message || "Something went wrong.";
+      Alert.alert("Login Failed", errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
       {/* Gradient Header */}
       <LinearGradient colors={["#54CAFF", "#275AE8"]} style={styles.header}>
-        <Text style={styles.headerTitle}>Welcome to</Text>
-        <Text style={styles.headerBrand}>Nawarratt</Text>
-        <Text style={styles.headerSubtitle}>Medical Distribution</Text>
+        <View style={styles.headerDiv}>
+          <Text style={styles.headerTitle}>Welcome to</Text>
+          <Text style={styles.headerBrand}>Nawarratt</Text>
+          <Text style={styles.headerSubtitle}>Medical Distribution</Text>
+        </View>
       </LinearGradient>
 
       {/* Login Section */}
-      <View style={styles.formContainer}>
+      <ScrollView style={styles.formContainer}>
         <Text style={styles.loginText}>Login to your Account</Text>
 
         {/* Email / Phone Input */}
-        <TextInput
-          style={styles.input}
-          placeholder="EMAIL / PHONE NO"
-          placeholderTextColor="#888"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
+        <View style={styles.emailContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="EMAIL / PHONE NO"
+            placeholderTextColor="#888"
+            value={credential}
+            onChangeText={setCredential}
+            autoCapitalize="none"
+          />
+        </View>
 
         {/* PIN Input */}
         <View style={styles.passwordContainer}>
@@ -69,9 +99,19 @@ export default function LoginScreen() {
         </TouchableOpacity>
 
         {/* Login Button */}
-        <TouchableOpacity style={styles.loginButton}>
-          <Text style={styles.loginButtonText}>LOGIN</Text>
-        </TouchableOpacity>
+        <View style={{ marginBottom: 24 }}>
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={handleLogin}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.loginButtonText}>LOGIN</Text>
+            )}
+          </TouchableOpacity>
+        </View>
 
         {/* Register Link */}
         <Text style={styles.registerText}>
@@ -85,23 +125,34 @@ export default function LoginScreen() {
         </Text>
 
         {/* Social Login */}
-        <Text style={styles.orText}>or</Text>
-        <Text style={styles.loginWithText}>Login With</Text>
+        <View style={styles.row}>
+          <Svg width={102} height={1} viewBox="0 0 102 1" fill="none">
+            <Path stroke="#000" strokeOpacity={0.1} d="M0 0.5L102 0.5" />
+          </Svg>
+          <View>
+            <Text style={styles.orText}>or</Text>
+            <Text style={styles.loginWithText}>Login With</Text>
+          </View>
+          <Svg width={102} height={1} viewBox="0 0 102 1" fill="none">
+            <Path stroke="#000" strokeOpacity={0.1} d="M0 0.5L102 0.5" />
+          </Svg>
+        </View>
+
         <View style={styles.socialButtons}>
           <TouchableOpacity style={styles.socialButton}>
             <Image
-              // source={require("@/assets/google.png")}
+              source={require("@/assets/images/google.png")}
               style={styles.socialIcon}
             />
           </TouchableOpacity>
           <TouchableOpacity style={styles.socialButton}>
             <Image
-              // source={require("@/assets/facebook.png")}
+              source={require("@/assets/images/facebook.png")}
               style={styles.socialIcon}
             />
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -110,45 +161,71 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    alignItems: "center",
   },
-  header: {
-    height: "30%",
+  row: {
+    display: "flex",
+    flexDirection: "row",
+    gap: 10,
     justifyContent: "center",
     alignItems: "center",
-    borderBottomLeftRadius: 50,
-    borderBottomRightRadius: 50,
+    marginVertical: 20,
+  },
+  header: {
+    height: "80%",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    width: "185%",
+    marginTop: "-115%",
+    borderRadius: 10000,
+  },
+  headerDiv: {
+    transform: "translateY(-50%)",
+    alignItems: "center",
   },
   headerTitle: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 18,
+    fontFamily: "Saira-Regular",
   },
   headerBrand: {
     color: "#fff",
-    fontSize: 26,
-    fontWeight: "bold",
+    fontSize: 32,
+    fontFamily: "Saira-Medium",
   },
   headerSubtitle: {
     color: "#fff",
-    fontSize: 14,
+    fontSize: 15,
+    fontFamily: "Saira-Regular",
   },
   formContainer: {
     flex: 1,
-    alignItems: "center",
     paddingHorizontal: 20,
-    marginTop: 20,
+    marginTop: 25,
   },
   loginText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 20,
+    fontSize: 22,
+    marginBottom: 35,
+    fontFamily: "Saira-Medium",
+    textAlign: "center",
   },
-  input: {
+  emailContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     width: "100%",
     height: 50,
+    marginBottom: 15,
+  },
+  input: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
     backgroundColor: "#F2F2F2",
-    borderRadius: 10,
+    height: 50,
+    borderRadius: 1000,
     paddingHorizontal: 15,
     marginBottom: 15,
+    fontFamily: "Saira-Regular",
   },
   passwordContainer: {
     flexDirection: "row",
@@ -156,12 +233,13 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 50,
     backgroundColor: "#F2F2F2",
-    borderRadius: 10,
+    borderRadius: 1000,
     paddingHorizontal: 15,
     marginBottom: 15,
   },
   passwordInput: {
     flex: 1,
+    fontFamily: "Saira-Regular",
   },
   eyeIcon: {
     padding: 10,
@@ -169,41 +247,52 @@ const styles = StyleSheet.create({
   forgotPin: {
     alignSelf: "flex-end",
     marginBottom: 15,
+    marginRight: 25,
   },
   forgotPinText: {
     color: "#666",
+    fontFamily: "Saira-Medium",
   },
   loginButton: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "#275AE8",
     width: "100%",
     borderRadius: 25,
     paddingVertical: 15,
-    alignItems: "center",
     marginTop: 10,
   },
   loginButtonText: {
     color: "#fff",
     fontSize: 16,
-    fontWeight: "bold",
+    fontFamily: "Saira-Medium",
   },
   registerText: {
     marginTop: 15,
     color: "#666",
+    fontFamily: "Saira-Regular",
+    textAlign: "center",
   },
   registerLink: {
     color: "#275AE8",
-    fontWeight: "bold",
+    fontFamily: "Saira-Medium",
   },
   orText: {
-    marginTop: 15,
     color: "#666",
+    fontFamily: "Saira-Regular",
+    textAlign: "center",
   },
   loginWithText: {
     color: "#666",
-    marginBottom: 10,
+    fontFamily: "Saira-Regular",
+    textAlign: "center",
   },
   socialButtons: {
     flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     gap: 20,
   },
   socialButton: {
