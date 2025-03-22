@@ -8,6 +8,7 @@ import {
   View,
   Image,
   Dimensions,
+  ImageBackground,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
@@ -15,16 +16,20 @@ import HeadLine from "@/components/ui/HeadLine";
 import QuantityControl from "@/components/ui/QuantityControl";
 import { useFocusEffect } from "expo-router";
 
-// Define the shape of your cart item
+// Define the shape of your product data
 interface ProductData {
-  id: number;
-  images: string[];
+  id: string;
   name: string;
-  category: string[];
-  price: number;
+  description: string;
+  price: string; // price as string from API; we'll convert it as needed
+  category: string; // assuming category is a string for simplicity
+  images: string[]; // array of image URLs
+  thumbnail: string; // array of image URLs
 }
 
+// Define the shape of a cart item
 interface CartItem {
+  id: string; // unique cart item id
   pdData: ProductData;
   count: number;
   total: number;
@@ -33,7 +38,7 @@ interface CartItem {
 export default function Cart() {
   const [data, setData] = useState<CartItem[]>([]);
 
-  // Fetch cart items from AsyncStorage
+  // Retrieve cart items from AsyncStorage
   const getCartItems = async () => {
     try {
       const storedData = await AsyncStorage.getItem("cart");
@@ -48,27 +53,28 @@ export default function Cart() {
     }
   };
 
-  // On component mount, load cart items
+  // Load cart items whenever the screen is focused
   useFocusEffect(
     useCallback(() => {
       getCartItems();
     }, [])
   );
 
-  // Update quantity for a given product
-  const updateQuantity = async (productId: number, newCount: number) => {
+  // Update quantity for a specific cart item using its unique id
+  const updateQuantity = async (cartItemId: string, newCount: number) => {
     try {
       const updatedCart = data.map((item) => {
-        if (item.pdData.id === productId) {
+        if (item.id === cartItemId) {
+          // Convert price to a number before multiplication
+          const price = Number(item?.pdData?.price);
           return {
             ...item,
             count: newCount,
-            total: newCount * item.pdData.price,
+            total: newCount * price,
           };
         }
         return item;
       });
-
       setData(updatedCart);
       await AsyncStorage.setItem("cart", JSON.stringify(updatedCart));
     } catch (error) {
@@ -86,10 +92,17 @@ export default function Cart() {
     }
   };
 
-  // Calculate total price for all items
+  useEffect(() => {
+    // clearCart();
+    AsyncStorage.clear();
+  }, []);
+
+  // Calculate total price for all cart items
   const calculateTotal = () => {
-    return data.reduce((acc, item) => acc + item.total, 0);
+    return data.reduce((acc, item) => acc + item?.total, 0);
   };
+
+  // console.log("Cart Data:", data);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -117,35 +130,42 @@ export default function Cart() {
 
         {/* Cart Items */}
         <View style={styles.column}>
-          {data.map((item, index) => (
+          {data?.map((item, index) => (
             <View key={index} style={styles.pdCard}>
-              <Image
-                source={{ uri: item.pdData.images[0] }}
-                style={styles.pdCardImg}
-              />
+              <ImageBackground
+                source={require("@/assets/images/placeholder.jpg")}
+                style={styles.productImageContainer}
+              >
+                <Image
+                  source={
+                    item?.pdData?.thumbnail
+                      ? { uri: item?.pdData?.thumbnail }
+                      : require("@/assets/images/placeholder.jpg")
+                  }
+                  // source={require("@/assets/images/placeholder.jpg")}
+                  style={styles.pdCardImg}
+                />
+              </ImageBackground>
               <View style={styles.pdCardInfo}>
                 <Text
                   numberOfLines={1}
                   ellipsizeMode="tail"
                   style={styles.pdCardName}
                 >
-                  {item.pdData.name}
+                  {item?.pdData?.name}
                 </Text>
-                <Text style={styles.pdCardCat}>
-                  {item.pdData.category.join(" , ")}
-                </Text>
+                <Text style={styles.pdCardCat}>{item?.pdData?.category}</Text>
 
                 <View style={styles.pdCardQuantity}>
                   <Text style={styles.totalText}>
-                    {item.total.toLocaleString()} Ks
+                    {item?.total?.toLocaleString()} Ks
                   </Text>
-
                   {/* Quantity Control */}
                   <View style={{ width: "100%" }}>
                     <QuantityControl
                       count={item.count}
-                      setCount={(newCount) =>
-                        updateQuantity(item.pdData.id, newCount)
+                      setCount={(newCount: number) =>
+                        updateQuantity(item.id, newCount)
                       }
                     />
                   </View>
@@ -164,7 +184,6 @@ export default function Cart() {
             Total - {calculateTotal().toLocaleString()} Ks
           </Text>
         </View>
-
         <TouchableOpacity>
           <LinearGradient
             colors={["#54CAFF", "#275AE8"]}
@@ -198,7 +217,6 @@ const styles = StyleSheet.create({
     minHeight: 70,
     padding: 15,
     marginBottom: 20,
-    display: "flex",
     flexDirection: "column",
     justifyContent: "flex-end",
   },
@@ -212,7 +230,6 @@ const styles = StyleSheet.create({
   },
   clearContainer: {
     paddingHorizontal: 20,
-    display: "flex",
     flexDirection: "row",
     justifyContent: "flex-end",
     marginBottom: 10,
@@ -224,28 +241,32 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
   column: {
-    gap: 20,
     paddingHorizontal: 15,
   },
   pdCard: {
     width: "100%",
     backgroundColor: "#F8F8F8",
     padding: 10,
-    display: "flex",
     flexDirection: "row",
     gap: 12,
     borderRadius: 15,
     overflow: "hidden",
+    marginBottom: 20,
   },
   pdCardImg: {
     width: 75,
     height: 75,
-    borderRadius: 5,
-    backgroundColor: "#ddd",
+  },
+  productImageContainer: {
+    width: 75,
+    height: 75,
+    resizeMode: "cover",
+    borderRadius: 20,
+    overflow: "hidden",
   },
   pdCardInfo: {
+    flex: 1,
     gap: 5,
-    width: "100%",
   },
   pdCardName: {
     fontSize: 15,
@@ -281,7 +302,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 20,
     shadowColor: "#000",
-    boxShadow: "0px 0px 15px 5px #0000000D",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",

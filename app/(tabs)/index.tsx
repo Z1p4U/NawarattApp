@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -20,8 +20,16 @@ import ProductSlider, {
 } from "@/components/ui/ProductSlider";
 import BrandList from "@/components/Home/BrandList";
 import HeadLine from "@/components/ui/HeadLine";
+import useProduct from "@/redux/hooks/product/useProduct";
+import { Link, useRouter } from "expo-router";
+import useUser from "@/redux/hooks/user/useUser";
+import useAuth from "@/redux/hooks/auth/useAuth";
 
 export default function HomeScreen() {
+  const router = useRouter();
+  const { profileDetail } = useUser();
+  const { isAuthenticated } = useAuth();
+
   const carouselData: ImageCarouselItem[] = [
     {
       id: "1",
@@ -50,44 +58,7 @@ export default function HomeScreen() {
     { id: "4", title: "Eye & Ear Care", target: "Page4" },
     { id: "5", title: "Pain Relief & Fever", target: "Page5" },
   ];
-
-  const productSliderProps: ProductSliderItem[] = [
-    {
-      id: "1",
-      image:
-        "https://s3-alpha-sig.figma.com/img/5be1/4f4b/520092b46167e350401d6bc0b8f7127d?Expires=1742169600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=Wyu508NoF3xgsGlpxkItXp086c90EIzposfiPaJhZICac1Lxaq6t0HivmO4aRQrIjGI6ufEaO8Gt4zSZ2rOuiz55a1l~FX9Rl1FZ8IkF29osyeNNQlHHHT7h9lM2AiO6FBQDWQViA40Tn-hIIUzkYAn6UNwdh94qdQkEEXoA65YSzINKPw4T3Vh6HrloydmhRL-LXAU7jtpc5xufe1bJzKtkb0x2gK3txInFCQYr4FZj1MdefnHs-BevSwFZWqn7tYm~rCNUWsGcpPMPdI-9yCEAK68gweM13Ld6MvpNDKjyKDl9BwhrocjCMLmfdAd78hwj1Ti35NPy8VHY50gUIg__",
-      name: "Pain Relief & Fever",
-      price: 100,
-    },
-    {
-      id: "2",
-      image:
-        "https://s3-alpha-sig.figma.com/img/03e3/44fb/af1264ea5d44ac450658c44fed356a66?Expires=1742169600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=MHJCVyB9JYnnbJSZN6uK788~ss49Je47xadcR7HrzSO9Oso7Xd-As0zRYeJZrd3BTfcpbRDhD8En4DObr18yCdYHKzWCwggkSPeyX0odX-Vf~BKDAFJZWv3xPkwPxmbbXNWfUYhxN3IIPO9S5-tbOP2C6oso81XeHmYebXefhBb7g8XZtwrpR4BL1zAOmnIuMTOngRnElQXXJODXnMBgSAgu3u9yfITNHToZaYUjAmQh3r-ZBUfOTiy8fAKZZOcjKI09MtENo-RLDorCYmC589yWkiG7U9hgdCC3v~uEG-Ft7D3DvonsEe-8SUKvG7Gp7s6-X263Ic7anoOcWwO5uw__",
-      name: "Cough & Flu",
-      price: 2000,
-    },
-    {
-      id: "3",
-      image:
-        "https://s3-alpha-sig.figma.com/img/4e4c/c9da/0a2bdaf4fbf209160018419537e1bea2?Expires=1742169600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=qtgPwONMhFLmIbJAfWwd3MMZ6Hg4VPVQuwKXKiQ~tiQ6ei3oZkf8q4WNtQzWDrt0U3wZb6d4srtPN3vqFY8TAwpueYyIpQAdBCrSh3-KETTca-UNJf1-j4pXvB3qijKG7uEJwOD-5CR9rBn8k5L19F7R1-EHheAxKoyqhmltE-WA-RvvFmoGTyicRQa3R5mgQHqaEvGs7zJ~8oU9JWNptbtCe-fT7g0IU5eHntK37ymRYQU6ens~rCSh-CYVYQiyVWah8M3nIsR8uerdJuKlhIABEiSgcXzsXv0~8LBqfVgWwgIqROUUueszUaCjAf7nndPsM65bF8Hqj86ivdZjEA__",
-      name: "Digestive Health",
-      price: 300,
-    },
-    {
-      id: "4",
-      image:
-        "https://s3-alpha-sig.figma.com/img/136f/09b6/e422345889b653ecd0ad8351ba3b74e4?Expires=1742169600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=pVbzxdtef18k6QX1JcXAUpI-00L2oQUu8~Ga1LADzxtemGUjJsDD4G042IQdxLT9FQ9OMYirRE09~-Camh33heEvcnhMhFKG01LgJxcXAl1o-s9DWg73t0L2nsokGRs9YlLLQfLJ95JpPbiwgUjKoBrRqEy9SGjGlrAhovY37lXEqajJJvEbBWgs9ffhLqpON~Gj5Ht~-bWyXV6IoZqo2uqAZPM64M3vVxawUAC1Twse8CVngrwPrBlJLHAjH9TKL9bqITZl8SkwHJ72Pts-szKW9B12VRipklt8s5JWONxOWhD0OKyb719pOTbmG~m~jv109Y1rikqyMawLT1PmfA__",
-      name: "Eye & Ear Care",
-      price: 400,
-    },
-    {
-      id: "5",
-      image:
-        "https://s3-alpha-sig.figma.com/img/a5e8/9d24/2d4faae0ef56cf33478b32a955a5d636?Expires=1742169600&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=acwexTlKx3OzSEbUngACWZz3BUpFbA2XXqqd4Is-tiZBb8v86m7~UbcIC0oitt7jiBguPu3hOvGMHYiJGjJBPmWZsbX7P9L2sGknEhExC~R3jGGMeQvdwFsGKmqYi4OM-YMItYh2VWfPoY0e9sjvKBU~aDSZ~UNwKVyfFMPIkO6vRq~vdnoSsqLFflGmw25hrh2-mVPBCp4mJWgxckn1rvaWEypqoX5uMRsJcfQdMpexSe312a7fzLJM0Y~EWXJeLK30KMML-7qtk4dc9PwYf2ItID3ZJtn4Ujsoru-0z4QmPQq9Lu6Ck0Ll36yFdLGRfNMUr5J8wYxjUD3etW7UzQ__",
-      name: "Pain Relief & Fever",
-      price: 500,
-    },
-  ];
+  const { products, setPagination } = useProduct();
 
   return (
     <>
@@ -108,8 +79,18 @@ export default function HomeScreen() {
               style={styles.avatar}
             />
             <View style={styles.center}>
-              <Text style={styles.name}>Thant Zin</Text>
-              <Text style={styles.address}>No. 123, 4th Cross, 5th Main</Text>
+              {isAuthenticated ? (
+                <>
+                  <Text style={styles.name}>{profileDetail?.data?.name}</Text>
+                  <Text style={styles.address}>
+                    {profileDetail?.data?.phone}
+                  </Text>
+                </>
+              ) : (
+                <Link style={styles.name} href={"/login"}>
+                  Login
+                </Link>
+              )}
             </View>
             <TouchableOpacity style={styles.notificationButton}>
               <Svg width={30} height={30} viewBox="0 0 30 30" fill="none">
@@ -151,12 +132,12 @@ export default function HomeScreen() {
         <View style={styles.productSliderSection}>
           <View style={styles.productSliderHead}>
             <Text style={styles.productSliderName}>Top Selling Items</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.replace("/catalog")}>
               <Text style={styles.productSliderSeeAll}>See All</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.productSliderCarousel}>
-            <ProductSlider data={productSliderProps} />
+            <ProductSlider data={products} />
           </View>
         </View>
         {/* Top Selling Section End */}
@@ -165,12 +146,12 @@ export default function HomeScreen() {
         <View style={styles.productSliderSection}>
           <View style={styles.productSliderHead}>
             <Text style={styles.productSliderName}>New Arrivals</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.replace("/catalog")}>
               <Text style={styles.productSliderSeeAll}>See All</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.productSliderCarousel}>
-            <ProductSlider data={productSliderProps} />
+            <ProductSlider data={products} />
           </View>
         </View>
         {/* New Arrivals Section End */}
@@ -179,12 +160,12 @@ export default function HomeScreen() {
         <View style={styles.productSliderSection}>
           <View style={styles.productSliderHead}>
             <Text style={styles.productSliderName}>Top Picks for You</Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => router.replace("/catalog")}>
               <Text style={styles.productSliderSeeAll}>See All</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.productSliderCarousel}>
-            <ProductSlider data={productSliderProps} />
+            <ProductSlider data={products} />
           </View>
         </View>
         {/* Top Picks for You Section End */}
@@ -195,7 +176,7 @@ export default function HomeScreen() {
             <Text style={styles.productSliderName}>Top Brands</Text>
           </View>
           <View style={styles.productSliderCarousel}>
-            <BrandList data={productSliderProps} />
+            <BrandList data={products} />
           </View>
         </View>
         {/* Top Brands Section End */}

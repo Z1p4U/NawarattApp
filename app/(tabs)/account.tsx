@@ -1,9 +1,14 @@
 import HeadSection from "@/components/Account/HeadSection";
 import HeadLine from "@/components/ui/HeadLine";
+import useAuth from "@/redux/hooks/auth/useAuth";
+import useUser from "@/redux/hooks/user/useUser";
 import RouteGuard from "@/utils/RouteGuard";
 import { LinearGradient } from "expo-linear-gradient";
-import { Link } from "expo-router";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
+  Modal,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,13 +18,27 @@ import {
 import Svg, { Path } from "react-native-svg";
 
 export default function Account() {
+  const { profileDetail } = useUser();
+  const { isAuthenticated, loading } = useAuth();
+  const router = useRouter();
+
+  const [modalVisible, setModalVisible] = useState(false);
+
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [loading, isAuthenticated, router]);
+
+  console.log(isAuthenticated);
+
   return (
     <>
       <RouteGuard>
         <HeadLine />
         <ScrollView style={styles.container}>
           {/* Head Section Start */}
-          <HeadSection />
+          <HeadSection data={profileDetail} />
           {/* Head Section End */}
 
           {/* Body Section End */}
@@ -76,29 +95,48 @@ export default function Account() {
               </TouchableOpacity>
             </View>
 
-            <LinearGradient
-              colors={["#54CAFF", "#275AE8"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.chat}
+            <TouchableOpacity
+              style={{ marginTop: 20 }}
+              onPress={() => {
+                console.log("Modal Visible:", modalVisible); // Check if this is updating
+                setModalVisible(true);
+              }}
             >
-              <Svg width={22} height={24} viewBox="0 0 26 24" fill="none">
-                <Path
-                  d="M13 .75c6.875 0 12.5 4.475 12.5 10s-5.625 10-12.5 10c-1.55 0-3.037-.225-4.412-.625C4.938 23.25.5 23.25.5 23.25c2.913-2.913 3.375-4.875 3.438-5.625C1.812 15.838.5 13.412.5 10.75c0-5.525 5.625-10 12.5-10z"
-                  fill="#fff"
-                />
-              </Svg>
-              <Link
-                href={{
-                  pathname: "/login",
-                }}
-                style={styles.chatText}
+              <LinearGradient
+                colors={["#54CAFF", "#275AE8"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.chat}
               >
-                Chat with Admin
-              </Link>
-            </LinearGradient>
+                <Svg width={22} height={24} viewBox="0 0 26 24" fill="none">
+                  <Path
+                    d="M13 .75c6.875 0 12.5 4.475 12.5 10s-5.625 10-12.5 10c-1.55 0-3.037-.225-4.412-.625C4.938 23.25.5 23.25.5 23.25c2.913-2.913 3.375-4.875 3.438-5.625C1.812 15.838.5 13.412.5 10.75c0-5.525 5.625-10 12.5-10z"
+                    fill="#fff"
+                  />
+                </Svg>
+                <Text style={styles.chatText}>Chat with Admin</Text>
+              </LinearGradient>
+            </TouchableOpacity>
           </View>
           {/* Body Section End */}
+
+          <SafeAreaView style={{ flex: 1 }}>
+            <Modal transparent animationType="fade" visible={modalVisible}>
+              <View style={styles.centeredView}>
+                <View style={styles.modalView}>
+                  <Text style={styles.modalText}>
+                    Chat system will be Coming Soon!
+                  </Text>
+                  <TouchableOpacity
+                    style={[styles.button, styles.buttonClose]}
+                    onPress={() => setModalVisible(!modalVisible)}
+                  >
+                    <Text style={styles.textStyle}>OK</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </Modal>
+          </SafeAreaView>
         </ScrollView>
       </RouteGuard>
     </>
@@ -163,6 +201,52 @@ const styles = StyleSheet.create({
   chatText: {
     color: "#fff",
     fontSize: 16,
+    fontWeight: "500",
+    fontFamily: "Saira-Medium",
+  },
+
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#00000099",
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonOpen: {
+    backgroundColor: "#F194FF",
+  },
+  buttonClose: {
+    backgroundColor: "#2196F3",
+  },
+  textStyle: {
+    color: "white",
+    textAlign: "center",
+    paddingHorizontal: 40,
+    fontWeight: "500",
+    fontFamily: "Saira-Medium",
+  },
+  modalText: {
+    marginBottom: 16,
+    textAlign: "center",
     fontWeight: "500",
     fontFamily: "Saira-Medium",
   },

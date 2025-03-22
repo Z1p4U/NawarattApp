@@ -1,14 +1,6 @@
 import { useNavigation } from "expo-router";
 import React from "react";
-import {
-  ScrollView,
-  Text,
-  StyleSheet,
-  View,
-  Image,
-  TouchableOpacity,
-} from "react-native";
-import Svg, { Defs, LinearGradient, Path, Stop } from "react-native-svg";
+import { ScrollView, StyleSheet } from "react-native";
 import ProductCard from "./ProductCard";
 
 export interface ProductSliderItem {
@@ -33,9 +25,10 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ data }) => {
       //   pagingEnabled={true}
       contentContainerStyle={{
         columnGap: 16,
+        marginRight: 15,
       }}
     >
-      {data.map((item, index) => (
+      {data?.map((item, index) => (
         <ProductCard key={index} item={item} />
       ))}
     </ScrollView>

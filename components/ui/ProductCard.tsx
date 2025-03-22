@@ -1,18 +1,23 @@
 import React from "react";
-import { Link, useNavigation } from "expo-router";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { Link } from "expo-router";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  ImageBackground,
+} from "react-native";
 import Svg, { Defs, LinearGradient, Path, Stop } from "react-native-svg";
 
 export interface ProductCardProps {
-  id: string;
-  image: string;
+  id: number;
+  thumbnail: string;
   name: string;
   price: number;
 }
 
 const ProductCard: React.FC<{ item: ProductCardProps }> = ({ item }) => {
-  const nav = useNavigation();
-
   return (
     <>
       <Link
@@ -21,7 +26,19 @@ const ProductCard: React.FC<{ item: ProductCardProps }> = ({ item }) => {
         key={item?.id}
       >
         <View style={{ position: "relative" }}>
-          <Image source={{ uri: item?.image }} style={styles.productImage} />
+          <ImageBackground
+            source={require("@/assets/images/placeholder.jpg")}
+            style={styles.productImageContainer}
+          >
+            <Image
+              source={{
+                uri: item.thumbnail
+                  ? item.thumbnail
+                  : require("@/assets/images/placeholder.jpg"),
+              }}
+              style={styles.productImage}
+            />
+          </ImageBackground>
           <TouchableOpacity style={styles.favButton}>
             <Svg width={21} height={21} viewBox="0 0 21 21" fill="none">
               <Path
@@ -69,13 +86,19 @@ const styles = StyleSheet.create({
     gap: 10,
     maxWidth: 150,
   },
-  productImage: {
+  productImageContainer: {
     width: "100%",
     aspectRatio: "1/1",
     resizeMode: "cover",
     borderWidth: 1,
     borderColor: "#0000001A",
     borderRadius: 20,
+    overflow: "hidden",
+  },
+  productImage: {
+    width: "100%",
+    aspectRatio: "1/1",
+    resizeMode: "cover",
   },
   productCardContent: {
     paddingHorizontal: 8,

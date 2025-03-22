@@ -56,7 +56,7 @@ export default function RegisterScreen() {
         password
       );
       Alert.alert("Success", res?.message);
-      router.push("/login");
+      router.push({ pathname: "/otp", params: { phone: credential } });
     } catch (error: any) {
       Alert.alert("Register Failed", error?.message || "Something went wrong.");
     } finally {

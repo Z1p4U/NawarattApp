@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
 interface ExpandableDescriptionProps {
-  description: string;
+  description: string | undefined;
   numberOfLines?: number;
 }
 

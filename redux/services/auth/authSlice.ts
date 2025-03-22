@@ -3,8 +3,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   fetchLogin,
   fetchRegister,
+  fetchVerifyOtp,
+  fetchResendOtp,
   LoginResponse,
   RegisterResponse,
+  OTPResponse,
 } from "@/redux/api/auth/authApi";
 
 /** --------------- State Interfaces --------------- **/
@@ -13,7 +16,8 @@ interface AuthState {
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
   isAuthenticated: boolean;
-  registerMessage: string | null; // optional, to store register success message
+  registerMessage: string | null;
+  otpMessage: string | null; // success message for OTP verification/resend
 }
 
 /** --------------- Payload Interfaces --------------- **/
@@ -30,6 +34,15 @@ interface RegisterPayload {
   password: string;
 }
 
+interface OtpPayload {
+  phone: string;
+  otp: string;
+}
+
+interface ResendOtpPayload {
+  phone: string;
+}
+
 /** --------------- Initial State --------------- **/
 const initialState: AuthState = {
   token: null,
@@ -37,6 +50,7 @@ const initialState: AuthState = {
   error: null,
   isAuthenticated: false,
   registerMessage: null,
+  otpMessage: null,
 };
 
 /** --------------- Async Thunks --------------- **/
@@ -55,7 +69,6 @@ export const login = createAsyncThunk<
 >("auth/login", async ({ credential, password }, { rejectWithValue }) => {
   try {
     const response = await fetchLogin(credential, password);
-
     // Store token in AsyncStorage
     await AsyncStorage.setItem("authToken", response.data.access_token);
 
@@ -95,6 +108,38 @@ export const register = createAsyncThunk<
   }
 );
 
+// Verify OTP Thunk
+export const verifyOtp = createAsyncThunk<
+  OTPResponse,
+  OtpPayload,
+  { rejectValue: string }
+>("auth/verifyOtp", async ({ phone, otp }, { rejectWithValue }) => {
+  try {
+    const response = await fetchVerifyOtp(phone, otp);
+    console.log("Verify OTP success:", response);
+    return response; // { message: string }
+  } catch (error: any) {
+    console.error("Verify OTP error:", error);
+    return rejectWithValue(error.response?.data || "Verify OTP failed");
+  }
+});
+
+// Resend OTP Thunk
+export const resendOtp = createAsyncThunk<
+  OTPResponse,
+  ResendOtpPayload,
+  { rejectValue: string }
+>("auth/resendOtp", async ({ phone }, { rejectWithValue }) => {
+  try {
+    const response = await fetchResendOtp(phone);
+    console.log("Resend OTP success:", response);
+    return response; // { message: string }
+  } catch (error: any) {
+    console.error("Resend OTP error:", error);
+    return rejectWithValue(error.response?.data || "Resend OTP failed");
+  }
+});
+
 // Logout Thunk
 export const logout = createAsyncThunk("auth/logout", async () => {
   await AsyncStorage.removeItem("authToken");
@@ -109,6 +154,7 @@ const authSlice = createSlice({
       state.status = "idle";
       state.error = null;
       state.registerMessage = null;
+      state.otpMessage = null;
     },
     setIsAuthenticated(state, action: PayloadAction<boolean>) {
       state.isAuthenticated = action.payload;
@@ -144,13 +190,42 @@ const authSlice = createSlice({
       })
       .addCase(register.fulfilled, (state, action) => {
         state.status = "succeeded";
-        // store the success message if you want
         state.registerMessage = action.payload.message;
         state.error = null;
       })
       .addCase(register.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload || "Register failed";
+      })
+
+      // Verify OTP
+      .addCase(verifyOtp.pending, (state) => {
+        state.status = "loading";
+        state.otpMessage = null;
+      })
+      .addCase(verifyOtp.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.otpMessage = action.payload.message;
+        state.error = null;
+      })
+      .addCase(verifyOtp.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload || "Verify OTP failed";
+      })
+
+      // Resend OTP
+      .addCase(resendOtp.pending, (state) => {
+        state.status = "loading";
+        state.otpMessage = null;
+      })
+      .addCase(resendOtp.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.otpMessage = action.payload.message;
+        state.error = null;
+      })
+      .addCase(resendOtp.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload || "Resend OTP failed";
       })
 
       // Logout

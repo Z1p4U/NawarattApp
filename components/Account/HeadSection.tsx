@@ -11,7 +11,7 @@ import {
 import Svg, { ClipPath, Defs, G, Path, Rect } from "react-native-svg";
 
 // const ImageCarousel: React.FC<lProps> = ({ data }) => {
-const HeadSection = () => {
+const HeadSection = ({ data }: any) => {
   return (
     <>
       <LinearGradient
@@ -28,8 +28,8 @@ const HeadSection = () => {
             }}
             style={styles.avatar}
           />
-          <Text style={styles.name}>Thant Zin</Text>
-          <Text style={styles.phone}>09 7920 459 48</Text>
+          <Text style={styles.name}>{data?.data?.name}</Text>
+          <Text style={styles.phone}>{data?.data?.phone}</Text>
         </View>
 
         <View style={styles.amountBar}>

@@ -2,14 +2,15 @@ import ExpandableDescription from "@/components/ProductDetail/ExpandableDescript
 import QuantityConfirmModal from "@/components/ProductDetail/QuantityConfirmModal";
 import HeadLine from "@/components/ui/HeadLine";
 import QuantityControl from "@/components/ui/QuantityControl";
+import useProductDetail from "@/redux/hooks/product/useProductDetail";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter, useSearchParams } from "expo-router/build/hooks";
+import { useRouter } from "expo-router";
+import { useSearchParams } from "expo-router/build/hooks";
 import { useState } from "react";
 import {
   Dimensions,
   Image,
-  Modal,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -23,32 +24,22 @@ import Svg, { Path } from "react-native-svg";
 export default function ProductDetail() {
   const { width } = Dimensions.get("window");
   const searchParams = useSearchParams();
-  const productId = searchParams.get("id");
+  const productId = Number(searchParams.get("id")) || 0;
   const router = useRouter();
-
-  const data = {
-    id: 1,
-    images: [
-      "https://s3-alpha-sig.figma.com/img/babc/b836/3b4fbd2ac384f3c5c117246d04670b03?Expires=1743379200&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=kzIANlbrcW8l0na95HSPPzmVAGw0mD8AnzuvUYUV56jsTTkyxTqK4gXMAFR30YmFShibvRgOD86JdyPjPi9LVG6nwFKuk~~XsJcW1fjqjzMmNRFzV5tOo3wiAaJXdoaQqA4~C8ghF-5qesmww2X9T2Pd~9AlFD4Va5zq48ep2-~clL22ULdpT2K6I4~RD9mQjbfg7J7iO8lgN9f0X1TUTqoIrByM2xKRqRQXYoQkf0X76WezF80qwe8dNOEHAWS0M0DJSvg1aIBUxAcXfZeQfxRTMowXYmIFNU0B8mXnWH3RQFHd6maJ-pC7B0qehoLcCeEx452fdUt64gPoyCfZaA__",
-    ],
-    name: "Wireless Headphones",
-    price: 1299.99,
-    category: ["Electronics", "Audio"],
-    description:
-      "Experience unmatched sound quality with these high-quality wireless headphones, engineered with advanced noise cancellation technology. Designed to block out distractions, they let you immerse yourself in crisp, clear audio whether you're commuting, working, or relaxing at home. The ergonomic design ensures long-lasting comfort for extended listening sessions, and the intuitive touch controls make managing your music and calls effortless. With deep bass, balanced mids, and pristine highs, these headphones deliver a rich audio experience. Plus, with a long-lasting battery, you can enjoy up to 30 hours of uninterrupted playback on a single charge. Discover the perfect blend of style, performance, and convenience.",
-    shop: {
-      name: "Tech Haven",
-      logo: "https://s3-alpha-sig.figma.com/img/6449/997c/91743c8a9bbbc66e72808fa57daf619a?Expires=1743379200&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=Vfr2zZFB75VpZFKvegQYSSz3oH5tGwIMWixlp7CkUrtcbp3O9KkON2JJ67KPmcVPEDPfMIw3hX5lnXyLI0E81Wp7f1kiSRmx-8tLN1S8amR7qY6SbyiT1W7gvPHkITc2~3JW~kifw-2zV0zhpbS~1l8Hm78rtP50l5Tk3TxCjEnEV18DGaAC92UhRmi5KpkOC0~Cmxjvl2xx0K7jJUDTDLDvaU5Ewp1gFy9K9Sp21krbhiWyooG5YqQ3XtHY14UYP0dcBz9DslGaXqaMni6NINw4HS7jxb~AD-mmZnhM4V6jGvLTJZvFjdXv7M18hB7q~SLtAWK3bUIO5rEvH3m4BA__",
-    },
-  };
+  const { productDetail } = useProductDetail(productId);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [payload, setPayload] = useState({
     productId,
     count: 1,
-    total: data?.price,
+    total: Number(productDetail?.price || 0),
     option: "Order မှဖယ်ရှားပေးပါ",
-    pdData: data,
+    pdData: {
+      name: productDetail?.name,
+      price: productDetail?.price,
+      category: productDetail?.category?.name,
+      thumbnail: productDetail?.thumbnail,
+    },
   });
 
   const addedInWishlist = true;
@@ -57,7 +48,7 @@ export default function ProductDetail() {
     setPayload((prev) => ({
       ...prev,
       count: newCount,
-      total: newCount * data?.price,
+      total: newCount * Number(productDetail?.price || 0),
     }));
   };
 
@@ -66,7 +57,19 @@ export default function ProductDetail() {
       const cartData = await AsyncStorage.getItem("cart");
       const cart = cartData ? JSON.parse(cartData) : [];
 
-      cart.push(payload);
+      const updatedPayload = {
+        productId,
+        count: payload.count,
+        total: payload.count * Number(productDetail?.price || 0),
+        option: payload.option,
+        pdData: {
+          name: productDetail?.name,
+          category: productDetail?.category?.name,
+          thumbnail: productDetail?.thumbnail,
+        },
+      };
+
+      cart.push(updatedPayload);
 
       await AsyncStorage.setItem("cart", JSON.stringify(cart));
 
@@ -75,7 +78,7 @@ export default function ProductDetail() {
       setPayload((prev) => ({
         ...prev,
         count: 1,
-        total: data?.price,
+        total: Number(productDetail?.price || 0),
         option: "Order မှဖယ်ရှားပေးပါ",
       }));
 
@@ -85,9 +88,14 @@ export default function ProductDetail() {
     }
   };
 
-  const renderItem = ({ item }: any) => (
-    <Image source={{ uri: item }} style={styles.carouselImage} />
-  );
+  const renderItem = ({ item }: any) => {
+    const imageSource =
+      typeof item === "string" && item.startsWith("http")
+        ? { uri: item }
+        : require("@/assets/images/placeholder.jpg");
+
+    return <Image source={imageSource} style={styles.carouselImage} />;
+  };
 
   return (
     <>
@@ -98,7 +106,7 @@ export default function ProductDetail() {
           loop
           width={width}
           height={300}
-          data={data.images}
+          data={productDetail?.images || []}
           renderItem={renderItem}
           autoPlay
           autoPlayInterval={5000}
@@ -106,7 +114,7 @@ export default function ProductDetail() {
 
         <View style={styles.productDetailInfoContainer}>
           <View style={styles.rowBetween}>
-            <Text style={styles.productNameText}>{data?.name}</Text>
+            <Text style={styles.productNameText}>{productDetail?.name}</Text>
             <TouchableOpacity style={styles.favButton}>
               <Svg width={20} height={20} viewBox="0 0 22 20" fill="none">
                 <Path
@@ -118,26 +126,36 @@ export default function ProductDetail() {
           </View>
 
           <Text style={styles.productPriceText}>
-            {data?.price?.toLocaleString()} Ks
+            {productDetail?.price
+              ? productDetail.price.toLocaleString()
+              : "N/A"}{" "}
+            Ks
           </Text>
 
           <View style={styles.row}>
             <Text style={styles.productCategoryText}>Category : </Text>
-            {data?.category?.map((cat, index) => (
-              <Text style={styles.productCategoryActiveText} key={index}>
-                {cat}
-                {index !== data.category.length - 1 ? " , " : ""}
-              </Text>
-            ))}
+            <Text style={styles.productCategoryActiveText}>
+              {productDetail?.brand?.name}
+            </Text>
           </View>
 
           <View style={styles.row}>
-            <Image source={{ uri: data?.shop?.logo }} style={styles.shopImg} />
-            <Text style={styles.productCategoryText}> {data?.shop?.name}</Text>
+            <Image
+              source={
+                productDetail?.brand?.image
+                  ? { uri: productDetail.brand.image }
+                  : require("@/assets/images/placeholder.jpg")
+              }
+              style={styles.shopImg}
+            />
+
+            <Text style={styles.productCategoryText}>
+              {productDetail?.brand?.name}
+            </Text>
           </View>
 
           {/* ExpandableDescription */}
-          <ExpandableDescription description={data.description} />
+          <ExpandableDescription description={productDetail?.description} />
           {/* ExpandableDescription */}
 
           <View style={styles.rowBetween}>
@@ -146,7 +164,11 @@ export default function ProductDetail() {
             {/* QuantityControl */}
 
             <Text style={styles.totalText}>
-              Total : {payload?.total?.toLocaleString()} Ks
+              Total :{" "}
+              {(
+                payload?.count * Number(productDetail?.price || 0)
+              ).toLocaleString()}{" "}
+              Ks
             </Text>
           </View>
 
@@ -231,6 +253,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#000000",
     fontFamily: "Saira-Regular",
+    marginLeft: 15,
   },
   productCategoryActiveText: {
     fontSize: 14,

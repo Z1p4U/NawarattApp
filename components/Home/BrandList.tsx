@@ -1,17 +1,16 @@
 import { useNavigation } from "expo-router";
 import React from "react";
 import {
-  ScrollView,
-  Text,
   StyleSheet,
   View,
   Image,
   TouchableOpacity,
+  ImageBackground,
 } from "react-native";
 
 export interface BrandListItem {
   id: string;
-  image: string;
+  thumbnail: string;
 }
 
 interface BrandListProps {
@@ -23,9 +22,21 @@ const BrandList: React.FC<BrandListProps> = ({ data }) => {
 
   return (
     <View style={styles?.brandContainer}>
-      {data.map((item) => (
+      {data?.map((item) => (
         <TouchableOpacity key={item?.id} style={styles?.brand}>
-          <Image source={{ uri: item?.image }} style={styles.brandImage} />
+          <ImageBackground
+            source={require("@/assets/images/placeholder.jpg")}
+            style={styles.productImageContainer}
+          >
+            <Image
+              source={{
+                uri: item.thumbnail
+                  ? item.thumbnail
+                  : require("@/assets/images/placeholder.jpg"),
+              }}
+              style={styles.productImage}
+            />
+          </ImageBackground>
         </TouchableOpacity>
       ))}
     </View>
@@ -38,17 +49,25 @@ const styles = StyleSheet.create({
   brandContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 10,
   },
   brand: {
     marginRight: 14,
     marginBottom: 15,
   },
-  brandImage: {
+  productImageContainer: {
     width: 100,
     height: 100,
     resizeMode: "cover",
     borderWidth: 1,
     borderColor: "#0000001A",
     borderRadius: 20,
+    overflow: "hidden",
+  },
+  productImage: {
+    width: "100%",
+    aspectRatio: "1/1",
+    resizeMode: "cover",
   },
 });
