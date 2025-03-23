@@ -54,8 +54,8 @@ export default function Catalog() {
 
         <View style={styles.row}>
           {products?.map((product, index) => (
-            <View style={{ width: "45%" }}>
-              <ProductCard key={index} item={product} />
+            <View key={index} style={{ width: "45%" }}>
+              <ProductCard item={product} />
             </View>
           ))}
         </View>

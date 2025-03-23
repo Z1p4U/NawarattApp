@@ -25,7 +25,9 @@ const ProductCard: React.FC<{ item: ProductCardProps }> = ({ item }) => {
         style={styles.productCard}
         key={item?.id}
       >
-        <View style={{ position: "relative" }}>
+        <View
+          style={{ position: "relative", width: "100%", aspectRatio: "1/1" }}
+        >
           <ImageBackground
             source={require("@/assets/images/placeholder.jpg")}
             style={styles.productImageContainer}

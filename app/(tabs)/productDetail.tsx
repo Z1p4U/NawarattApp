@@ -98,6 +98,11 @@ export default function ProductDetail() {
     return <Image source={imageSource} style={styles.carouselImage} />;
   };
 
+  const imageData =
+    Array.isArray(productDetail?.images) && productDetail?.images.length > 0
+      ? productDetail.images
+      : [require("@/assets/images/placeholder.jpg")]; // Fallback image
+
   return (
     <>
       <HeadLine />
@@ -107,7 +112,7 @@ export default function ProductDetail() {
           loop
           width={width}
           height={width}
-          data={productDetail?.images || []}
+          data={imageData}
           renderItem={renderItem}
           autoPlay
           autoPlayInterval={5000}

@@ -22,8 +22,8 @@ export default function Favorites() {
 
         <View style={styles.row}>
           {products?.map((item, index) => (
-            <View style={{ width: "45%" }}>
-              <ProductCard key={index} item={item} />
+            <View key={index} style={{ width: "45%" }}>
+              <ProductCard item={item} />
             </View>
           ))}
         </View>

@@ -61,8 +61,6 @@ export default function Cart() {
     }, [])
   );
 
-  console.log(data);
-
   // Update quantity for a specific cart item using its unique id
   const updateQuantity = async (cartItemId: string, newCount: number) => {
     try {
