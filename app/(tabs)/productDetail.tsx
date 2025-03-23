@@ -66,6 +66,7 @@ export default function ProductDetail() {
           name: productDetail?.name,
           category: productDetail?.category?.name,
           thumbnail: productDetail?.thumbnail,
+          price: productDetail?.price,
         },
       };
 
@@ -105,7 +106,7 @@ export default function ProductDetail() {
         <Carousel
           loop
           width={width}
-          height={300}
+          height={width}
           data={productDetail?.images || []}
           renderItem={renderItem}
           autoPlay

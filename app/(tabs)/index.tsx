@@ -175,7 +175,7 @@ export default function HomeScreen() {
           <View style={styles.productSliderHead}>
             <Text style={styles.productSliderName}>Top Brands</Text>
           </View>
-          <View style={styles.productSliderCarousel}>
+          <View style={styles.brandList}>
             <BrandList data={products} />
           </View>
         </View>
@@ -299,6 +299,10 @@ const styles = StyleSheet.create({
     marginTop: 15,
     width: "100%",
     paddingLeft: 18,
+  },
+  brandList: {
+    marginTop: 15,
+    width: "100%",
   },
   // Product Slider Sections
 });

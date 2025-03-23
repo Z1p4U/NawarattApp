@@ -10,6 +10,7 @@ export interface LoginResponse {
 
 export interface RegisterResponse {
   message: string;
+  error: string;
 }
 
 export interface OTPResponse {
@@ -55,7 +56,7 @@ const fetchRegister = async (
     );
     return response.data;
   } catch (error: any) {
-    console.error("Failed to Register:", error);
+    console.error("Failed to Register : ", error);
     throw error;
   }
 };

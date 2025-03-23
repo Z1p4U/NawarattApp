@@ -53,12 +53,12 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   brand: {
-    marginRight: 14,
     marginBottom: 15,
+    width: "28%",
   },
   productImageContainer: {
-    width: 100,
-    height: 100,
+    width: "100%",
+    aspectRatio: "1/1",
     resizeMode: "cover",
     borderWidth: 1,
     borderColor: "#0000001A",

@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
   View,
   Image,
-  Dimensions,
   ImageBackground,
+  Dimensions,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
@@ -21,15 +21,15 @@ interface ProductData {
   id: string;
   name: string;
   description: string;
-  price: string; // price as string from API; we'll convert it as needed
+  price: string; // price as string from API; convert to number when needed
   category: string; // assuming category is a string for simplicity
   images: string[]; // array of image URLs
-  thumbnail: string; // array of image URLs
+  thumbnail: string; // thumbnail image URL
 }
 
 // Define the shape of a cart item
 interface CartItem {
-  id: string; // unique cart item id
+  productId: string; // unique cart item id (should be unique even for same product)
   pdData: ProductData;
   count: number;
   total: number;
@@ -37,6 +37,7 @@ interface CartItem {
 
 export default function Cart() {
   const [data, setData] = useState<CartItem[]>([]);
+  const screenWidth = Dimensions.get("screen").width;
 
   // Retrieve cart items from AsyncStorage
   const getCartItems = async () => {
@@ -60,13 +61,14 @@ export default function Cart() {
     }, [])
   );
 
+  console.log(data);
+
   // Update quantity for a specific cart item using its unique id
   const updateQuantity = async (cartItemId: string, newCount: number) => {
     try {
       const updatedCart = data.map((item) => {
-        if (item.id === cartItemId) {
-          // Convert price to a number before multiplication
-          const price = Number(item?.pdData?.price);
+        if (item.productId === cartItemId) {
+          const price = Number(item.pdData.price);
           return {
             ...item,
             count: newCount,
@@ -92,17 +94,10 @@ export default function Cart() {
     }
   };
 
-  useEffect(() => {
-    // clearCart();
-    AsyncStorage.clear();
-  }, []);
-
   // Calculate total price for all cart items
   const calculateTotal = () => {
-    return data.reduce((acc, item) => acc + item?.total, 0);
+    return data.reduce((acc, item) => acc + item.total, 0);
   };
-
-  // console.log("Cart Data:", data);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -130,19 +125,18 @@ export default function Cart() {
 
         {/* Cart Items */}
         <View style={styles.column}>
-          {data?.map((item, index) => (
-            <View key={index} style={styles.pdCard}>
+          {data.map((item) => (
+            <View key={item.productId} style={styles.pdCard}>
               <ImageBackground
                 source={require("@/assets/images/placeholder.jpg")}
                 style={styles.productImageContainer}
               >
                 <Image
                   source={
-                    item?.pdData?.thumbnail
-                      ? { uri: item?.pdData?.thumbnail }
+                    item.pdData.images && item.pdData.images.length > 0
+                      ? { uri: item.pdData.images[0] }
                       : require("@/assets/images/placeholder.jpg")
                   }
-                  // source={require("@/assets/images/placeholder.jpg")}
                   style={styles.pdCardImg}
                 />
               </ImageBackground>
@@ -152,10 +146,9 @@ export default function Cart() {
                   ellipsizeMode="tail"
                   style={styles.pdCardName}
                 >
-                  {item?.pdData?.name}
+                  {item.pdData.name}
                 </Text>
-                <Text style={styles.pdCardCat}>{item?.pdData?.category}</Text>
-
+                <Text style={styles.pdCardCat}>{item.pdData.category}</Text>
                 <View style={styles.pdCardQuantity}>
                   <Text style={styles.totalText}>
                     {item?.total?.toLocaleString()} Ks
@@ -164,8 +157,9 @@ export default function Cart() {
                   <View style={{ width: "100%" }}>
                     <QuantityControl
                       count={item.count}
+                      // Pass the unique cart item id to updateQuantity
                       setCount={(newCount: number) =>
-                        updateQuantity(item.id, newCount)
+                        updateQuantity(item.productId, newCount)
                       }
                     />
                   </View>
@@ -181,7 +175,7 @@ export default function Cart() {
         <View style={styles.confirmComponentInfo}>
           <Text style={styles.confirmComponentText}>Delivery Fee - Free</Text>
           <Text style={styles.confirmComponentTotal}>
-            Total - {calculateTotal().toLocaleString()} Ks
+            Total - {calculateTotal()?.toLocaleString()} Ks
           </Text>
         </View>
         <TouchableOpacity>
@@ -253,16 +247,16 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     marginBottom: 20,
   },
-  pdCardImg: {
-    width: 75,
-    height: 75,
-  },
   productImageContainer: {
     width: 75,
     height: 75,
     resizeMode: "cover",
     borderRadius: 20,
     overflow: "hidden",
+  },
+  pdCardImg: {
+    width: "100%",
+    height: "100%",
   },
   pdCardInfo: {
     flex: 1,

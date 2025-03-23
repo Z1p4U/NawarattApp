@@ -37,7 +37,7 @@ export default function LoginScreen() {
       Alert.alert("Success", res?.message);
       router.push("/");
     } catch (error: any) {
-      const errorMessage = error?.message || "Something went wrong.";
+      const errorMessage = error || "Something went wrong.";
       Alert.alert("Login Failed", errorMessage);
     } finally {
       setLoading(false);

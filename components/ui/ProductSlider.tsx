@@ -1,6 +1,6 @@
 import { useNavigation } from "expo-router";
 import React from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import ProductCard from "./ProductCard";
 
 export interface ProductSliderItem {
@@ -29,7 +29,9 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ data }) => {
       }}
     >
       {data?.map((item, index) => (
-        <ProductCard key={index} item={item} />
+        <View style={styles.cardContainer}>
+          <ProductCard key={index} item={item} />
+        </View>
       ))}
     </ScrollView>
   );
@@ -40,5 +42,8 @@ export default ProductSlider;
 const styles = StyleSheet.create({
   row: {
     gap: 20,
+  },
+  cardContainer: {
+    width: 150,
   },
 });

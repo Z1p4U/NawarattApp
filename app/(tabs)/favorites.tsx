@@ -22,7 +22,9 @@ export default function Favorites() {
 
         <View style={styles.row}>
           {products?.map((item, index) => (
-            <ProductCard key={index} item={item} />
+            <View style={{ width: "45%" }}>
+              <ProductCard key={index} item={item} />
+            </View>
           ))}
         </View>
       </ScrollView>

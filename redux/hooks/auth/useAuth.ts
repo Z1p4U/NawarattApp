@@ -44,7 +44,7 @@ const useAuth = () => {
         return response;
       } catch (error: any) {
         console.error("Failed to login:", error);
-        throw error.message || "Login failed";
+        throw error.error || "Login failed";
       }
     },
     [dispatch]
@@ -66,7 +66,7 @@ const useAuth = () => {
         return response;
       } catch (error: any) {
         console.error("Failed to register:", error);
-        throw error.message || "Register failed";
+        throw error.error || "Register failed";
       }
     },
     [dispatch]

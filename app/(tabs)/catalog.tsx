@@ -54,7 +54,9 @@ export default function Catalog() {
 
         <View style={styles.row}>
           {products?.map((product, index) => (
-            <ProductCard key={index} item={product} />
+            <View style={{ width: "45%" }}>
+              <ProductCard key={index} item={product} />
+            </View>
           ))}
         </View>
       </ScrollView>

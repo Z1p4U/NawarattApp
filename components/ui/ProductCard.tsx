@@ -84,7 +84,7 @@ export default ProductCard;
 const styles = StyleSheet.create({
   productCard: {
     gap: 10,
-    maxWidth: 150,
+    width: "100%",
   },
   productImageContainer: {
     width: "100%",
@@ -101,6 +101,7 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
   },
   productCardContent: {
+    paddingTop: 10,
     paddingHorizontal: 8,
   },
   productCardName: {
