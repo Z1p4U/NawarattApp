@@ -1,13 +1,6 @@
 import React from "react";
 import { Link } from "expo-router";
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-  ImageBackground,
-} from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import Svg, { Defs, LinearGradient, Path, Stop } from "react-native-svg";
 
 export interface ProductCardProps {
@@ -17,30 +10,25 @@ export interface ProductCardProps {
   price: number;
 }
 
-const ProductCard: React.FC<{ item: ProductCardProps }> = ({ item }) => {
+const ProductCard: React.FC<{ product: ProductCardProps }> = ({ product }) => {
   return (
     <>
       <Link
-        href={`/productDetail?id=${item?.id}`}
+        href={`/productDetail?id=${product?.id}`}
         style={styles.productCard}
-        key={item?.id}
+        key={product?.id}
       >
         <View
           style={{ position: "relative", width: "100%", aspectRatio: "1/1" }}
         >
-          <ImageBackground
-            source={require("@/assets/images/placeholder.jpg")}
-            style={styles.productImageContainer}
-          >
-            <Image
-              source={{
-                uri: item.thumbnail
-                  ? item.thumbnail
-                  : require("@/assets/images/placeholder.jpg"),
-              }}
-              style={styles.productImage}
-            />
-          </ImageBackground>
+          <Image
+            source={{
+              uri: product?.thumbnail
+                ? product?.thumbnail
+                : require("@/assets/images/placeholder.jpg"),
+            }}
+            style={styles.productImage}
+          />
           <TouchableOpacity style={styles.favButton}>
             <Svg width={21} height={21} viewBox="0 0 21 21" fill="none">
               <Path
@@ -70,10 +58,10 @@ const ProductCard: React.FC<{ item: ProductCardProps }> = ({ item }) => {
             ellipsizeMode="tail"
             style={styles.productCardName}
           >
-            {item?.name}
+            {product?.name}
           </Text>
           <Text style={styles.productCardPrice}>
-            {item?.price?.toLocaleString()} Ks
+            {Number(product?.price)?.toLocaleString()} Ks
           </Text>
         </View>
       </Link>
@@ -88,19 +76,13 @@ const styles = StyleSheet.create({
     gap: 10,
     width: "100%",
   },
-  productImageContainer: {
+  productImage: {
     width: "100%",
     aspectRatio: "1/1",
     resizeMode: "cover",
     borderWidth: 1,
     borderColor: "#0000001A",
     borderRadius: 20,
-    overflow: "hidden",
-  },
-  productImage: {
-    width: "100%",
-    aspectRatio: "1/1",
-    resizeMode: "cover",
   },
   productCardContent: {
     paddingTop: 10,

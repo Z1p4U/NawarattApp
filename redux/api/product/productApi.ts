@@ -2,7 +2,7 @@ import axios from "axios";
 import config from "@/config/environment";
 
 export interface AllProductResponse {
-  data: number[]; // Ensure this is an array of numbers
+  data: object[] | null;
   links: object;
   meta: object;
 }
@@ -15,7 +15,7 @@ export interface ProductDetailResponse {
     price: string;
     brand: { id: string; name: string; image: string };
     category: { id: string; name: string };
-    images: [];
+    images: string[];
     thumbnail: string;
   };
   related_products: [];

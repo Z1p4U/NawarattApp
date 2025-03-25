@@ -125,19 +125,14 @@ export default function Cart() {
         <View style={styles.column}>
           {data.map((item) => (
             <View key={item.productId} style={styles.pdCard}>
-              <ImageBackground
-                source={require("@/assets/images/placeholder.jpg")}
-                style={styles.productImageContainer}
-              >
-                <Image
-                  source={
-                    item.pdData.images && item.pdData.images.length > 0
-                      ? { uri: item.pdData.images[0] }
-                      : require("@/assets/images/placeholder.jpg")
-                  }
-                  style={styles.pdCardImg}
-                />
-              </ImageBackground>
+              <Image
+                source={
+                  item?.pdData?.images && item?.pdData?.images.length > 0
+                    ? { uri: item?.pdData?.images[0] }
+                    : require("@/assets/images/placeholder.jpg")
+                }
+                style={styles.pdCardImg}
+              />
               <View style={styles.pdCardInfo}>
                 <Text
                   numberOfLines={1}
@@ -245,16 +240,11 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     marginBottom: 20,
   },
-  productImageContainer: {
+  pdCardImg: {
     width: 75,
     height: 75,
     resizeMode: "cover",
     borderRadius: 20,
-    overflow: "hidden",
-  },
-  pdCardImg: {
-    width: "100%",
-    height: "100%",
   },
   pdCardInfo: {
     flex: 1,

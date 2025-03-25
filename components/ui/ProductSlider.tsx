@@ -5,18 +5,17 @@ import ProductCard from "./ProductCard";
 
 export interface ProductSliderItem {
   id: string;
-  image: string;
+  images: string[];
+  thumbnail: string;
   name: string;
   price: number;
 }
 
 interface ProductSliderProps {
-  data: ProductSliderItem[];
+  products: ProductSliderItem[];
 }
 
-const ProductSlider: React.FC<ProductSliderProps> = ({ data }) => {
-  const nav = useNavigation();
-
+const ProductSlider: React.FC<ProductSliderProps> = ({ products }) => {
   return (
     <ScrollView
       horizontal
@@ -28,9 +27,9 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ data }) => {
         marginRight: 15,
       }}
     >
-      {data?.map((item, index) => (
-        <View style={styles.cardContainer}>
-          <ProductCard key={index} item={item} />
+      {products?.map((product, index) => (
+        <View key={index} style={styles.cardContainer}>
+          <ProductCard product={product} />
         </View>
       ))}
     </ScrollView>

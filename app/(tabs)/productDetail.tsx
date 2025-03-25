@@ -95,7 +95,7 @@ export default function ProductDetail() {
         ? { uri: item }
         : require("@/assets/images/placeholder.jpg");
 
-    return <Image source={imageSource} style={styles.carouselImage} />;
+    return <Image source={imageSource} style={styles?.carouselImage} />;
   };
 
   const imageData =

@@ -38,14 +38,15 @@ export default ImageCarousel;
 
 const styles = StyleSheet.create({
   carouselContainer: {
+    marginTop: -80,
     borderRadius: 30,
-    width: "100%",
+    width: "90%",
     aspectRatio: "2/1",
+    marginHorizontal: 20,
     alignSelf: "center",
     overflow: "hidden",
-    marginTop: 30,
-    marginBottom: -110,
     boxShadow: "0px 4px 4px 0px #00000026",
+    zIndex: 10000,
   },
   carouselImage: {
     width: "100%",

@@ -16,7 +16,7 @@ interface ProductState {
 
 /** --------------- Initial State --------------- **/
 const initialState: ProductState = {
-  products: null,
+  products: [],
   productDetail: null,
   status: "idle",
   error: null,
@@ -78,8 +78,13 @@ const productSlice = createSlice({
       })
       .addCase(handleFetchAllProductList.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.products = action.payload.data;
         state.error = null;
+
+        // ✅ If first page, replace products; else, append to existing ones
+        state.products =
+          action.meta.arg.pagination.page === 1
+            ? action.payload.data
+            : [...(state.products || []), ...action.payload.data];
       })
       .addCase(handleFetchAllProductList.rejected, (state, action) => {
         state.status = "failed";

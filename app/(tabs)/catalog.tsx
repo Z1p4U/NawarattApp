@@ -1,32 +1,40 @@
 import HeadLine from "@/components/ui/HeadLine";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import SearchComponent from "@/components/ui/SearchComponent";
 import ProductCard from "@/components/ui/ProductCard";
 import Svg, { Path } from "react-native-svg";
 import { LinearGradient } from "expo-linear-gradient";
 import useProduct from "@/redux/hooks/product/useProduct";
+import { useRef } from "react";
 
 export default function Catalog() {
-  const { products, pagination, setPagination, setName } = useProduct();
+  const { products, pagination, setName, loadMoreProducts, loading } =
+    useProduct();
+
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleScroll = ({ nativeEvent }: any) => {
+    const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+    if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 20) {
+      if (!debounceRef.current) {
+        debounceRef.current = setTimeout(() => {
+          loadMoreProducts();
+          debounceRef.current = null;
+        }, 500);
+      }
+    }
+  };
 
   return (
     <>
       <HeadLine />
-      <ScrollView
-        style={styles.container}
-        onScroll={({ nativeEvent }) => {
-          const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
-          if (
-            layoutMeasurement.height + contentOffset.y >=
-            contentSize.height - 200
-          ) {
-            console.log(pagination?.size);
-            setTimeout(() => {
-              setPagination({ page: 1, size: pagination?.size + 20 });
-            }, 100);
-          }
-        }}
-      >
+      <ScrollView style={styles.container} onScroll={handleScroll}>
         <LinearGradient
           colors={["#53CAFE", "#2555E7"]}
           start={{ x: 0.0, y: 0.0 }}
@@ -55,9 +63,16 @@ export default function Catalog() {
         <View style={styles.row}>
           {products?.map((product, index) => (
             <View key={index} style={{ width: "45%" }}>
-              <ProductCard item={product} />
+              <ProductCard product={product} />
             </View>
           ))}
+        </View>
+
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator
+            animating={loading}
+            style={styles.loadingProcess}
+          />
         </View>
       </ScrollView>
     </>
@@ -101,5 +116,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 20,
     marginBottom: 30,
+  },
+  loadingContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    height: 200,
+  },
+  loadingProcess: {
+    marginBottom: 100,
   },
 });

@@ -24,6 +24,7 @@ import useProduct from "@/redux/hooks/product/useProduct";
 import { Link, useRouter } from "expo-router";
 import useUser from "@/redux/hooks/user/useUser";
 import useAuth from "@/redux/hooks/auth/useAuth";
+import useBrand from "@/redux/hooks/brand/useBrand";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -59,6 +60,7 @@ export default function HomeScreen() {
     { id: "5", title: "Pain Relief & Fever", target: "Page5" },
   ];
   const { products, setPagination } = useProduct();
+  const { brands } = useBrand();
 
   return (
     <>
@@ -108,11 +110,12 @@ export default function HomeScreen() {
               </Svg>
             </TouchableOpacity>
           </View>
-
-          {/* Use the ImageCarousel component */}
-          <ImageCarousel data={carouselData} />
         </LinearGradient>
         {/* Head Section End */}
+
+        {/* Use the ImageCarousel component */}
+        <ImageCarousel data={carouselData} />
+        {/* Use the ImageCarousel component */}
 
         {/* Discover Section Start */}
         <View style={styles.discover}>
@@ -137,7 +140,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
           <View style={styles.productSliderCarousel}>
-            <ProductSlider data={products} />
+            <ProductSlider products={products} />
           </View>
         </View>
         {/* Top Selling Section End */}
@@ -151,7 +154,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
           <View style={styles.productSliderCarousel}>
-            <ProductSlider data={products} />
+            <ProductSlider products={products} />
           </View>
         </View>
         {/* New Arrivals Section End */}
@@ -165,7 +168,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </View>
           <View style={styles.productSliderCarousel}>
-            <ProductSlider data={products} />
+            <ProductSlider products={products} />
           </View>
         </View>
         {/* Top Picks for You Section End */}
@@ -176,7 +179,7 @@ export default function HomeScreen() {
             <Text style={styles.productSliderName}>Top Brands</Text>
           </View>
           <View style={styles.brandList}>
-            <BrandList data={products} />
+            <BrandList brands={brands} />
           </View>
         </View>
         {/* Top Brands Section End */}
@@ -192,14 +195,14 @@ const styles = StyleSheet.create({
   },
   // Head Section
   banner: {
-    minHeight: 180,
-    justifyContent: "center",
+    minHeight: 200,
+    justifyContent: "flex-start",
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     paddingHorizontal: 15,
-    marginBottom: 20,
   },
   row: {
+    marginTop: 30,
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
@@ -252,7 +255,7 @@ const styles = StyleSheet.create({
 
   // Discover Section
   discover: {
-    marginTop: 80,
+    marginTop: 30,
   },
   discoverHead: {
     paddingHorizontal: 18,
@@ -303,6 +306,7 @@ const styles = StyleSheet.create({
   brandList: {
     marginTop: 15,
     width: "100%",
+    marginBottom: 40,
   },
   // Product Slider Sections
 });
