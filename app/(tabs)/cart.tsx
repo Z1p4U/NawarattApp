@@ -9,6 +9,7 @@ import {
   Image,
   ImageBackground,
   Dimensions,
+  Platform,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
@@ -37,7 +38,6 @@ interface CartItem {
 
 export default function Cart() {
   const [data, setData] = useState<CartItem[]>([]);
-  const screenWidth = Dimensions.get("screen").width;
 
   // Retrieve cart items from AsyncStorage
   const getCartItems = async () => {
@@ -278,7 +278,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 0,
     right: 0,
-    bottom: 20,
+    bottom: Platform.select({ ios: 100, android: 20 }),
+    height: "auto",
     paddingVertical: 20,
     paddingHorizontal: 15,
     backgroundColor: "#fff",

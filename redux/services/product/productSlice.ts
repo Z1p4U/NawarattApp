@@ -1,10 +1,13 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
-  AllProductResponse,
   fetchAllProducts,
   fetchProductDetail,
-  ProductDetailResponse,
 } from "@/redux/api/product/productApi";
+import {
+  AllProductResponse,
+  PaginationPayload,
+  ProductDetailResponse,
+} from "@/constants/config";
 
 /** --------------- State Interfaces --------------- **/
 interface ProductState {
@@ -27,12 +30,11 @@ const initialState: ProductState = {
 // Fetch All Products
 export const handleFetchAllProductList = createAsyncThunk<
   AllProductResponse, // Return type
-  void, // No arguments
+  { name: string | null; pagination: PaginationPayload },
   { rejectValue: string } // Error handling type
 >("products/fetchAll", async ({ name, pagination }, { rejectWithValue }) => {
   try {
     const response = await fetchAllProducts(name, pagination);
-    // console.log("Product List Fetching success:", response);
     return response;
   } catch (error: any) {
     console.error("Product List Fetching error:", error);
@@ -43,7 +45,7 @@ export const handleFetchAllProductList = createAsyncThunk<
 // Fetch Product Detail
 export const handleFetchProductDetail = createAsyncThunk<
   ProductDetailResponse, // Return type
-  number, // Argument type (Product ID)
+  number,
   { rejectValue: string } // Error handling type
 >("products/fetchDetail", async (id, { rejectWithValue }) => {
   try {
@@ -80,12 +82,18 @@ const productSlice = createSlice({
         state.status = "succeeded";
         state.error = null;
 
+        // ✅ Safely extract pagination
+        const { pagination } = action.meta.arg as {
+          pagination: PaginationPayload;
+        };
+
         // ✅ If first page, replace products; else, append to existing ones
         state.products =
-          action.meta.arg.pagination.page === 1
-            ? action.payload.data
-            : [...(state.products || []), ...action.payload.data];
+          pagination.page === 1
+            ? action.payload.data || [] // Ensure it's never null
+            : [...(state.products ?? []), ...(action.payload.data ?? [])]; // Ensure both are arrays
       })
+
       .addCase(handleFetchAllProductList.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload || "Product list fetch failed";

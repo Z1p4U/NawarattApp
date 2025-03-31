@@ -1,21 +1,10 @@
 import axios from "axios";
-import config from "@/config/environment";
-
-export interface LoginResponse {
-  message: string;
-  data: {
-    access_token: string;
-  };
-}
-
-export interface RegisterResponse {
-  message: string;
-  error: string;
-}
-
-export interface OTPResponse {
-  message: string;
-}
+import environment from "@/constants/environment";
+import {
+  LoginResponse,
+  OTPResponse,
+  RegisterResponse,
+} from "@/constants/config";
 
 const fetchLogin = async (
   credential: string,
@@ -23,7 +12,7 @@ const fetchLogin = async (
 ): Promise<LoginResponse> => {
   try {
     const response = await axios.post<LoginResponse>(
-      `${config.API_URL}/login`,
+      `${environment.API_URL}/login`,
       {
         credential,
         password,
@@ -45,7 +34,7 @@ const fetchRegister = async (
 ): Promise<RegisterResponse> => {
   try {
     const response = await axios.post<RegisterResponse>(
-      `${config.API_URL}/register`,
+      `${environment.API_URL}/register`,
       {
         name,
         shop_name,
@@ -67,7 +56,7 @@ const fetchVerifyOtp = async (
 ): Promise<OTPResponse> => {
   try {
     const response = await axios.post<OTPResponse>(
-      `${config.API_URL}/sms/verify`,
+      `${environment.API_URL}/sms/verify`,
       {
         phone,
         otp,
@@ -83,7 +72,7 @@ const fetchVerifyOtp = async (
 const fetchResendOtp = async (phone: string): Promise<OTPResponse> => {
   try {
     const response = await axios.post<OTPResponse>(
-      `${config.API_URL}/sms/resend`,
+      `${environment.API_URL}/sms/resend`,
       {
         phone,
       }

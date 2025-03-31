@@ -1,6 +1,7 @@
 import HeadLine from "@/components/ui/HeadLine";
 import {
   ActivityIndicator,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,8 +15,11 @@ import useProduct from "@/redux/hooks/product/useProduct";
 import { useRef } from "react";
 
 export default function Catalog() {
-  const { products, pagination, setName, loadMoreProducts, loading } =
+  const { products, setName, loadMoreProducts, loading, pagination } =
     useProduct();
+
+  console.log(pagination);
+  console.log(loading);
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -61,8 +65,8 @@ export default function Catalog() {
         </View>
 
         <View style={styles.row}>
-          {products?.map((product, index) => (
-            <View key={index} style={{ width: "45%" }}>
+          {products?.map((product) => (
+            <View key={product?.id} style={{ width: "45%" }}>
               <ProductCard product={product} />
             </View>
           ))}
@@ -71,6 +75,8 @@ export default function Catalog() {
         <View style={styles.loadingContainer}>
           <ActivityIndicator
             animating={loading}
+            size="large"
+            color="#0000ff"
             style={styles.loadingProcess}
           />
         </View>
@@ -123,6 +129,9 @@ const styles = StyleSheet.create({
     height: 200,
   },
   loadingProcess: {
-    marginBottom: 100,
+    marginBottom: Platform.select({
+      ios: 100,
+      android: 0, // Adjust this value if needed for Android
+    }),
   },
 });

@@ -12,9 +12,6 @@ import Svg, { ClipPath, Defs, G, Path, Rect } from "react-native-svg";
 import ImageCarousel, {
   ImageCarouselItem,
 } from "@/components/Home/ImageCarousel"; // adjust path if needed
-import DiscoverCarousel, {
-  DiscoverCarouselItem,
-} from "@/components/Home/DiscoverCarousel"; // adjust path if needed
 import ProductSlider, {
   ProductSliderItem,
 } from "@/components/ui/ProductSlider";
@@ -25,11 +22,13 @@ import { Link, useRouter } from "expo-router";
 import useUser from "@/redux/hooks/user/useUser";
 import useAuth from "@/redux/hooks/auth/useAuth";
 import useBrand from "@/redux/hooks/brand/useBrand";
+import DiscoverCarousel from "@/components/Home/DiscoverCarousel";
 
 export default function HomeScreen() {
   const router = useRouter();
   const { profileDetail } = useUser();
   const { isAuthenticated } = useAuth();
+  const { products } = useProduct();
 
   const carouselData: ImageCarouselItem[] = [
     {
@@ -51,16 +50,6 @@ export default function HomeScreen() {
       bgContain: true,
     },
   ];
-
-  const discoverCarouselData: DiscoverCarouselItem[] = [
-    { id: "1", title: "Pain Relief & Fever", target: "Page1" },
-    { id: "2", title: "Cough & Flu", target: "Page2" },
-    { id: "3", title: "Digestive Health", target: "Page3" },
-    { id: "4", title: "Eye & Ear Care", target: "Page4" },
-    { id: "5", title: "Pain Relief & Fever", target: "Page5" },
-  ];
-  const { products, setPagination } = useProduct();
-  const { brands } = useBrand();
 
   return (
     <>
@@ -126,7 +115,7 @@ export default function HomeScreen() {
             </Text>
           </View>
           <View style={styles.discoverCarousel}>
-            <DiscoverCarousel data={discoverCarouselData} />
+            <DiscoverCarousel />
           </View>
         </View>
         {/* Discover Section End */}
@@ -179,7 +168,7 @@ export default function HomeScreen() {
             <Text style={styles.productSliderName}>Top Brands</Text>
           </View>
           <View style={styles.brandList}>
-            <BrandList brands={brands} />
+            <BrandList />
           </View>
         </View>
         {/* Top Brands Section End */}

@@ -5,10 +5,17 @@ import {
   fetchRegister,
   fetchVerifyOtp,
   fetchResendOtp,
-  LoginResponse,
-  RegisterResponse,
-  OTPResponse,
 } from "@/redux/api/auth/authApi";
+import {
+  LoginPayload,
+  LoginResponse,
+  OtpPayload,
+  OTPResponse,
+  RegisterPayload,
+  RegisterResponse,
+  ResendOtpPayload,
+  ResendOTPResponse,
+} from "@/constants/config";
 
 /** --------------- State Interfaces --------------- **/
 interface AuthState {
@@ -18,29 +25,6 @@ interface AuthState {
   isAuthenticated: boolean;
   registerMessage: string | null;
   otpMessage: string | null; // success message for OTP verification/resend
-}
-
-/** --------------- Payload Interfaces --------------- **/
-interface LoginPayload {
-  credential: string;
-  password: string;
-}
-
-interface RegisterPayload {
-  username: string;
-  shopName: string;
-  gender: string;
-  credential: string;
-  password: string;
-}
-
-interface OtpPayload {
-  phone: string;
-  otp: string;
-}
-
-interface ResendOtpPayload {
-  phone: string;
 }
 
 /** --------------- Initial State --------------- **/
@@ -126,7 +110,7 @@ export const verifyOtp = createAsyncThunk<
 
 // Resend OTP Thunk
 export const resendOtp = createAsyncThunk<
-  OTPResponse,
+  ResendOTPResponse,
   ResendOtpPayload,
   { rejectValue: string }
 >("auth/resendOtp", async ({ phone }, { rejectWithValue }) => {

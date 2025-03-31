@@ -18,9 +18,7 @@ const ProductCard: React.FC<{ product: ProductCardProps }> = ({ product }) => {
         style={styles.productCard}
         key={product?.id}
       >
-        <View
-          style={{ position: "relative", width: "100%", aspectRatio: "1/1" }}
-        >
+        <View style={{ position: "relative" }}>
           <Image
             source={{
               uri: product?.thumbnail
@@ -74,7 +72,6 @@ export default ProductCard;
 const styles = StyleSheet.create({
   productCard: {
     gap: 10,
-    width: "100%",
   },
   productImage: {
     width: "100%",

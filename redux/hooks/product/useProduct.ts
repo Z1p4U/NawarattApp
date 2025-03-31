@@ -13,7 +13,7 @@ const useProduct = () => {
   // ✅ Fetch products when pagination or name changes
   useEffect(() => {
     const fetchAllProducts = async () => {
-      if (loading) return; // Prevent multiple calls
+      // if (loading) return; // Prevent multiple calls
       setLoading(true);
       await dispatch(handleFetchAllProductList({ name, pagination }));
       setLoading(false);

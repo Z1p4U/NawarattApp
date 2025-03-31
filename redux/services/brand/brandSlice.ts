@@ -1,5 +1,6 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { AllBrandResponse, fetchAllBrands } from "@/redux/api/brand/brandApi";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { fetchAllBrands } from "@/redux/api/brand/brandApi";
+import { AllBrandResponse, PaginationPayload } from "@/constants/config";
 
 /** --------------- State Interfaces --------------- **/
 interface BrandState {
@@ -20,9 +21,9 @@ const initialState: BrandState = {
 // Fetch All Brands
 export const handleFetchAllBrandList = createAsyncThunk<
   AllBrandResponse, // Return type
-  void, // No arguments
+  { pagination: PaginationPayload }, // Argument type
   { rejectValue: string } // Error handling type
->("brands/fetchAll", async ({ pagination }: any, { rejectWithValue }) => {
+>("brands/fetchAll", async ({ pagination }, { rejectWithValue }) => {
   try {
     const response = await fetchAllBrands(pagination);
     // console.log("Brand List Fetching success:", response);

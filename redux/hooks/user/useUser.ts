@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { RootState, AppDispatch } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { handleFetchProfile } from "@/redux/services/user/userSlice";
@@ -13,9 +13,13 @@ const useUser = () => {
 
   useEffect(() => {
     const fetchProfileDetail = async () => {
-      dispatch(handleFetchProfile(token));
+      if (!token) return; // Prevent calling dispatch with null
+
+      setLoading(true); // Ensure loading state is set before fetching
+      await dispatch(handleFetchProfile(token));
       setLoading(false);
     };
+
     fetchProfileDetail();
   }, [dispatch, token]);
 

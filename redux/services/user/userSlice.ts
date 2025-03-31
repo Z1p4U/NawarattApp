@@ -1,4 +1,5 @@
-import { fetchProfile, ProfileResponse } from "@/redux/api/user/userApi";
+import { ProfileResponse } from "@/constants/config";
+import { fetchProfile } from "@/redux/api/user/userApi";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 /** --------------- State Interfaces --------------- **/
@@ -20,7 +21,7 @@ const initialState: ProfileState = {
 // Fetch Profile
 export const handleFetchProfile = createAsyncThunk<
   ProfileResponse, // Return type
-  void, // No arguments
+  string,
   { rejectValue: string } // Error handling type
 >("user/fetchProfile", async (token, { rejectWithValue }) => {
   try {

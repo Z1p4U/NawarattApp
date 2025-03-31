@@ -1,18 +1,10 @@
 import { useNavigation } from "expo-router";
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import ProductCard from "./ProductCard";
-
-export interface ProductSliderItem {
-  id: string;
-  images: string[];
-  thumbnail: string;
-  name: string;
-  price: number;
-}
+import ProductCard, { ProductCardProps } from "./ProductCard";
 
 interface ProductSliderProps {
-  products: ProductSliderItem[];
+  products: ProductCardProps[] | null;
 }
 
 const ProductSlider: React.FC<ProductSliderProps> = ({ products }) => {

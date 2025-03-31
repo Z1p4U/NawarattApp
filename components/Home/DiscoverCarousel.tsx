@@ -7,25 +7,18 @@ import {
   Dimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import useCategory from "@/redux/hooks/category/useCategory";
 
-export interface DiscoverCarouselItem {
-  id: string;
-  title: string;
-  target: string;
-}
+const DiscoverCarousel = () => {
+  const { categories } = useCategory();
 
-interface DiscoverCarouselProps {
-  data: DiscoverCarouselItem[];
-}
-
-const DiscoverCarousel: React.FC<DiscoverCarouselProps> = ({ data }) => {
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-      {data.map((item) => (
+      {categories?.map((category) => (
         <TouchableOpacity
-          key={item?.id}
+          key={category?.id}
           style={styles.tagContainer}
-          onPress={() => console.log("Navigate to", item?.target)}
+          onPress={() => console.log("Navigate to", category?.name)}
         >
           <LinearGradient
             colors={["#54CAFF", "#275AE8"]}
@@ -33,7 +26,7 @@ const DiscoverCarousel: React.FC<DiscoverCarouselProps> = ({ data }) => {
             end={{ x: 1, y: 0 }}
             style={styles.tag}
           >
-            <Text style={styles.tagText}>{item?.title}</Text>
+            <Text style={styles.tagText}>{category?.name}</Text>
           </LinearGradient>
         </TouchableOpacity>
       ))}

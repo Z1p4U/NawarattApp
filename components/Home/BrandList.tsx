@@ -1,17 +1,11 @@
+import useBrand from "@/redux/hooks/brand/useBrand";
 import { useNavigation } from "expo-router";
 import React from "react";
 import { StyleSheet, View, Image, TouchableOpacity } from "react-native";
 
-export interface BrandListItem {
-  id: string;
-  image: string;
-}
+const BrandList = () => {
+  const { brands } = useBrand();
 
-interface BrandListProps {
-  brands: BrandListItem[];
-}
-
-const BrandList: React.FC<BrandListProps> = ({ brands }) => {
   const nav = useNavigation();
 
   return (
