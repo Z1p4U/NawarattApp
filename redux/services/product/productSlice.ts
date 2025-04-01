@@ -93,7 +93,6 @@ const productSlice = createSlice({
             ? action.payload.data || [] // Ensure it's never null
             : [...(state.products ?? []), ...(action.payload.data ?? [])]; // Ensure both are arrays
       })
-
       .addCase(handleFetchAllProductList.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload || "Product list fetch failed";

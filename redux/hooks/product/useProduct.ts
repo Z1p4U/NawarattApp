@@ -8,28 +8,20 @@ const useProduct = () => {
   const { products, status } = useSelector((state: RootState) => state.product);
   const [name, setName] = useState("");
   const [pagination, setPagination] = useState({ page: 1, size: 20 });
-  const [loading, setLoading] = useState(false);
 
-  // ✅ Fetch products when pagination or name changes
   useEffect(() => {
-    const fetchAllProducts = async () => {
-      // if (loading) return; // Prevent multiple calls
-      setLoading(true);
-      await dispatch(handleFetchAllProductList({ name, pagination }));
-      setLoading(false);
-    };
-
-    fetchAllProducts();
+    dispatch(handleFetchAllProductList({ name, pagination }));
   }, [dispatch, pagination, name]);
 
+  // ✅ Loading will be true if Redux status is "loading"
+  const loading = status === "loading";
+
   const loadMoreProducts = () => {
-    if (status !== "loading") {
-      setLoading(true);
+    if (!loading) {
       setPagination((prev) => ({
         ...prev,
         page: prev.page + 1,
       }));
-      setLoading(false);
     }
   };
 

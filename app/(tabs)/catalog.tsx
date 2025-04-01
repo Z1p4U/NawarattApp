@@ -72,14 +72,18 @@ export default function Catalog() {
           ))}
         </View>
 
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator
-            animating={loading}
-            size="large"
-            color="#0000ff"
-            style={styles.loadingProcess}
-          />
-        </View>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator
+              animating={true}
+              size="large"
+              color="#0000ff"
+              style={styles.loadingProcess}
+            />
+          </View>
+        ) : (
+          <></>
+        )}
       </ScrollView>
     </>
   );
