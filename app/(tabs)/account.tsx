@@ -30,7 +30,7 @@ export default function Account() {
     }
   }, [loading, isAuthenticated, router]);
 
-  console.log(isAuthenticated);
+  console.log("Account : ", isAuthenticated);
 
   return (
     <>

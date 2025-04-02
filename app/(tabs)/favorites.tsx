@@ -1,16 +1,38 @@
 import HeadLine from "@/components/ui/HeadLine";
 import ProductCard from "@/components/ui/ProductCard";
-import useProduct from "@/redux/hooks/product/useProduct";
+import useWishlist from "@/redux/hooks/wishlist/useWishlist";
 import { LinearGradient } from "expo-linear-gradient";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { useRef } from "react";
+import {
+  ActivityIndicator,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 export default function Favorites() {
-  const { products } = useProduct();
+  const { wishlists, loading, loadMoreWishlists } = useWishlist();
+
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleScroll = ({ nativeEvent }: any) => {
+    const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+    if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 20) {
+      if (!debounceRef.current) {
+        debounceRef.current = setTimeout(() => {
+          loadMoreWishlists();
+          debounceRef.current = null;
+        }, 500);
+      }
+    }
+  };
 
   return (
     <>
       <HeadLine />
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container} onScroll={handleScroll}>
         <LinearGradient
           colors={["#53CAFE", "#2555E7"]}
           start={{ x: 0.0, y: 0.0 }}
@@ -21,12 +43,28 @@ export default function Favorites() {
         </LinearGradient>
 
         <View style={styles.row}>
-          {products?.map((item, index) => (
-            <View key={index} style={{ width: "45%" }}>
-              <ProductCard item={item} />
+          {wishlists?.map((item) => (
+            <View
+              key={item?.id}
+              style={wishlists.length <= 1 ? styles.singleItem : styles.item}
+            >
+              <ProductCard product={item?.product} />
             </View>
           ))}
         </View>
+
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator
+              animating={true}
+              size="large"
+              color="#0000ff"
+              style={styles.loadingProcess}
+            />
+          </View>
+        ) : (
+          <></>
+        )}
       </ScrollView>
     </>
   );
@@ -69,13 +107,31 @@ const styles = StyleSheet.create({
     fontFamily: "Saira-Medium",
   },
   row: {
-    display: "flex",
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 20,
     marginHorizontal: 15,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     marginTop: 20,
     marginBottom: 30,
+    rowGap: 20,
+    columnGap: 15,
+  },
+  item: {
+    width: "47%",
+    marginHorizontal: "auto",
+  },
+  singleItem: {
+    width: "47%",
+  },
+  loadingContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    height: 200,
+  },
+  loadingProcess: {
+    marginBottom: Platform.select({
+      ios: 100,
+      android: 0, // Adjust this value if needed for Android
+    }),
   },
 });

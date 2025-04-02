@@ -46,6 +46,13 @@ export interface PaginationPayload {
   page: number;
   size: number;
 }
+
+export interface CardProps {
+  id: number;
+  thumbnail: string;
+  name: string;
+  price: number;
+}
 // General
 
 // User Profile
@@ -106,4 +113,18 @@ export interface ProductDetailResponse {
   data: Product;
   related_products: Product[];
 }
+
 // Product
+
+// Wishlist
+
+export interface Wishlist {
+  id: number;
+  product: Product;
+}
+export interface AllWishlistResponse {
+  data: Wishlist[];
+  links: Record<string, unknown>;
+  meta: Record<string, unknown>;
+}
+// Wishlist

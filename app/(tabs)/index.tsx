@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Platform,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient"; // For Expo projects
 import Svg, { ClipPath, Defs, G, Path, Rect } from "react-native-svg";
@@ -295,7 +296,7 @@ const styles = StyleSheet.create({
   brandList: {
     marginTop: 15,
     width: "100%",
-    marginBottom: 40,
+    marginBottom: Platform.select({ ios: 50, android: 10 }),
   },
   // Product Slider Sections
 });

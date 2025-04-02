@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   login,
   register,
   verifyOtp,
   resendOtp,
+  loadToken,
   setIsAuthenticated,
 } from "@/redux/services/auth/authSlice";
 import { RootState, AppDispatch } from "@/redux/store";
@@ -18,20 +18,20 @@ const useAuth = () => {
   );
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Load token from AsyncStorage on component mount
+  // Auth initialization logic: load token from secure storage
   useEffect(() => {
-    const fetchToken = async () => {
+    const initializeAuth = async () => {
       try {
-        const storedToken = await AsyncStorage.getItem("authToken");
-        dispatch(setIsAuthenticated(!!storedToken)); // Convert token existence to boolean
+        await dispatch(loadToken()).unwrap();
       } catch (error) {
-        console.error("Error fetching token:", error);
+        console.error("Error loading token:", error);
         dispatch(setIsAuthenticated(false));
       } finally {
         setLoading(false);
       }
     };
-    fetchToken();
+
+    initializeAuth();
   }, [dispatch]);
 
   // Login handler

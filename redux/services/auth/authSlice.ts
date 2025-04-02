@@ -148,8 +148,8 @@ const authSlice = createSlice({
     builder
       // Load Token
       .addCase(loadToken.fulfilled, (state, action) => {
-        state.token = action.payload;
-        state.isAuthenticated = !!action.payload;
+        state.token = action.payload ?? null; // Ensure it's null if undefined
+        state.isAuthenticated = Boolean(action.payload); // Ensures false for null/undefined
       })
 
       // Login

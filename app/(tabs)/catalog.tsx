@@ -15,11 +15,7 @@ import useProduct from "@/redux/hooks/product/useProduct";
 import { useRef } from "react";
 
 export default function Catalog() {
-  const { products, setName, loadMoreProducts, loading, pagination } =
-    useProduct();
-
-  console.log(pagination);
-  console.log(loading);
+  const { products, setName, loadMoreProducts, loading } = useProduct();
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -66,7 +62,10 @@ export default function Catalog() {
 
         <View style={styles.row}>
           {products?.map((product) => (
-            <View key={product?.id} style={{ width: "45%" }}>
+            <View
+              key={product?.id}
+              style={products?.length <= 1 ? styles.singleItem : styles.item}
+            >
               <ProductCard product={product} />
             </View>
           ))}
@@ -118,14 +117,21 @@ const styles = StyleSheet.create({
     fontFamily: "Saira-Medium",
   },
   row: {
-    display: "flex",
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 20,
     marginHorizontal: 15,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     marginTop: 20,
     marginBottom: 30,
+    rowGap: 20,
+    columnGap: 15,
+  },
+  item: {
+    width: "47%",
+    marginHorizontal: "auto",
+  },
+  singleItem: {
+    width: "47%",
   },
   loadingContainer: {
     justifyContent: "center",

@@ -1,10 +1,11 @@
+import { CardProps } from "@/constants/config";
 import { useNavigation } from "expo-router";
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import ProductCard, { ProductCardProps } from "./ProductCard";
+import ProductCard from "./ProductCard";
 
 interface ProductSliderProps {
-  products: ProductCardProps[] | null;
+  products: CardProps[] | null;
 }
 
 const ProductSlider: React.FC<ProductSliderProps> = ({ products }) => {

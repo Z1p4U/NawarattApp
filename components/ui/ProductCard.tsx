@@ -2,15 +2,9 @@ import React from "react";
 import { Link } from "expo-router";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import Svg, { Defs, LinearGradient, Path, Stop } from "react-native-svg";
+import { CardProps } from "@/constants/config";
 
-export interface ProductCardProps {
-  id: number;
-  thumbnail: string;
-  name: string;
-  price: number;
-}
-
-const ProductCard: React.FC<{ product: ProductCardProps }> = ({ product }) => {
+const ProductCard: React.FC<{ product: CardProps }> = ({ product }) => {
   return (
     <>
       <Link
