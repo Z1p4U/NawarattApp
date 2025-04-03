@@ -1,21 +1,18 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
   Image,
-  ImageBackground,
-  Dimensions,
   Platform,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import HeadLine from "@/components/ui/HeadLine";
 import QuantityControl from "@/components/ui/QuantityControl";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 
 // Define the shape of your product data
 interface ProductData {
@@ -38,6 +35,7 @@ interface CartItem {
 
 export default function Cart() {
   const [data, setData] = useState<CartItem[]>([]);
+  const router = useRouter();
 
   // Retrieve cart items from AsyncStorage
   const getCartItems = async () => {
@@ -95,6 +93,10 @@ export default function Cart() {
   // Calculate total price for all cart items
   const calculateTotal = () => {
     return data.reduce((acc, item) => acc + item.total, 0);
+  };
+
+  const handleCheckout = () => {
+    router.push("/checkout"); // Adjust this if needed
   };
 
   return (
@@ -172,7 +174,7 @@ export default function Cart() {
             Total - {calculateTotal()?.toLocaleString()} Ks
           </Text>
         </View>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleCheckout}>
           <LinearGradient
             colors={["#54CAFF", "#275AE8"]}
             start={{ x: 0, y: 0 }}
