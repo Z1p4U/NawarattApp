@@ -1,6 +1,13 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { AllWishlistResponse, PaginationPayload } from "@/constants/config";
-import { fetchAllWishlists } from "@/redux/api/wishlist/wishlistApi";
+import {
+  AllWishlistResponse,
+  PaginationPayload,
+  ToggleWishlistResponse,
+} from "@/constants/config";
+import {
+  fetchAllWishlists,
+  fetchToggleWishlist,
+} from "@/redux/api/wishlist/wishlistApi";
 
 /** --------------- State Interfaces --------------- **/
 interface WishlistState {
@@ -30,6 +37,22 @@ export const handleFetchAllWishList = createAsyncThunk<
   } catch (error: any) {
     console.error("Wishlist List Fetching error:", error);
     return rejectWithValue(error.response?.data || "Failed to fetch wishlists");
+  }
+});
+
+// Toggle Wishlists
+export const handleToggleWishlist = createAsyncThunk<
+  ToggleWishlistResponse, // Return type
+  { token: string | null; id: number | null },
+  { rejectValue: string } // Error handling type
+>("wishlists/toggle", async ({ token, id }, { rejectWithValue }) => {
+  try {
+    const response = await fetchToggleWishlist(token, id);
+    // console.log("Process success:", response);
+    return response;
+  } catch (error: any) {
+    console.error(" Fetching process error:", error);
+    return rejectWithValue(error.response?.data || "Failed to process");
   }
 });
 
@@ -66,6 +89,20 @@ const wishlistSlice = createSlice({
       .addCase(handleFetchAllWishList.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload || "Wishlist list fetch failed";
+      })
+
+      // Toggle Wishlists
+      .addCase(handleToggleWishlist.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(handleToggleWishlist.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.error = null;
+        const toggledId = action.meta.arg.id;
+      })
+      .addCase(handleToggleWishlist.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload || "Product detail fetch failed";
       });
   },
 });

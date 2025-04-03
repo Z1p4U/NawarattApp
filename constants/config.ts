@@ -127,4 +127,8 @@ export interface AllWishlistResponse {
   links: Record<string, unknown>;
   meta: Record<string, unknown>;
 }
+
+export interface ToggleWishlistResponse {
+  message: string;
+}
 // Wishlist

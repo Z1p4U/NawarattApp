@@ -20,6 +20,7 @@ export default function Catalog() {
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleScroll = ({ nativeEvent }: any) => {
+    if ((products?.length ?? 0) < 20) return;
     const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
     if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 20) {
       if (!debounceRef.current) {
@@ -62,10 +63,7 @@ export default function Catalog() {
 
         <View style={styles.row}>
           {products?.map((product) => (
-            <View
-              key={product?.id}
-              style={products?.length <= 1 ? styles.singleItem : styles.item}
-            >
+            <View key={product?.id} style={styles.item}>
               <ProductCard product={product} />
             </View>
           ))}
@@ -91,6 +89,7 @@ export default function Catalog() {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fff",
+    marginBottom: Platform.select({ ios: 50, android: 10 }),
   },
   banner: {
     borderBottomLeftRadius: 30,
@@ -127,10 +126,6 @@ const styles = StyleSheet.create({
     columnGap: 15,
   },
   item: {
-    width: "47%",
-    marginHorizontal: "auto",
-  },
-  singleItem: {
     width: "47%",
   },
   loadingContainer: {

@@ -9,6 +9,7 @@ import {
   setIsAuthenticated,
 } from "@/redux/services/auth/authSlice";
 import { RootState, AppDispatch } from "@/redux/store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const useAuth = () => {
   const dispatch = useDispatch<AppDispatch>();

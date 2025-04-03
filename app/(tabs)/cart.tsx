@@ -98,8 +98,9 @@ export default function Cart() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <>
       <HeadLine />
+      {/* <SafeAreaView style={styles.safeArea}> */}
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
@@ -182,7 +183,8 @@ export default function Cart() {
           </LinearGradient>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+      {/* </SafeAreaView> */}
+    </>
   );
 }
 

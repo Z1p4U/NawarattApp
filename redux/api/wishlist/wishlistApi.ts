@@ -1,4 +1,8 @@
-import { AllWishlistResponse, PaginationPayload } from "@/constants/config";
+import {
+  AllWishlistResponse,
+  PaginationPayload,
+  ToggleWishlistResponse,
+} from "@/constants/config";
 import environment from "@/constants/environment";
 import axios from "axios";
 
@@ -18,7 +22,6 @@ const fetchAllWishlists = async (
       { headers, params } // ✅ Both headers and params inside the same object
     );
 
-    // console.log(response);
     return response?.data;
   } catch (error) {
     console.error("Failed to fetch wishlists:", error);
@@ -26,4 +29,25 @@ const fetchAllWishlists = async (
   }
 };
 
-export { fetchAllWishlists };
+const fetchToggleWishlist = async (
+  token: string | null,
+  id: number | null
+): Promise<ToggleWishlistResponse> => {
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  try {
+    const response = await axios.post<ToggleWishlistResponse>(
+      `${environment.API_URL}/wishlist/toggle/${id}`,
+      {},
+      { headers }
+    );
+    return response?.data;
+  } catch (error) {
+    console.error("Failed to process :", error);
+    throw error;
+  }
+};
+
+export { fetchAllWishlists, fetchToggleWishlist };

@@ -34,7 +34,7 @@ const QuantityConfirmModal: React.FC<QuantityConfirmModalProps> = ({
     <Modal transparent visible={modalVisible} animationType="fade">
       {/* Close modal when clicking outside */}
       <SafeAreaView style={styles.modalBackground}>
-        <SafeAreaView style={styles.modalContainer}>
+        <View style={styles.modalContainer}>
           <Text style={styles.title}>
             ယခုမှာယူသောပစ္စည်းအား မရနိုင်ပါက (သို့မဟုတ်) အရေအတွက်
             အတိအကျမရနိုင်ပါက မည်သို့ ပြုလုပ်ပေးရမည်နည်း??
@@ -68,7 +68,7 @@ const QuantityConfirmModal: React.FC<QuantityConfirmModalProps> = ({
               <Text style={styles.buttonText}>Confirm</Text>
             </LinearGradient>
           </TouchableOpacity>
-        </SafeAreaView>
+        </View>
       </SafeAreaView>
     </Modal>
   );

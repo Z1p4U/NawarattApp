@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
 import { handleFetchAllWishList } from "@/redux/services/wishlist/wishlistSlice";
@@ -13,10 +13,13 @@ const useWishlist = () => {
   const { token } = useAuth();
 
   useEffect(() => {
-    dispatch(handleFetchAllWishList({ token, pagination }));
-  }, [dispatch, pagination]);
+    if (token) {
+      dispatch(handleFetchAllWishList({ token, pagination }));
+    } else {
+      console.log("Token is null, not fetching wishlists");
+    }
+  }, [dispatch, pagination, token]);
 
-  // ✅ Loading will be true if Redux status is "loading"
   const loading = status === "loading";
 
   const loadMoreWishlists = () => {
@@ -28,12 +31,21 @@ const useWishlist = () => {
     }
   };
 
+  const isInWishlist = (productId: number): boolean => {
+    return (
+      wishlists?.some((item: any) => item?.product?.id === productId) ?? false
+    );
+  };
+
+  console.log("Current wishlist length:", wishlists?.length);
+
   return {
     wishlists,
     loading,
     pagination,
+    isInWishlist,
     setPagination,
-    loadMoreWishlists, // ✅ Use this in FlatList `onEndReached`
+    loadMoreWishlists,
   };
 };
 

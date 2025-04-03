@@ -29,7 +29,7 @@ interface AuthState {
 
 /** --------------- Initial State --------------- **/
 const initialState: AuthState = {
-  token: null,
+  token: null, // Initialize as null (we load from AsyncStorage asynchronously)
   status: "idle",
   error: null,
   isAuthenticated: false,
@@ -41,8 +41,13 @@ const initialState: AuthState = {
 
 // Load token from AsyncStorage on app start
 export const loadToken = createAsyncThunk("auth/loadToken", async () => {
-  const storedToken = await AsyncStorage.getItem("authToken");
-  return storedToken;
+  try {
+    const storedToken = await AsyncStorage.getItem("authToken");
+    return storedToken;
+  } catch (error) {
+    console.error("Error reading token from storage:", error);
+    return null;
+  }
 });
 
 // Login Thunk
@@ -55,7 +60,6 @@ export const login = createAsyncThunk<
     const response = await fetchLogin(credential, password);
     // Store token in AsyncStorage
     await AsyncStorage.setItem("authToken", response.data.access_token);
-
     console.log("Login success:", response);
     return response;
   } catch (error: any) {
@@ -148,8 +152,8 @@ const authSlice = createSlice({
     builder
       // Load Token
       .addCase(loadToken.fulfilled, (state, action) => {
-        state.token = action.payload ?? null; // Ensure it's null if undefined
-        state.isAuthenticated = Boolean(action.payload); // Ensures false for null/undefined
+        state.token = action.payload ?? null;
+        state.isAuthenticated = Boolean(action.payload);
       })
 
       // Login

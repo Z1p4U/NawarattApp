@@ -3,11 +3,13 @@ import QuantityConfirmModal from "@/components/ProductDetail/QuantityConfirmModa
 import HeadLine from "@/components/ui/HeadLine";
 import QuantityControl from "@/components/ui/QuantityControl";
 import useProductDetail from "@/redux/hooks/product/useProductDetail";
+import useWishlist from "@/redux/hooks/wishlist/useWishlist";
+import useWishlistProcess from "@/redux/hooks/wishlist/useWishlistProcess";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useSearchParams } from "expo-router/build/hooks";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dimensions,
   Image,
@@ -27,8 +29,11 @@ export default function ProductDetail() {
   const productId = Number(searchParams.get("id")) || 0;
   const router = useRouter();
   const { productDetail } = useProductDetail(productId);
+  const { toggleWishlist } = useWishlistProcess();
+  const { isInWishlist } = useWishlist();
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [alreadyInCart, setAlreadyInCart] = useState(false);
   const [payload, setPayload] = useState({
     productId,
     count: 1,
@@ -42,7 +47,17 @@ export default function ProductDetail() {
     },
   });
 
-  const addedInWishlist = true;
+  useEffect(() => {
+    const checkCart = async () => {
+      const cartData = await AsyncStorage.getItem("cart");
+      const cart = cartData ? JSON.parse(cartData) : [];
+      setAlreadyInCart(cart.some((item: any) => item.productId === productId));
+    };
+
+    checkCart();
+  }, [productId]); // Runs when productId changes
+
+  const addedInWishlist = isInWishlist(productId);
 
   const updateQuantity = (newCount: number) => {
     setPayload((prev) => ({
@@ -121,7 +136,10 @@ export default function ProductDetail() {
         <View style={styles.productDetailInfoContainer}>
           <View style={styles.rowBetween}>
             <Text style={styles.productNameText}>{productDetail?.name}</Text>
-            <TouchableOpacity style={styles.favButton}>
+            <TouchableOpacity
+              style={styles.favButton}
+              onPress={() => toggleWishlist(productId)}
+            >
               <Svg width={20} height={20} viewBox="0 0 22 20" fill="none">
                 <Path
                   d="M16.087.25C13.873.25 11.961 1.547 11 3.438 10.04 1.547 8.127.25 5.913.25 2.738.25.167 2.912.167 6.188s1.968 6.279 4.512 8.746C7.222 17.4 11 19.75 11 19.75s3.655-2.31 6.321-4.816c2.844-2.672 4.512-5.46 4.512-8.746 0-3.286-2.571-5.938-5.746-5.938z"
@@ -180,8 +198,9 @@ export default function ProductDetail() {
 
           <TouchableOpacity
             style={{ marginTop: 30 }}
+            disabled={alreadyInCart} // Now correctly checks if in cart
             onPress={() => {
-              console.log("Modal Visible:", modalVisible); // Check if this is updating
+              // console.log("Modal Visible:", modalVisible); // Check if this is updating
               setModalVisible(true);
             }}
           >
@@ -191,7 +210,9 @@ export default function ProductDetail() {
               end={{ x: 1, y: 0 }}
               style={styles.chat}
             >
-              <Text style={styles.chatText}>Add To Cart</Text>
+              <Text style={styles.chatText}>
+                {alreadyInCart ? "Already In Cart" : "Add To Cart"}
+              </Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>

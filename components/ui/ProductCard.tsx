@@ -3,61 +3,73 @@ import { Link } from "expo-router";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import Svg, { Defs, LinearGradient, Path, Stop } from "react-native-svg";
 import { CardProps } from "@/constants/config";
+import useWishlistProcess from "@/redux/hooks/wishlist/useWishlistProcess";
 
 const ProductCard: React.FC<{ product: CardProps }> = ({ product }) => {
-  return (
-    <>
-      <Link
-        href={`/productDetail?id=${product?.id}`}
-        style={styles.productCard}
-        key={product?.id}
-      >
-        <View style={{ position: "relative" }}>
-          <Image
-            source={{
-              uri: product?.thumbnail
-                ? product?.thumbnail
-                : require("@/assets/images/placeholder.jpg"),
-            }}
-            style={styles.productImage}
-          />
-          <TouchableOpacity style={styles.favButton}>
-            <Svg width={21} height={21} viewBox="0 0 21 21" fill="none">
-              <Path
-                d="M10.4331 4.85618L9.98776 5.28505C10.0455 5.34491 10.1146 5.39253 10.1912 5.42506C10.2677 5.45758 10.35 5.47434 10.4331 5.47434C10.5163 5.47434 10.5986 5.45758 10.6751 5.42506C10.7516 5.39253 10.8208 5.34491 10.8785 5.28505L10.4331 4.85618ZM8.31023 15.431C7.05992 14.4455 5.69332 13.483 4.60879 12.2624C3.54652 11.0648 2.80425 9.66855 2.80425 7.85577H1.56714C1.56714 10.0545 2.4826 11.7321 3.68425 13.0838C4.86363 14.4116 6.36796 15.4756 7.54405 16.4026L8.31023 15.431ZM2.80425 7.85577C2.80425 6.08257 3.80631 4.59474 5.17456 3.96876C6.50405 3.36092 8.29044 3.52175 9.98776 5.28505L10.8785 4.42814C8.86611 2.33577 6.52714 1.9902 4.65992 2.84381C2.83394 3.67928 1.56714 5.61907 1.56714 7.85577H2.80425ZM7.54405 16.4026C7.96714 16.7358 8.42075 17.0904 8.88013 17.3593C9.33951 17.6281 9.86405 17.8459 10.4331 17.8459V16.6088C10.1774 16.6088 9.87724 16.5098 9.50446 16.2912C9.13085 16.0735 8.74405 15.7733 8.31023 15.431L7.54405 16.4026ZM13.3222 16.4026C14.4983 15.4747 16.0026 14.4125 17.182 13.0838C18.3836 11.7312 19.2991 10.0545 19.2991 7.85577H18.062C18.062 9.66855 17.3197 11.0648 16.2574 12.2624C15.1729 13.483 13.8063 14.4455 12.556 15.431L13.3222 16.4026ZM19.2991 7.85577C19.2991 5.61907 18.0331 3.67928 16.2063 2.84381C14.3391 1.9902 12.0018 2.33577 9.98776 4.42732L10.8785 5.28505C12.5758 3.52257 14.3622 3.36092 15.6917 3.96876C17.0599 4.59474 18.062 6.08175 18.062 7.85577H19.2991ZM12.556 15.431C12.1222 15.7733 11.7354 16.0735 11.3618 16.2912C10.9882 16.509 10.6888 16.6088 10.4331 16.6088V17.8459C11.0022 17.8459 11.5267 17.6273 11.9861 17.3593C12.4463 17.0904 12.8991 16.7358 13.3222 16.4026L12.556 15.431Z"
-                fill="url(#paint0_linear_108_412)"
-              />
-              <Defs>
-                <LinearGradient
-                  id="paint0_linear_108_412"
-                  x1="10.4331"
-                  y1="2.41016"
-                  x2="10.4331"
-                  y2="17.8459"
-                  gradientUnits="userSpaceOnUse"
-                >
-                  <Stop stopColor="#54CAFF" />
-                  <Stop offset="1" stopColor="#275AE8" />
-                </LinearGradient>
-              </Defs>
-            </Svg>
-          </TouchableOpacity>
-        </View>
+  const { toggleWishlist } = useWishlistProcess();
 
-        <View style={styles.productCardContent}>
-          <Text
-            numberOfLines={1}
-            ellipsizeMode="tail"
-            style={styles.productCardName}
-          >
-            {product?.name}
-          </Text>
-          <Text style={styles.productCardPrice}>
-            {Number(product?.price)?.toLocaleString()} Ks
-          </Text>
-        </View>
-      </Link>
-    </>
+  return (
+    <View style={styles.productCard}>
+      {/* Wrapper to ensure proper positioning */}
+      <View style={styles.imageWrapper}>
+        {/* Wishlist Button */}
+        <TouchableOpacity
+          style={styles.favButton}
+          onPress={() => toggleWishlist(product?.id)}
+        >
+          <Svg width={21} height={21} viewBox="0 0 21 21" fill="none">
+            <Path
+              d="M10.433 4.856l-.445.43a.618.618 0 00.89 0l-.445-.43zM8.31 15.431c-1.25-.986-2.617-1.948-3.701-3.169-1.062-1.197-1.805-2.593-1.805-4.406H1.567c0 2.199.916 3.876 2.117 5.228 1.18 1.328 2.684 2.392 3.86 3.319l.766-.972zM2.804 7.856c0-1.773 1.002-3.261 2.37-3.887 1.33-.608 3.116-.447 4.814 1.316l.89-.857C8.867 2.336 6.529 1.99 4.66 2.844c-1.826.835-3.093 2.775-3.093 5.012h1.237zm4.74 8.547c.423.333.877.687 1.336.956.46.27.984.487 1.553.487v-1.237c-.256 0-.556-.1-.929-.318s-.76-.518-1.194-.86l-.766.972zm5.778 0c1.176-.928 2.68-1.99 3.86-3.32 1.202-1.352 2.117-3.028 2.117-5.227h-1.237c0 1.813-.742 3.209-1.805 4.406-1.084 1.221-2.45 2.183-3.701 3.169l.766.972zM19.3 7.856c0-2.237-1.266-4.177-3.093-5.012-1.867-.854-4.204-.508-6.218 1.583l.89.858c1.698-1.762 3.484-1.924 4.814-1.316 1.368.626 2.37 2.113 2.37 3.887h1.237zm-6.743 7.575c-.434.342-.82.643-1.194.86-.374.218-.673.318-.929.318v1.237c.57 0 1.094-.219 1.553-.487.46-.269.913-.623 1.336-.956l-.766-.972z"
+              fill="url(#paint0_linear_108_412)"
+            />
+            <Defs>
+              <LinearGradient
+                id="paint0_linear_108_412"
+                x1={10.4331}
+                y1={2.41016}
+                x2={10.4331}
+                y2={17.8459}
+                gradientUnits="userSpaceOnUse"
+              >
+                <Stop stopColor="#54CAFF" />
+                <Stop offset={1} stopColor="#275AE8" />
+              </LinearGradient>
+            </Defs>
+          </Svg>
+        </TouchableOpacity>
+
+        {/* Product Image */}
+        <Link
+          href={`/productDetail?id=${product?.id}`}
+          style={{ width: "100%" }}
+        >
+          <View style={{ width: "100%" }}>
+            <Image
+              source={{
+                uri: product?.thumbnail
+                  ? product?.thumbnail
+                  : require("@/assets/images/placeholder.jpg"),
+              }}
+              style={styles.productImage}
+            />
+          </View>
+        </Link>
+      </View>
+
+      {/* Product Content */}
+      <View style={styles.productCardContent}>
+        <Text
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          style={styles.productCardName}
+        >
+          {product?.name}
+        </Text>
+        <Text style={styles.productCardPrice}>
+          {Number(product?.price)?.toLocaleString()} Ks
+        </Text>
+      </View>
+    </View>
   );
 };
 
@@ -66,10 +78,16 @@ export default ProductCard;
 const styles = StyleSheet.create({
   productCard: {
     gap: 10,
+    // width: 150, // Ensures proper layout
+  },
+  imageWrapper: {
+    position: "relative",
+    width: "100%",
+    alignItems: "center",
   },
   productImage: {
     width: "100%",
-    aspectRatio: "1/1",
+    aspectRatio: 1,
     resizeMode: "cover",
     borderWidth: 1,
     borderColor: "#0000001A",
@@ -89,11 +107,9 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     fontFamily: "Saira-Regular",
   },
-
   favButton: {
     width: 34,
     height: 34,
-    display: "flex",
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 100,
@@ -101,5 +117,11 @@ const styles = StyleSheet.create({
     top: 10,
     right: 10,
     backgroundColor: "#fff",
+    zIndex: 10,
+    elevation: 5, // Ensures visibility on Android
+    shadowColor: "#000", // Shadow for iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
   },
 });
