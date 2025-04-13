@@ -1,5 +1,9 @@
-import { ProfileResponse } from "@/constants/config";
-import { fetchProfile } from "@/redux/api/user/userApi";
+import {
+  ProfilePayload,
+  ProfileResponse,
+  ProfileUpdateResponse,
+} from "@/constants/config";
+import { fetchProfile, fetchUpdateProfile } from "@/redux/api/user/userApi";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 /** --------------- State Interfaces --------------- **/
@@ -32,6 +36,18 @@ export const handleFetchProfile = createAsyncThunk<
   }
 });
 
+export const handleFetchUpdateProfile = createAsyncThunk<
+  ProfileUpdateResponse,
+  ProfilePayload,
+  { rejectValue: string }
+>("user/updateProfile", async (payload, { rejectWithValue }) => {
+  try {
+    return await fetchUpdateProfile(payload);
+  } catch (err) {
+    return rejectWithValue((err as Error).message);
+  }
+});
+
 /** --------------- Slice --------------- **/
 const userSlice = createSlice({
   name: "user",
@@ -56,6 +72,19 @@ const userSlice = createSlice({
       .addCase(handleFetchProfile.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload || "Profile data fetch failed";
+      })
+
+      .addCase(handleFetchUpdateProfile.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(handleFetchUpdateProfile.fulfilled, (state) => {
+        state.status = "succeeded";
+        // state.profile = action.payload;
+        state.error = null;
+      })
+      .addCase(handleFetchUpdateProfile.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload || "Profile data update failed";
       });
   },
 });

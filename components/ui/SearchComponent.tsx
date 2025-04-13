@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
-export default function SearchComponent({ onchange }) {
+export default function SearchComponent({ onchange }: any) {
   return (
     <>
       <View style={styles.searchBar}>

@@ -1,7 +1,10 @@
 import axiosInstance from "@/constants/axios";
-import { ProfileResponse } from "@/constants/config";
+import {
+  ProfilePayload,
+  ProfileResponse,
+  ProfileUpdateResponse,
+} from "@/constants/config";
 import environment from "@/constants/environment";
-import axios from "axios";
 
 const fetchProfile = async (): Promise<ProfileResponse> => {
   try {
@@ -15,4 +18,22 @@ const fetchProfile = async (): Promise<ProfileResponse> => {
   }
 };
 
-export { fetchProfile };
+const fetchUpdateProfile = async (
+  payload: ProfilePayload
+): Promise<ProfileUpdateResponse> => {
+  try {
+    console.log({ ...payload });
+
+    const response = await axiosInstance.put<ProfileUpdateResponse>(
+      `/profile/update`,
+      payload
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Failed to add profile data:", error);
+    throw error;
+  }
+};
+
+export { fetchProfile, fetchUpdateProfile };

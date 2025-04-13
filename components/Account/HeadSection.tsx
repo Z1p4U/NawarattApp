@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import Svg, { ClipPath, Defs, G, Path, Rect } from "react-native-svg";
+import { router } from "expo-router";
 
 // const ImageCarousel: React.FC<lProps> = ({ data }) => {
 const HeadSection = ({ data }: any) => {
@@ -83,7 +84,10 @@ const HeadSection = ({ data }: any) => {
               </G>
             </Svg>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.notificationButton}>
+          <TouchableOpacity
+            onPress={() => router.replace("/editAccount")}
+            style={styles.notificationButton}
+          >
             <Svg width={27} height={26} viewBox="0 0 27 26" fill="none">
               <Path
                 d="M23.875 13.825a1.25 1.25 0 010-1.65l1.6-1.8a1.25 1.25 0 00.15-1.463l-2.5-4.325a1.25 1.25 0 00-1.337-.6l-2.35.475A1.25 1.25 0 0118 3.637l-.762-2.287A1.25 1.25 0 0016.05.5h-5a1.25 1.25 0 00-1.25.85l-.7 2.287a1.25 1.25 0 01-1.438.825L5.25 3.987a1.25 1.25 0 00-1.25.6L1.5 8.912a1.25 1.25 0 00.125 1.463l1.587 1.8a1.25 1.25 0 010 1.65l-1.587 1.8a1.25 1.25 0 00-.125 1.462L4 21.413a1.25 1.25 0 001.337.6l2.35-.476a1.25 1.25 0 011.438.826l.762 2.287a1.25 1.25 0 001.25.85h5a1.25 1.25 0 001.188-.85l.762-2.287a1.25 1.25 0 011.438-.825l2.35.474a1.25 1.25 0 001.337-.6l2.5-4.325a1.25 1.25 0 00-.15-1.462l-1.687-1.8zM22.012 15.5l1 1.125-1.6 2.775-1.474-.3a3.75 3.75 0 00-4.313 2.5L15.15 23h-3.2l-.45-1.425a3.75 3.75 0 00-4.313-2.5l-1.475.3-1.625-2.762 1-1.125a3.75 3.75 0 000-5l-1-1.126 1.6-2.75 1.475.3a3.75 3.75 0 004.313-2.5L11.95 3h3.2l.475 1.425a3.75 3.75 0 004.313 2.5l1.475-.3 1.6 2.775-1 1.125a3.75 3.75 0 000 4.975zM13.55 8a5 5 0 100 10 5 5 0 000-10zm0 7.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"

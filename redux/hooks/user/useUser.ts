@@ -1,7 +1,11 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { RootState, AppDispatch } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
-import { handleFetchProfile } from "@/redux/services/user/userSlice";
+import {
+  handleFetchProfile,
+  handleFetchUpdateProfile,
+} from "@/redux/services/user/userSlice";
+import { ProfilePayload } from "@/constants/config";
 
 const useUser = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -13,6 +17,8 @@ const useUser = () => {
     const fetchProfileDetail = async () => {
       setLoading(true);
 
+      console.log("doing");
+
       const res = await dispatch(handleFetchProfile());
       setLoading(false);
 
@@ -22,9 +28,25 @@ const useUser = () => {
     fetchProfileDetail();
   }, [dispatch]);
 
+  const updateProfile = useCallback(
+    async (payload: ProfilePayload) => {
+      try {
+        const response = await dispatch(
+          handleFetchUpdateProfile(payload)
+        ).unwrap();
+
+        return response;
+      } catch (err) {
+        console.error("Failed to update profile:", err);
+      }
+    },
+    [dispatch]
+  );
+
   return {
     profileDetail,
     loading,
+    updateProfile,
   };
 };
 

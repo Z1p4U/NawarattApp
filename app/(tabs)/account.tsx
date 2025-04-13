@@ -30,8 +30,6 @@ export default function Account() {
     }
   }, [loading, isAuthenticated, router]);
 
-  // console.log("Account : ", isAuthenticated);
-
   return (
     <>
       <RouteGuard>
@@ -98,7 +96,7 @@ export default function Account() {
             <TouchableOpacity
               style={{ marginTop: 20 }}
               onPress={() => {
-                console.log("Modal Visible:", modalVisible); // Check if this is updating
+                console.log("Modal Visible:", modalVisible);
                 setModalVisible(true);
               }}
             >
@@ -190,7 +188,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 1000,
-    marginTop: 35,
+    marginTop: 20,
     marginHorizontal: 15,
     display: "flex",
     flexDirection: "row",

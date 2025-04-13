@@ -11,7 +11,6 @@ const useWishlist = () => {
   const [pagination, setPagination] = useState({ page: 1, size: 20 });
 
   useEffect(() => {
-    console.log("doing");
     dispatch(handleFetchAllWishList({ pagination }));
   }, [dispatch, pagination]);
 

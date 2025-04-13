@@ -39,6 +39,12 @@ export interface ResendOTPResponse {
 export interface ResendOtpPayload {
   phone: string;
 }
+
+export interface PinPayload {
+  oldPin: string;
+  newPin: string;
+  confirmPin: string;
+}
 // OTP & Resend OTP
 
 // General
@@ -84,6 +90,17 @@ export interface UserData {
 }
 export interface ProfileResponse {
   data: UserData;
+}
+
+export interface ProfilePayload {
+  name: string;
+  shop_name: string;
+  phone: string;
+  email: string;
+  gender: string;
+}
+export interface ProfileUpdateResponse {
+  message: string;
 }
 
 // User Profile
