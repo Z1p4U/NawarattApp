@@ -1,25 +1,20 @@
+import axiosInstance from "@/constants/axios";
 import {
   AllWishlistResponse,
   PaginationPayload,
   ToggleWishlistResponse,
 } from "@/constants/config";
 import environment from "@/constants/environment";
-import axios from "axios";
 
 const fetchAllWishlists = async (
-  token: string | null,
   pagination: PaginationPayload
 ): Promise<AllWishlistResponse> => {
   try {
     const params = { ...(pagination || {}) };
 
-    const headers = {
-      Authorization: `Bearer ${token}`,
-    };
-
-    const response = await axios.get<AllWishlistResponse>(
+    const response = await axiosInstance.get<AllWishlistResponse>(
       `${environment.API_URL}/wishlist`,
-      { headers, params } // ✅ Both headers and params inside the same object
+      { params }
     );
 
     return response?.data;
@@ -30,22 +25,15 @@ const fetchAllWishlists = async (
 };
 
 const fetchToggleWishlist = async (
-  token: string | null,
   id: number | null
 ): Promise<ToggleWishlistResponse> => {
-  const headers = {
-    Authorization: `Bearer ${token}`,
-  };
-
   try {
-    const response = await axios.post<ToggleWishlistResponse>(
-      `${environment.API_URL}/wishlist/toggle/${id}`,
-      {},
-      { headers }
+    const response = await axiosInstance.post<ToggleWishlistResponse>(
+      `${environment.API_URL}/wishlist/toggle/${id}`
     );
     return response?.data;
   } catch (error) {
-    console.error("Failed to process :", error);
+    console.error("Failed to process:", error);
     throw error;
   }
 };

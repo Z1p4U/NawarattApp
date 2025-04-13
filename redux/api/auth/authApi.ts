@@ -1,17 +1,17 @@
-import axios from "axios";
 import environment from "@/constants/environment";
 import {
   LoginResponse,
   OTPResponse,
   RegisterResponse,
 } from "@/constants/config";
+import axiosInstance from "@/constants/axios";
 
 const fetchLogin = async (
   credential: string,
   password: string
 ): Promise<LoginResponse> => {
   try {
-    const response = await axios.post<LoginResponse>(
+    const response = await axiosInstance.post<LoginResponse>(
       `${environment.API_URL}/login`,
       {
         credential,
@@ -35,7 +35,7 @@ const fetchRegister = async (
   password: string
 ): Promise<RegisterResponse> => {
   try {
-    const response = await axios.post<RegisterResponse>(
+    const response = await axiosInstance.post<RegisterResponse>(
       `${environment.API_URL}/register`,
       {
         name,
@@ -57,7 +57,7 @@ const fetchVerifyOtp = async (
   otp: string
 ): Promise<OTPResponse> => {
   try {
-    const response = await axios.post<OTPResponse>(
+    const response = await axiosInstance.post<OTPResponse>(
       `${environment.API_URL}/sms/verify`,
       {
         phone,
@@ -73,7 +73,7 @@ const fetchVerifyOtp = async (
 
 const fetchResendOtp = async (phone: string): Promise<OTPResponse> => {
   try {
-    const response = await axios.post<OTPResponse>(
+    const response = await axiosInstance.post<OTPResponse>(
       `${environment.API_URL}/sms/resend`,
       {
         phone,

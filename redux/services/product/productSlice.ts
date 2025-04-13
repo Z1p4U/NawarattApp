@@ -82,16 +82,14 @@ const productSlice = createSlice({
         state.status = "succeeded";
         state.error = null;
 
-        // ✅ Safely extract pagination
         const { pagination } = action.meta.arg as {
           pagination: PaginationPayload;
         };
 
-        // ✅ If first page, replace products; else, append to existing ones
         state.products =
           pagination.page === 1
-            ? action.payload.data || [] // Ensure it's never null
-            : [...(state.products ?? []), ...(action.payload.data ?? [])]; // Ensure both are arrays
+            ? action.payload.data || []
+            : [...(state.products ?? []), ...(action.payload.data ?? [])];
       })
       .addCase(handleFetchAllProductList.rejected, (state, action) => {
         state.status = "failed";

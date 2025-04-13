@@ -5,7 +5,6 @@ import {
   register,
   verifyOtp,
   resendOtp,
-  loadToken,
   setIsAuthenticated,
 } from "@/redux/services/auth/authSlice";
 import { RootState, AppDispatch } from "@/redux/store";
@@ -19,20 +18,25 @@ const useAuth = () => {
   );
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Auth initialization logic: load token from secure storage
+  console.log("isAuthenticated : ", isAuthenticated);
+
   useEffect(() => {
-    const initializeAuth = async () => {
+    const checkAuthStatus = async () => {
       try {
-        await dispatch(loadToken()).unwrap();
+        const storedToken = await AsyncStorage.getItem("authToken");
+        if (storedToken) {
+          dispatch(setIsAuthenticated(true));
+        } else {
+          dispatch(setIsAuthenticated(false));
+        }
       } catch (error) {
-        console.error("Error loading token:", error);
-        dispatch(setIsAuthenticated(false));
+        console.error("Failed to check auth status:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    initializeAuth();
+    checkAuthStatus();
   }, [dispatch]);
 
   // Login handler

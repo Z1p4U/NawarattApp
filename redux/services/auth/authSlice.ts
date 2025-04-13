@@ -1,3 +1,5 @@
+// redux/services/auth/authSlice.ts
+
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
@@ -16,20 +18,19 @@ import {
   ResendOtpPayload,
   ResendOTPResponse,
 } from "@/constants/config";
+import { AxiosError } from "axios";
 
-/** --------------- State Interfaces --------------- **/
 interface AuthState {
   token: string | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
   isAuthenticated: boolean;
   registerMessage: string | null;
-  otpMessage: string | null; // success message for OTP verification/resend
+  otpMessage: string | null;
 }
 
-/** --------------- Initial State --------------- **/
 const initialState: AuthState = {
-  token: null, // Initialize as null (we load from AsyncStorage asynchronously)
+  token: null,
   status: "idle",
   error: null,
   isAuthenticated: false,
@@ -37,20 +38,21 @@ const initialState: AuthState = {
   otpMessage: null,
 };
 
-/** --------------- Async Thunks --------------- **/
+/** --------------- Thunks --------------- **/
 
-// Load token from AsyncStorage on app start
-export const loadToken = createAsyncThunk("auth/loadToken", async () => {
-  try {
-    const storedToken = await AsyncStorage.getItem("authToken");
-    return storedToken;
-  } catch (error) {
-    console.error("Error reading token from storage:", error);
-    return null;
+// 1️⃣ Bootstrap token from AsyncStorage
+export const loadToken = createAsyncThunk<string | null>(
+  "auth/loadToken",
+  async () => {
+    try {
+      return await AsyncStorage.getItem("authToken");
+    } catch {
+      return null;
+    }
   }
-});
+);
 
-// Login Thunk
+// 2️⃣ Login
 export const login = createAsyncThunk<
   LoginResponse,
   LoginPayload,
@@ -58,45 +60,37 @@ export const login = createAsyncThunk<
 >("auth/login", async ({ credential, password }, { rejectWithValue }) => {
   try {
     const response = await fetchLogin(credential, password);
-    // Store token in AsyncStorage
-    await AsyncStorage.setItem("authToken", response.data.access_token);
-    console.log("Login success:", response);
+    const token = response.data.access_token;
+    await AsyncStorage.setItem("authToken", token);
     return response;
-  } catch (error: any) {
-    console.error("Login error:", error);
-    return rejectWithValue(error.response?.data || "Login failed");
+  } catch (err: any) {
+    console.error("Login error:", err);
+    return rejectWithValue(err.response?.data || "Login failed");
   }
 });
 
-// Register Thunk
+// 3️⃣ Register
 export const register = createAsyncThunk<
   RegisterResponse,
   RegisterPayload,
   { rejectValue: string }
->(
-  "auth/register",
-  async (
-    { username: name, shopName: shop_name, gender, credential, password },
-    { rejectWithValue }
-  ) => {
-    try {
-      const response = await fetchRegister(
-        name,
-        shop_name,
-        gender,
-        credential,
-        password
-      );
-      // console.log("Register success:", response);
-      return response;
-    } catch (error: any) {
-      console.error("Register error:", error);
-      return rejectWithValue(error.response?.data || "Register failed");
-    }
+>("auth/register", async (payload, { rejectWithValue }) => {
+  try {
+    const response = await fetchRegister(
+      payload.username,
+      payload.shopName,
+      payload.gender,
+      payload.credential,
+      payload.password
+    );
+    return response;
+  } catch (err: any) {
+    console.error("Register error:", err);
+    return rejectWithValue(err.response?.data || "Register failed");
   }
-);
+});
 
-// Verify OTP Thunk
+// 4️⃣ Verify OTP
 export const verifyOtp = createAsyncThunk<
   OTPResponse,
   OtpPayload,
@@ -104,15 +98,14 @@ export const verifyOtp = createAsyncThunk<
 >("auth/verifyOtp", async ({ phone, otp }, { rejectWithValue }) => {
   try {
     const response = await fetchVerifyOtp(phone, otp);
-    console.log("Verify OTP success:", response);
-    return response; // { message: string }
-  } catch (error: any) {
-    console.error("Verify OTP error:", error);
-    return rejectWithValue(error.response?.data || "Verify OTP failed");
+    return response;
+  } catch (err: any) {
+    console.error("Verify OTP error:", err);
+    return rejectWithValue(err.response?.data || "Verify OTP failed");
   }
 });
 
-// Resend OTP Thunk
+// 5️⃣ Resend OTP
 export const resendOtp = createAsyncThunk<
   ResendOTPResponse,
   ResendOtpPayload,
@@ -120,18 +113,30 @@ export const resendOtp = createAsyncThunk<
 >("auth/resendOtp", async ({ phone }, { rejectWithValue }) => {
   try {
     const response = await fetchResendOtp(phone);
-    console.log("Resend OTP success:", response);
-    return response; // { message: string }
-  } catch (error: any) {
-    console.error("Resend OTP error:", error);
-    return rejectWithValue(error.response?.data || "Resend OTP failed");
+    return response;
+  } catch (err: any) {
+    console.error("Resend OTP error:", err);
+    return rejectWithValue(err.response?.data || "Resend OTP failed");
   }
 });
 
-// Logout Thunk
-export const logout = createAsyncThunk("auth/logout", async () => {
-  await AsyncStorage.removeItem("authToken");
-});
+// 6️⃣ Logout
+export const logout = createAsyncThunk<void, void, { rejectValue: string }>(
+  "auth/logout",
+  async (_, { rejectWithValue }) => {
+    try {
+      await AsyncStorage.removeItem("authToken");
+    } catch (err: unknown) {
+      let message = "Logout failed";
+      if (err instanceof AxiosError) {
+        message = err.response?.data?.message || err.message;
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
+      return rejectWithValue(message);
+    }
+  }
+);
 
 /** --------------- Slice --------------- **/
 const authSlice = createSlice({
@@ -150,13 +155,13 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Load Token
+      // loadToken
       .addCase(loadToken.fulfilled, (state, action) => {
-        state.token = action.payload ?? null;
+        state.token = action.payload;
         state.isAuthenticated = Boolean(action.payload);
       })
 
-      // Login
+      // login
       .addCase(login.pending, (state) => {
         state.status = "loading";
       })
@@ -171,7 +176,7 @@ const authSlice = createSlice({
         state.error = action.payload || "Login failed";
       })
 
-      // Register
+      // register
       .addCase(register.pending, (state) => {
         state.status = "loading";
         state.registerMessage = null;
@@ -186,7 +191,7 @@ const authSlice = createSlice({
         state.error = action.payload || "Register failed";
       })
 
-      // Verify OTP
+      // verifyOtp
       .addCase(verifyOtp.pending, (state) => {
         state.status = "loading";
         state.otpMessage = null;
@@ -201,7 +206,7 @@ const authSlice = createSlice({
         state.error = action.payload || "Verify OTP failed";
       })
 
-      // Resend OTP
+      // resendOtp
       .addCase(resendOtp.pending, (state) => {
         state.status = "loading";
         state.otpMessage = null;
@@ -216,10 +221,14 @@ const authSlice = createSlice({
         state.error = action.payload || "Resend OTP failed";
       })
 
-      // Logout
+      // logout
       .addCase(logout.fulfilled, (state) => {
         state.token = null;
         state.isAuthenticated = false;
+        state.status = "idle";
+        state.error = null;
+        state.registerMessage = null;
+        state.otpMessage = null;
       });
   },
 });

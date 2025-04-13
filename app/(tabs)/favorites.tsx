@@ -1,7 +1,9 @@
 import HeadLine from "@/components/ui/HeadLine";
 import ProductCard from "@/components/ui/ProductCard";
+import useAuth from "@/redux/hooks/auth/useAuth";
 import useWishlist from "@/redux/hooks/wishlist/useWishlist";
 import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
 import { useRef } from "react";
 import {
   ActivityIndicator,
@@ -14,6 +16,7 @@ import {
 
 export default function Favorites() {
   const { wishlists, loading, loadMoreWishlists } = useWishlist();
+  const { isAuthenticated } = useAuth();
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleScroll = ({ nativeEvent }: any) => {
@@ -28,6 +31,40 @@ export default function Favorites() {
       }
     }
   };
+
+  if (!isAuthenticated) {
+    return (
+      <>
+        <HeadLine />
+        <ScrollView style={styles.container}>
+          <LinearGradient
+            colors={["#53CAFE", "#2555E7"]}
+            start={{ x: 0.0, y: 0.0 }}
+            end={{ x: 1.0, y: 0.0 }}
+            style={styles.banner}
+          >
+            <Text style={styles.headText}>Favorites</Text>
+          </LinearGradient>
+
+          <View style={styles.centered}>
+            <Text
+              onPress={() => router.push("/login")}
+              style={{
+                fontSize: 22,
+                fontWeight: "500",
+                color: "#000",
+                textAlign: "center",
+                fontFamily: "Saira-Medium",
+                marginTop: "60%",
+              }}
+            >
+              Please Login First
+            </Text>
+          </View>
+        </ScrollView>
+      </>
+    );
+  }
 
   return (
     <>
@@ -50,17 +87,15 @@ export default function Favorites() {
           ))}
         </View>
 
-        {loading ? (
+        {loading && (
           <View style={styles.loadingContainer}>
             <ActivityIndicator
-              animating={true}
+              animating
               size="large"
               color="#0000ff"
               style={styles.loadingProcess}
             />
           </View>
-        ) : (
-          <></>
         )}
       </ScrollView>
     </>
@@ -68,9 +103,16 @@ export default function Favorites() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "#fff",
-    marginBottom: Platform.select({ ios: 50, android: 10 }),
+  },
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    paddingBottom: Platform.select({ ios: 50, android: 10 }),
   },
   banner: {
     borderBottomLeftRadius: 30,
@@ -78,8 +120,6 @@ const styles = StyleSheet.create({
     minHeight: 70,
     padding: 15,
     marginBottom: 20,
-    display: "flex",
-    flexDirection: "column",
     justifyContent: "flex-end",
   },
   headText: {
@@ -90,25 +130,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontFamily: "Saira-Medium",
   },
-  menu: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginHorizontal: 20,
-    gap: 10,
-  },
-  menuText: {
-    fontSize: 14,
-    fontWeight: 500,
-    color: "#000000",
-    fontFamily: "Saira-Medium",
-  },
   row: {
     flexDirection: "row",
     flexWrap: "wrap",
     marginHorizontal: 15,
-    justifyContent: "flex-start",
     marginTop: 20,
     marginBottom: 30,
     rowGap: 20,
@@ -123,9 +148,6 @@ const styles = StyleSheet.create({
     height: 200,
   },
   loadingProcess: {
-    marginBottom: Platform.select({
-      ios: 100,
-      android: 0, // Adjust this value if needed for Android
-    }),
+    marginBottom: Platform.select({ ios: 100, android: 0 }),
   },
 });

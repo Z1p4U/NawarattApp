@@ -16,7 +16,15 @@ interface ImageCarouselProps {
 
 const ImageCarousel: React.FC<ImageCarouselProps> = ({ data }) => {
   const renderItem = ({ item }: { item: ImageCarouselItem }) => {
-    return <Image source={{ uri: item.image }} style={styles.carouselImage} />;
+    return (
+      <Image
+        source={
+          typeof item.image === "string" ? { uri: item.image } : item.image
+        }
+        style={styles.carouselImage}
+        resizeMode="contain"
+      />
+    );
   };
 
   return (

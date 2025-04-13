@@ -1,6 +1,6 @@
+import axiosInstance from "@/constants/axios";
 import { AllCategoryResponse, PaginationPayload } from "@/constants/config";
 import environment from "@/constants/environment";
-import axios from "axios";
 
 const fetchAllCategories = async (
   pagination: PaginationPayload
@@ -8,7 +8,7 @@ const fetchAllCategories = async (
   try {
     const params = { ...(pagination || {}) };
 
-    const response = await axios.get<AllCategoryResponse>(
+    const response = await axiosInstance.get<AllCategoryResponse>(
       `${environment.API_URL}/categories`,
       { params }
     );

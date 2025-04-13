@@ -1,10 +1,10 @@
+import axiosInstance from "@/constants/axios";
 import {
   AllProductResponse,
   PaginationPayload,
   ProductDetailResponse,
 } from "@/constants/config";
 import environment from "@/constants/environment";
-import axios from "axios";
 
 const fetchAllProducts = async (
   name: string | null,
@@ -13,7 +13,7 @@ const fetchAllProducts = async (
   try {
     const params = { name, ...(pagination || {}) };
 
-    const response = await axios.get<AllProductResponse>(
+    const response = await axiosInstance.get<AllProductResponse>(
       `${environment.API_URL}/products`,
       { params }
     );
@@ -29,7 +29,7 @@ const fetchProductDetail = async (
   id: number
 ): Promise<ProductDetailResponse> => {
   try {
-    const response = await axios.get<ProductDetailResponse>(
+    const response = await axiosInstance.get<ProductDetailResponse>(
       `${environment.API_URL}/products/${id}`
     );
     return response?.data;

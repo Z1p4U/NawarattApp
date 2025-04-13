@@ -1,16 +1,12 @@
+import axiosInstance from "@/constants/axios";
 import { ProfileResponse } from "@/constants/config";
 import environment from "@/constants/environment";
 import axios from "axios";
 
-const fetchProfile = async (token: string): Promise<ProfileResponse> => {
+const fetchProfile = async (): Promise<ProfileResponse> => {
   try {
-    const headers = {
-      Authorization: `Bearer ${token}`,
-    };
-
-    const response = await axios.get<ProfileResponse>(
-      `${environment.API_URL}/profile`,
-      { headers }
+    const response = await axiosInstance.get<ProfileResponse>(
+      `${environment.API_URL}/profile`
     );
     return response?.data;
   } catch (error) {

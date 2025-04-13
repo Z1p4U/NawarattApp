@@ -84,6 +84,7 @@ export default function Cart() {
   const clearCart = async () => {
     try {
       await AsyncStorage.removeItem("cart");
+      await AsyncStorage.clear();
       setData([]);
     } catch (error) {
       console.error("Error clearing cart:", error);
@@ -198,6 +199,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: "relative",
+    backgroundColor: "#fff",
   },
   scrollContent: {
     paddingBottom: 120, // ensure space for bottom checkout bar
@@ -292,6 +294,9 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
+    borderColor: "#00000010",
+    borderWidth: 1,
+    borderStyle: "solid",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",

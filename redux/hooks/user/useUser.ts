@@ -2,26 +2,25 @@ import { useEffect, useState } from "react";
 import { RootState, AppDispatch } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { handleFetchProfile } from "@/redux/services/user/userSlice";
-import useAuth from "../auth/useAuth";
 
 const useUser = () => {
   const dispatch = useDispatch<AppDispatch>();
   const profileResponse = useSelector((state: RootState) => state.user);
   const profileDetail = profileResponse?.profile;
   const [loading, setLoading] = useState(true);
-  const { token } = useAuth();
 
   useEffect(() => {
     const fetchProfileDetail = async () => {
-      if (!token) return; // Prevent calling dispatch with null
+      setLoading(true);
 
-      setLoading(true); // Ensure loading state is set before fetching
-      await dispatch(handleFetchProfile(token));
+      const res = await dispatch(handleFetchProfile());
       setLoading(false);
+
+      return res;
     };
 
     fetchProfileDetail();
-  }, [dispatch, token]);
+  }, [dispatch]);
 
   return {
     profileDetail,

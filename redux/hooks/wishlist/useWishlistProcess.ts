@@ -1,23 +1,25 @@
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
-import { handleToggleWishlist } from "@/redux/services/wishlist/wishlistSlice";
-import useAuth from "../auth/useAuth";
+import {
+  handleFetchAllWishList,
+  handleToggleWishlist,
+} from "@/redux/services/wishlist/wishlistSlice";
 
 const useWishlistProcess = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { token } = useAuth();
 
   const toggleWishlist = useCallback(
-    async (id: number | null) => {
+    async (id: number) => {
       try {
-        const response = await dispatch(
-          handleToggleWishlist({ token, id })
-        ).unwrap();
+        const response = await dispatch(handleToggleWishlist({ id })).unwrap();
+        await dispatch(
+          handleFetchAllWishList({ pagination: { page: 1, size: 20 } })
+        );
         return response;
       } catch (error: any) {
-        console.error("Failed to process:", error);
-        throw error.error || "Processing failed";
+        console.error("Failed to process wishlist toggle:", error);
+        throw error?.message || "Processing failed";
       }
     },
     [dispatch]

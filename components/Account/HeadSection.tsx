@@ -23,11 +23,10 @@ const HeadSection = ({ data }: any) => {
         <Text style={styles.headText}>Profile</Text>
         <View style={styles.center}>
           <Image
-            source={{
-              uri: "https://s3-alpha-sig.figma.com/img/ab78/ba80/99f577a1233d4c10a9529f8a84c9c584?Expires=1742774400&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=dJfu3wy4m7Bl84altipFK-W2ihxyShNYD91Hgi6pqLMpHsxntOqcnzN7triL74lqr8Z~OgNPq1eWzXyl4LeqaYYLkf6X86uHOGOw29JmXdKJ5xdph2U46JX5eZ6y9rZnmWEAWO9sgGwrTiQHyGUjEM14nygQFQ5ZeOT6TKYpeYFgSvwQCurixXJec~sK0GItTI3HSyUNWoi7M8sciz3jkU9im9j0VMzpO7h3omfwJcN-cW~Rd-rqvotmE1CbL0WE~wM1ktvU41ZPiheCnfqH14PRtskjClAblfsAzlBRDivrtVXO-9Qfmghf37lfs1y1ljvcBSwjBYJPxmIXHbqH6w__",
-            }}
+            source={require("@/assets/images/user.png")}
             style={styles.avatar}
           />
+
           <Text style={styles.name}>{data?.data?.name}</Text>
           <Text style={styles.phone}>{data?.data?.phone}</Text>
         </View>

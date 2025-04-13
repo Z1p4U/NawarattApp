@@ -13,16 +13,13 @@ import Svg, { ClipPath, Defs, G, Path, Rect } from "react-native-svg";
 import ImageCarousel, {
   ImageCarouselItem,
 } from "@/components/Home/ImageCarousel"; // adjust path if needed
-import ProductSlider, {
-  ProductSliderItem,
-} from "@/components/ui/ProductSlider";
+import ProductSlider from "@/components/ui/ProductSlider";
 import BrandList from "@/components/Home/BrandList";
 import HeadLine from "@/components/ui/HeadLine";
 import useProduct from "@/redux/hooks/product/useProduct";
 import { Link, useRouter } from "expo-router";
 import useUser from "@/redux/hooks/user/useUser";
 import useAuth from "@/redux/hooks/auth/useAuth";
-import useBrand from "@/redux/hooks/brand/useBrand";
 import DiscoverCarousel from "@/components/Home/DiscoverCarousel";
 
 export default function HomeScreen() {
@@ -34,20 +31,17 @@ export default function HomeScreen() {
   const carouselData: ImageCarouselItem[] = [
     {
       id: "1",
-      image:
-        "https://s3-alpha-sig.figma.com/img/5701/eaa6/7957e114a49c57d80fb2842e5294598f?Expires=1743379200&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=Td-pA8SMB58xkj8V4jS8zVurxdM1jvs0w9SNlNAdwbBA3kpVVCxCp83XGl7uBgxUDzT5vkLTwMo7iO0X1RJIJ~TQJX9-Cm1t3qJ1uWDOq3VLJVHK~6RpfDEQbz3Dl0UGBxKIqnLv2l4inYQ59CvJOXHPdhUb~W0OUnk4LmD0yGwwouYoVJYN3EwdFrxXyf5kYAmxCdkTT1UGztK5GLThS3447sfFS1Z-LJUAmn3vafSd3fxzTV8N4Zua7laBm2s683K2veeTToj4udEMy4BxTAxG7mjxBZKbZlUsxD4-Cl9GI~6ONjjRmNeZT9e3TgL5m~BuOnnbNmRhOvmxO5ISPw__",
+      image: require("@/assets/images/banner1.png"),
       bgContain: true,
     },
     {
       id: "2",
-      image:
-        "https://s3-alpha-sig.figma.com/img/6c21/8793/d7ba2ad2b37fafb703aeeec8e40ad122?Expires=1743379200&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=T6Qt25MooaZvA0yvErS0optejYqR7fCMMUvKIHUklmttCf-uqDX~bRdBGlTlbNRpjVX4Rlosv1NBXKDRTPnqXjvKqkq3oBJsAVDg5AHjJs-1-u5jcGQ4vN~XtuG1DvkeI-7qTP2-oYxHjEMPvP7zBadRXOXmrjTDV8vSKT9qmuL8z-ZZ3JgA0oYKFUKTGyLA0T7nT35Tn~GaSy~PK9jWR-q3toH9BlxrMKiYF2-Dmc72~n9htQ7hzonbYl~IGq2Vf5VfbU3wz7SOFQTr6XW5VKUQoGj1WngwC~SK~e1GwDRcOB7MRPNockOIn5OrEvXNGR-Lg2iVQn3yxPOl04AFgw__",
-      bgContain: true,
+      image: require("@/assets/images/banner2.png"),
+      bgContain: false,
     },
     {
       id: "3",
-      image:
-        "https://s3-alpha-sig.figma.com/img/5701/eaa6/7957e114a49c57d80fb2842e5294598f?Expires=1743379200&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=Td-pA8SMB58xkj8V4jS8zVurxdM1jvs0w9SNlNAdwbBA3kpVVCxCp83XGl7uBgxUDzT5vkLTwMo7iO0X1RJIJ~TQJX9-Cm1t3qJ1uWDOq3VLJVHK~6RpfDEQbz3Dl0UGBxKIqnLv2l4inYQ59CvJOXHPdhUb~W0OUnk4LmD0yGwwouYoVJYN3EwdFrxXyf5kYAmxCdkTT1UGztK5GLThS3447sfFS1Z-LJUAmn3vafSd3fxzTV8N4Zua7laBm2s683K2veeTToj4udEMy4BxTAxG7mjxBZKbZlUsxD4-Cl9GI~6ONjjRmNeZT9e3TgL5m~BuOnnbNmRhOvmxO5ISPw__",
+      image: require("@/assets/images/banner1.png"),
       bgContain: true,
     },
   ];
@@ -65,9 +59,7 @@ export default function HomeScreen() {
         >
           <View style={styles.row}>
             <Image
-              source={{
-                uri: "https://s3-alpha-sig.figma.com/img/ab78/ba80/99f577a1233d4c10a9529f8a84c9c584?Expires=1743379200&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=p9OUsmHC2AtIC0W7jBY7d~SLXXgs~8IA-5rhFoFb5C5PvMrtpeWt3kaCRrB1R~43u4V8fslGy3w40puVrAUTPKD-tKMGZHFa9DBTDGTO3YKYKqYfSkdDB9CPV0eui9GPLDCtyWoLWIl-6zBMx9NEjvQ~wCO1ro8aVtGG1jiiw9JXxVaN4qYpYZO9YXDjP-AfYfp7aY~1lf446WbzKwocxZNuS5RM3xZ0GOuRhsG8rqcvzKDALumK8lDJdG2ImvQVA8gHWkmpLWh6Ebda4PwwD1DHbb3zITPVROCyTlPI5eRjmyuCq6e~aYWBgsSSQy1YLY90~lyb6pD8tJx0avDHlA__",
-              }}
+              source={require("@/assets/images/user.png")}
               style={styles.avatar}
             />
             <View style={styles.center}>

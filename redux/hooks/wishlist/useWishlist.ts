@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
 import { handleFetchAllWishList } from "@/redux/services/wishlist/wishlistSlice";
-import useAuth from "../auth/useAuth";
 
 const useWishlist = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -10,15 +9,11 @@ const useWishlist = () => {
     (state: RootState) => state.wishlist
   );
   const [pagination, setPagination] = useState({ page: 1, size: 20 });
-  const { token } = useAuth();
 
   useEffect(() => {
-    if (token) {
-      dispatch(handleFetchAllWishList({ token, pagination }));
-    } else {
-      console.log("Token is null, not fetching wishlists");
-    }
-  }, [dispatch, pagination, token]);
+    console.log("doing");
+    dispatch(handleFetchAllWishList({ pagination }));
+  }, [dispatch, pagination]);
 
   const loading = status === "loading";
 
@@ -31,13 +26,13 @@ const useWishlist = () => {
     }
   };
 
-  const isInWishlist = (productId: number): boolean => {
-    return (
-      wishlists?.some((item: any) => item?.product?.id === productId) ?? false
-    );
-  };
+  const isInWishlist = useCallback(
+    (productId: number): boolean =>
+      wishlists?.some((item: any) => item?.product?.id === productId) ?? false,
+    [wishlists]
+  );
 
-  console.log("Current wishlist length:", wishlists?.length);
+  // console.log("Current wishlist length:", wishlists?.length);
 
   return {
     wishlists,

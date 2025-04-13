@@ -89,7 +89,7 @@ export default function Catalog() {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fff",
-    marginBottom: Platform.select({ ios: 50, android: 10 }),
+    paddingBottom: Platform.select({ ios: 50, android: 10 }),
   },
   banner: {
     borderBottomLeftRadius: 30,

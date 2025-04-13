@@ -1,6 +1,6 @@
+import axiosInstance from "@/constants/axios";
 import { AllBrandResponse, PaginationPayload } from "@/constants/config";
 import environment from "@/constants/environment";
-import axios from "axios";
 
 const fetchAllBrands = async (
   pagination: PaginationPayload
@@ -8,7 +8,7 @@ const fetchAllBrands = async (
   try {
     const params = { ...(pagination || {}) };
 
-    const response = await axios.get<AllBrandResponse>(
+    const response = await axiosInstance.get<AllBrandResponse>(
       `${environment.API_URL}/brands`,
       { params }
     );

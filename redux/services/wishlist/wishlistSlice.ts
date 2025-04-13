@@ -8,10 +8,12 @@ import {
   fetchAllWishlists,
   fetchToggleWishlist,
 } from "@/redux/api/wishlist/wishlistApi";
+import { act } from "react";
 
 /** --------------- State Interfaces --------------- **/
 interface WishlistState {
-  wishlists: AllWishlistResponse["data"] | null;
+  wishlists: AllWishlistResponse["data"];
+  total: number; // ← total number of items on server
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
@@ -19,6 +21,7 @@ interface WishlistState {
 /** --------------- Initial State --------------- **/
 const initialState: WishlistState = {
   wishlists: [],
+  total: 0,
   status: "idle",
   error: null,
 };
@@ -28,11 +31,11 @@ const initialState: WishlistState = {
 // Fetch All Wishlists
 export const handleFetchAllWishList = createAsyncThunk<
   AllWishlistResponse, // Return type
-  { token: string | null; pagination: PaginationPayload },
+  { pagination: PaginationPayload },
   { rejectValue: string } // Error handling type
->("wishlists/fetchAll", async ({ token, pagination }, { rejectWithValue }) => {
+>("wishlists/fetchAll", async ({ pagination }, { rejectWithValue }) => {
   try {
-    const response = await fetchAllWishlists(token, pagination);
+    const response = await fetchAllWishlists(pagination);
     return response;
   } catch (error: any) {
     console.error("Wishlist List Fetching error:", error);
@@ -42,16 +45,15 @@ export const handleFetchAllWishList = createAsyncThunk<
 
 // Toggle Wishlists
 export const handleToggleWishlist = createAsyncThunk<
-  ToggleWishlistResponse, // Return type
-  { token: string | null; id: number | null },
-  { rejectValue: string } // Error handling type
->("wishlists/toggle", async ({ token, id }, { rejectWithValue }) => {
+  ToggleWishlistResponse,
+  { id: number | null },
+  { rejectValue: string }
+>("wishlists/toggle", async ({ id }, { rejectWithValue }) => {
   try {
-    const response = await fetchToggleWishlist(token, id);
-    // console.log("Process success:", response);
+    const response = await fetchToggleWishlist(id);
     return response;
   } catch (error: any) {
-    console.error(" Fetching process error:", error);
+    console.error("Fetching process error:", error);
     return rejectWithValue(error.response?.data || "Failed to process");
   }
 });
@@ -64,7 +66,7 @@ const wishlistSlice = createSlice({
     clearWishlistState(state) {
       state.status = "idle";
       state.error = null;
-      state.wishlists = null;
+      state.wishlists = [];
     },
   },
   extraReducers: (builder) => {
@@ -83,8 +85,8 @@ const wishlistSlice = createSlice({
 
         state.wishlists =
           pagination.page === 1
-            ? action.payload.data || [] // Ensure it's never null
-            : [...(state.wishlists ?? []), ...(action.payload.data ?? [])]; // Ensure both are arrays
+            ? action.payload.data || []
+            : [...(state.wishlists ?? []), ...(action.payload.data ?? [])];
       })
       .addCase(handleFetchAllWishList.rejected, (state, action) => {
         state.status = "failed";
@@ -98,7 +100,18 @@ const wishlistSlice = createSlice({
       .addCase(handleToggleWishlist.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.error = null;
-        const toggledId = action.meta.arg.id;
+
+        // const toggledId = action.meta.arg.id!;
+        // const newItem = action.payload.data;
+
+        // const idx = state.wishlists.findIndex((item) => item.id === toggledId);
+
+        // if (idx !== -1) {
+        //   state.wishlists.splice(idx, 1);
+        // } else if (newItem) {
+        //   console.log(newItem);
+        //   state.wishlists.unshift(newItem);
+        // }
       })
       .addCase(handleToggleWishlist.rejected, (state, action) => {
         state.status = "failed";

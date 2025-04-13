@@ -56,10 +56,36 @@ export interface CardProps {
 // General
 
 // User Profile
-export interface ProfileResponse {
+export interface UserData {
+  id: number;
   name: string;
-  shop: string;
+  email: string;
+  phone: string | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  verified: boolean;
+  role: {
+    id: number;
+    name: string;
+  };
+  user_data: {
+    id: number;
+    shop_name: string;
+    gender: string;
+    avatar: string;
+    age: number | null;
+    state: string | null;
+    city: string | null;
+    address: string | null;
+    created_at: string;
+    updated_at: string;
+  };
 }
+export interface ProfileResponse {
+  data: UserData;
+}
+
 // User Profile
 
 // Brand
@@ -130,5 +156,7 @@ export interface AllWishlistResponse {
 
 export interface ToggleWishlistResponse {
   message: string;
+  data: Wishlist;
 }
+
 // Wishlist

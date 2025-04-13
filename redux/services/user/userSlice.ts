@@ -1,6 +1,6 @@
 import { ProfileResponse } from "@/constants/config";
 import { fetchProfile } from "@/redux/api/user/userApi";
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 /** --------------- State Interfaces --------------- **/
 interface ProfileState {
@@ -18,15 +18,13 @@ const initialState: ProfileState = {
 
 /** --------------- Async Thunks --------------- **/
 
-// Fetch Profile
 export const handleFetchProfile = createAsyncThunk<
-  ProfileResponse, // Return type
-  string,
-  { rejectValue: string } // Error handling type
->("user/fetchProfile", async (token, { rejectWithValue }) => {
+  ProfileResponse,
+  void,
+  { rejectValue: string }
+>("user/fetchProfile", async (_, { rejectWithValue }) => {
   try {
-    const response = await fetchProfile(token);
-    // console.log(response);
+    const response = await fetchProfile();
     return response;
   } catch (error: any) {
     console.error("Profile data Fetching error:", error);
@@ -47,7 +45,6 @@ const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch All Profile
       .addCase(handleFetchProfile.pending, (state) => {
         state.status = "loading";
       })
