@@ -7,14 +7,18 @@ import {
   Platform,
   TextInput,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import HeadLine from "@/components/ui/HeadLine";
 import useUser from "@/redux/hooks/user/useUser";
 import { PinPayload, ProfilePayload } from "@/constants/config";
+import useAuth from "@/redux/hooks/auth/useAuth";
+import { router } from "expo-router";
 
 export default function EditAccount() {
   const { profileDetail, updateProfile } = useUser();
+  const { logout } = useAuth();
 
   const [formData, setFormData] = useState<ProfilePayload>({
     name: profileDetail?.data?.name || "",
@@ -62,7 +66,30 @@ export default function EditAccount() {
       return;
     }
     console.log("Submitting pin data", pinData);
+    alert("This feature will coming soon");
     // dispatch update pin action here
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      "Confirm Logout",
+      "Are you sure you want to logout?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Logout",
+          onPress: () => {
+            logout();
+
+            router.replace("/");
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   return (
@@ -208,6 +235,12 @@ export default function EditAccount() {
               <Text style={styles.chatText}>Update Pin</Text>
             </LinearGradient>
           </TouchableOpacity>
+
+          <TouchableOpacity style={{ marginTop: 30 }} onPress={handleLogout}>
+            <View style={styles.outline}>
+              <Text style={styles.outlineText}>Logout</Text>
+            </View>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </>
@@ -307,6 +340,24 @@ const styles = StyleSheet.create({
   },
   chatText: {
     color: "#fff",
+    fontSize: 16,
+    fontWeight: "500",
+    fontFamily: "Saira-Medium",
+  },
+  outline: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 1000,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 15,
+    borderColor: "#ff0000",
+    borderWidth: 2,
+  },
+  outlineText: {
+    color: "#ff0000",
     fontSize: 16,
     fontWeight: "500",
     fontFamily: "Saira-Medium",

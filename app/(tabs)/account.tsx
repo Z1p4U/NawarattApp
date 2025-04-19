@@ -150,6 +150,20 @@ const styles = StyleSheet.create({
     marginTop: 25,
     gap: 10,
   },
+  banner: {
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    minHeight: 70,
+    padding: 15,
+    marginBottom: 20,
+    justifyContent: "flex-end",
+  },
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
   headText: {
     fontSize: 22,
     fontWeight: 500,

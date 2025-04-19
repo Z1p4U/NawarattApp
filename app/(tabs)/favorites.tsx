@@ -2,9 +2,10 @@ import HeadLine from "@/components/ui/HeadLine";
 import ProductCard from "@/components/ui/ProductCard";
 import useAuth from "@/redux/hooks/auth/useAuth";
 import useWishlist from "@/redux/hooks/wishlist/useWishlist";
+import RouteGuard from "@/utils/RouteGuard";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import {
   ActivityIndicator,
   Platform,
@@ -32,11 +33,17 @@ export default function Favorites() {
     }
   };
 
-  if (!isAuthenticated) {
-    return (
-      <>
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [loading, isAuthenticated, router]);
+
+  return (
+    <>
+      <RouteGuard>
         <HeadLine />
-        <ScrollView style={styles.container}>
+        <ScrollView style={styles.container} onScroll={handleScroll}>
           <LinearGradient
             colors={["#53CAFE", "#2555E7"]}
             start={{ x: 0.0, y: 0.0 }}
@@ -46,58 +53,26 @@ export default function Favorites() {
             <Text style={styles.headText}>Favorites</Text>
           </LinearGradient>
 
-          <View style={styles.centered}>
-            <Text
-              onPress={() => router.push("/login")}
-              style={{
-                fontSize: 22,
-                fontWeight: "500",
-                color: "#000",
-                textAlign: "center",
-                fontFamily: "Saira-Medium",
-                marginTop: "60%",
-              }}
-            >
-              Please Login First
-            </Text>
+          <View style={styles.row}>
+            {wishlists?.map((item) => (
+              <View key={item?.id} style={styles.item}>
+                <ProductCard product={item?.product} />
+              </View>
+            ))}
           </View>
-        </ScrollView>
-      </>
-    );
-  }
 
-  return (
-    <>
-      <HeadLine />
-      <ScrollView style={styles.container} onScroll={handleScroll}>
-        <LinearGradient
-          colors={["#53CAFE", "#2555E7"]}
-          start={{ x: 0.0, y: 0.0 }}
-          end={{ x: 1.0, y: 0.0 }}
-          style={styles.banner}
-        >
-          <Text style={styles.headText}>Favorites</Text>
-        </LinearGradient>
-
-        <View style={styles.row}>
-          {wishlists?.map((item) => (
-            <View key={item?.id} style={styles.item}>
-              <ProductCard product={item?.product} />
+          {loading && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator
+                animating
+                size="large"
+                color="#0000ff"
+                style={styles.loadingProcess}
+              />
             </View>
-          ))}
-        </View>
-
-        {loading && (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator
-              animating
-              size="large"
-              color="#0000ff"
-              style={styles.loadingProcess}
-            />
-          </View>
-        )}
-      </ScrollView>
+          )}
+        </ScrollView>
+      </RouteGuard>
     </>
   );
 }

@@ -13,6 +13,8 @@ import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import useAuth from "@/redux/hooks/auth/useAuth";
+import Svg, { Path } from "react-native-svg";
+import GoBack from "@/components/ui/GoBack";
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -73,6 +75,8 @@ export default function RegisterScreen() {
           <Text style={styles.headerSubtitle}>Medical Distribution</Text>
         </View>
       </LinearGradient>
+
+      <GoBack />
 
       {/* Register Section */}
       <ScrollView style={styles.formContainer}>
@@ -153,7 +157,7 @@ export default function RegisterScreen() {
             onPress={() => setShowPassword(!showPassword)}
           >
             <Ionicons
-              name={showPassword ? "eye-off-outline" : "eye-outline"}
+              name={showPassword ? "eye-outline" : "eye-off-outline"}
               size={22}
               color="#555"
             />
@@ -176,7 +180,7 @@ export default function RegisterScreen() {
             onPress={() => setShowRetypePassword(!showRetypePassword)}
           >
             <Ionicons
-              name={showRetypePassword ? "eye-off-outline" : "eye-outline"}
+              name={showRetypePassword ? "eye-outline" : "eye-off-outline"}
               size={22}
               color="#555"
             />
@@ -219,11 +223,11 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     alignItems: "center",
     width: "185%",
-    marginTop: "-115%",
+    marginTop: "-120%",
     borderRadius: 10000,
   },
   headerDiv: {
-    transform: "translateY(-50%)",
+    transform: "translateY(-40%)",
     alignItems: "center",
   },
   headerTitle: {
@@ -244,12 +248,13 @@ const styles = StyleSheet.create({
   formContainer: {
     flex: 1,
     paddingHorizontal: 20,
-    marginTop: 25,
     width: "100%",
   },
+
   registerText: {
     fontSize: 22,
-    marginBottom: 35,
+    marginTop: 10,
+    marginBottom: 30,
     fontFamily: "Saira-Medium",
     textAlign: "center",
   },

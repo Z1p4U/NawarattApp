@@ -29,6 +29,7 @@ export default function ProductDetail() {
   const searchParams = useSearchParams();
   const productId = Number(searchParams.get("id")) || 0;
   const router = useRouter();
+
   const { productDetail } = useProductDetail(productId);
   const { toggleWishlist } = useWishlistProcess();
   const { isInWishlist } = useWishlist();
@@ -57,7 +58,7 @@ export default function ProductDetail() {
     };
 
     checkCart();
-  }, [productId]); // Runs when productId changes
+  }, [productId]);
 
   const addedInWishlist = isInWishlist(productId);
 
@@ -72,34 +73,52 @@ export default function ProductDetail() {
   const handleConfirm = async () => {
     try {
       const cartData = await AsyncStorage.getItem("cart");
-      const cart = cartData ? JSON.parse(cartData) : [];
+      const cart: Array<{
+        productId: number;
+        count: number;
+        total: number;
+        option: string;
+        pdData: any;
+      }> = cartData ? JSON.parse(cartData) : [];
 
-      const updatedPayload = {
-        productId,
-        count: payload.count,
-        total: payload.count * Number(productDetail?.price || 0),
-        option: payload.option,
-        pdData: {
-          name: productDetail?.name,
-          category: productDetail?.category?.name,
-          thumbnail: productDetail?.thumbnail,
-          price: productDetail?.price,
-        },
-      };
+      const incomingCount = payload.count;
+      const incomingOption = payload.option;
+      const price = Number(productDetail?.price || 0);
 
-      cart.push(updatedPayload);
+      const idx = cart.findIndex((item) => item.productId === productId);
+
+      if (idx !== -1) {
+        // Update existing entry, including option
+        const existing = cart[idx];
+        const newCount = existing.count + incomingCount;
+        cart[idx] = {
+          ...existing,
+          count: newCount,
+          total: newCount * price,
+          option: incomingOption, // ← overwrite with newly selected option
+        };
+      } else {
+        // Add new entry
+        cart.push({
+          productId,
+          count: incomingCount,
+          total: incomingCount * price,
+          option: incomingOption,
+          pdData: payload.pdData,
+        });
+      }
 
       await AsyncStorage.setItem("cart", JSON.stringify(cart));
 
-      // Reset modal and payload state
       setModalVisible(false);
       setPayload((prev) => ({
         ...prev,
         count: 1,
-        total: Number(productDetail?.price || 0),
+        total: price,
         option: "Order မှဖယ်ရှားပေးပါ",
       }));
 
+      setAlreadyInCart(true);
       router.push("/cart");
     } catch (error) {
       console.error("Error saving to cart:", error);
@@ -177,9 +196,7 @@ export default function ProductDetail() {
               style={styles.shopImg}
             />
 
-            <Text style={styles.productCategoryText}>
-              {productDetail?.brand?.name}
-            </Text>
+            <Text style={styles.brandName}>{productDetail?.brand?.name}</Text>
           </View>
 
           {/* ExpandableDescription */}
@@ -202,9 +219,7 @@ export default function ProductDetail() {
 
           <TouchableOpacity
             style={{ marginTop: 30 }}
-            disabled={alreadyInCart} // Now correctly checks if in cart
             onPress={() => {
-              // console.log("Modal Visible:", modalVisible); // Check if this is updating
               setModalVisible(true);
             }}
           >
@@ -215,7 +230,7 @@ export default function ProductDetail() {
               style={styles.chat}
             >
               <Text style={styles.chatText}>
-                {alreadyInCart ? "Already In Cart" : "Add To Cart"}
+                {alreadyInCart ? "Add More" : "Add to cart"}
               </Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -276,7 +291,7 @@ const styles = StyleSheet.create({
     fontFamily: "Saira-Regular",
   },
   productPriceText: {
-    fontSize: 20,
+    fontSize: 24,
     color: "#000000",
     fontFamily: "Saira-Medium",
   },
@@ -284,12 +299,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#000000",
     fontFamily: "Saira-Regular",
-    marginLeft: 15,
   },
   productCategoryActiveText: {
     fontSize: 14,
     color: "#275AE8",
     fontFamily: "Saira-Regular",
+  },
+  brandName: {
+    fontSize: 14,
+    color: "#000000",
+    fontFamily: "Saira-Regular",
+    marginLeft: 15,
   },
   shopImg: {
     width: 50,

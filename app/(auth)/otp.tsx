@@ -10,13 +10,12 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import useAuth from "@/redux/hooks/auth/useAuth";
-
-interface LocalSearchParams {
-  phone: string;
-}
+import GoBack from "@/components/ui/GoBack";
 
 export default function VerifyOtpScreen() {
-  const { phone } = useLocalSearchParams<LocalSearchParams>();
+  const params = useLocalSearchParams();
+  const phone = params.phone as string;
+
   const { verifyOtp, resendOtp } = useAuth();
   const router = useRouter();
   const [otp, setOtp] = useState("");
@@ -58,16 +57,14 @@ export default function VerifyOtpScreen() {
     <View style={styles.container}>
       {/* Gradient Header */}
       <LinearGradient colors={["#54CAFF", "#275AE8"]} style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={handleGoBack}>
-          {/* You can add an icon here if needed */}
-          <Text style={styles.backText}>Go back</Text>
-        </TouchableOpacity>
         <View style={styles.headerDiv}>
           <Text style={styles.headerTitle}>Welcome to</Text>
           <Text style={styles.headerBrand}>Nawarratt</Text>
           <Text style={styles.headerSubtitle}>Medical Distribution</Text>
         </View>
       </LinearGradient>
+
+      <GoBack />
 
       {/* Verify OTP Section */}
       <View style={styles.formContainer}>
@@ -123,7 +120,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     alignItems: "center",
     width: "185%",
-    marginTop: "-115%",
+    marginTop: "-120%",
     borderRadius: 10000,
   },
   backButton: {
@@ -139,7 +136,7 @@ const styles = StyleSheet.create({
     fontFamily: "Saira-Medium",
   },
   headerDiv: {
-    transform: [{ translateY: -50 }],
+    transform: [{ translateY: -40 }],
     alignItems: "center",
   },
   headerTitle: {
@@ -163,7 +160,7 @@ const styles = StyleSheet.create({
   formContainer: {
     flex: 1,
     paddingHorizontal: 20,
-    marginTop: 50,
+    marginTop: 40,
   },
   verifyTitle: {
     fontSize: 22,

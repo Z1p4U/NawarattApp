@@ -47,7 +47,7 @@ export default function Catalog() {
 
         <View style={styles.menu}>
           <Text style={styles.menuText}>All Products</Text>
-          <View style={styles.menu}>
+          <View style={{ display: "none" }}>
             <Text style={styles.menuText}>Sort</Text>
             <Svg width={12} height={14} viewBox="0 0 12 14" fill="none">
               <Path

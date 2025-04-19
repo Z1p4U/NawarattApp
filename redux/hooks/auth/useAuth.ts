@@ -6,6 +6,7 @@ import {
   verifyOtp,
   resendOtp,
   setIsAuthenticated,
+  logout,
 } from "@/redux/services/auth/authSlice";
 import { RootState, AppDispatch } from "@/redux/store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -18,7 +19,7 @@ const useAuth = () => {
   );
   const [loading, setLoading] = useState<boolean>(true);
 
-  console.log("isAuthenticated : ", isAuthenticated);
+  // console.log("isAuthenticated : ", isAuthenticated);
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -105,6 +106,17 @@ const useAuth = () => {
     [dispatch]
   );
 
+  // Logout handler
+  const handleLogout = useCallback(async () => {
+    try {
+      const response = await dispatch(logout()).unwrap();
+      return response;
+    } catch (error: any) {
+      console.error("Failed to logout:", error);
+      throw error.error || "Logout failed";
+    }
+  }, [dispatch]);
+
   return {
     token,
     isAuthenticated,
@@ -113,6 +125,7 @@ const useAuth = () => {
     register: handleRegister,
     verifyOtp: handleVerifyOtp,
     resendOtp: handleResendOtp,
+    logout: handleLogout,
   };
 };
 

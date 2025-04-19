@@ -15,6 +15,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import useAuth from "@/redux/hooks/auth/useAuth"; // Import useAuth
 import Svg, { Path } from "react-native-svg";
+import { goBack } from "expo-router/build/global-state/routing";
+import GoBack from "@/components/ui/GoBack";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -55,6 +57,8 @@ export default function LoginScreen() {
         </View>
       </LinearGradient>
 
+      <GoBack />
+
       {/* Login Section */}
       <ScrollView style={styles.formContainer}>
         <Text style={styles.loginText}>Login to your Account</Text>
@@ -86,7 +90,7 @@ export default function LoginScreen() {
             onPress={() => setShowPassword(!showPassword)}
           >
             <Ionicons
-              name={showPassword ? "eye-off-outline" : "eye-outline"}
+              name={showPassword ? "eye-outline" : "eye-off-outline"}
               size={22}
               color="#555"
             />
@@ -176,11 +180,11 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     alignItems: "center",
     width: "185%",
-    marginTop: "-115%",
+    marginTop: "-120%",
     borderRadius: 10000,
   },
   headerDiv: {
-    transform: "translateY(-50%)",
+    transform: "translateY(-40%)",
     alignItems: "center",
   },
   headerTitle: {
@@ -201,11 +205,11 @@ const styles = StyleSheet.create({
   formContainer: {
     flex: 1,
     paddingHorizontal: 20,
-    marginTop: 25,
   },
   loginText: {
     fontSize: 22,
-    marginBottom: 35,
+    marginTop: 10,
+    marginBottom: 30,
     fontFamily: "Saira-Medium",
     textAlign: "center",
   },
