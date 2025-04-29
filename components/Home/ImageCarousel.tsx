@@ -19,10 +19,9 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ data }) => {
     return (
       <Image
         source={
-          typeof item.image === "string" ? { uri: item.image } : item.image
+          typeof item?.image === "string" ? { uri: item?.image } : item.image
         }
         style={styles.carouselImage}
-        resizeMode="contain"
       />
     );
   };

@@ -51,6 +51,22 @@ export default function ProductDetail() {
   });
 
   useEffect(() => {
+    if (!productDetail) return;
+    setPayload({
+      productId,
+      count: 1,
+      total: Number(productDetail.price),
+      option: "Order မှဖယ်ရှားပေးပါ",
+      pdData: {
+        name: productDetail.name,
+        price: Number(productDetail.price),
+        category: productDetail.category.name,
+        thumbnail: productDetail.thumbnail,
+      },
+    });
+  }, [productDetail, productId]);
+
+  useEffect(() => {
     const checkCart = async () => {
       const cartData = await AsyncStorage.getItem("cart");
       const cart = cartData ? JSON.parse(cartData) : [];

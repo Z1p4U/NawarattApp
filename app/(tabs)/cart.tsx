@@ -80,6 +80,16 @@ export default function Cart() {
     }
   };
 
+  const removeCartItem = async (productId: string) => {
+    try {
+      const updatedCart = data.filter((item) => item.productId !== productId);
+      setData(updatedCart);
+      await AsyncStorage.setItem("cart", JSON.stringify(updatedCart));
+    } catch (error) {
+      console.error("Error removing item:", error);
+    }
+  };
+
   // Clear the entire cart
   const clearCart = async () => {
     try {
@@ -137,6 +147,7 @@ export default function Cart() {
                 }
                 style={styles.pdCardImg}
               />
+
               <View style={styles.pdCardInfo}>
                 <Text
                   numberOfLines={1}
@@ -162,6 +173,13 @@ export default function Cart() {
                   </View>
                 </View>
               </View>
+              {/* ✅ Add Remove Button */}
+              <TouchableOpacity
+                onPress={() => removeCartItem(item.productId)}
+                style={styles.removeBtn}
+              >
+                <Text style={styles.removeBtnText}>x</Text>
+              </TouchableOpacity>
             </View>
           ))}
         </View>
@@ -273,6 +291,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     gap: 14,
+  },
+  removeBtn: {
+    alignSelf: "flex-start",
+    backgroundColor: "#ff4d4d",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  removeBtnText: {
+    color: "#fff",
+    fontSize: 12,
+    fontFamily: "Saira-Bold",
   },
   totalText: {
     fontSize: 13,
