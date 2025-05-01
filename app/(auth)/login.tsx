@@ -15,7 +15,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import useAuth from "@/redux/hooks/auth/useAuth"; // Import useAuth
 import Svg, { Path } from "react-native-svg";
-import { goBack } from "expo-router/build/global-state/routing";
 import GoBack from "@/components/ui/GoBack";
 
 export default function LoginScreen() {

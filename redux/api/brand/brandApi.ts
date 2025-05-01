@@ -3,15 +3,17 @@ import { AllBrandResponse, PaginationPayload } from "@/constants/config";
 import environment from "@/constants/environment";
 
 const fetchAllBrands = async (
-  pagination: PaginationPayload
+  pagination: PaginationPayload,
+  is_highlight: boolean
 ): Promise<AllBrandResponse> => {
   try {
-    const params = { ...(pagination || {}) };
+    const params = { ...(pagination || {}), is_highlight };
 
     const response = await axiosInstance.get<AllBrandResponse>(
       `${environment.API_URL}/brands`,
       { params }
     );
+
     // console.log(response);
     return response?.data;
   } catch (error) {

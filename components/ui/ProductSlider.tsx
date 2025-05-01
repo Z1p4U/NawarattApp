@@ -1,14 +1,19 @@
 import { CardProps } from "@/constants/config";
-import { useNavigation } from "expo-router";
 import React from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import ProductCard from "./ProductCard";
+import Loader from "./Loader";
 
 interface ProductSliderProps {
   products: CardProps[] | null;
+  loading: boolean | null;
 }
 
-const ProductSlider: React.FC<ProductSliderProps> = ({ products }) => {
+const ProductSlider: React.FC<ProductSliderProps> = ({ products, loading }) => {
+  if (loading || !products || products?.length === 0) {
+    return <Loader />;
+  }
+
   return (
     <ScrollView
       horizontal
@@ -37,5 +42,6 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     width: 150,
+    marginRight: 16,
   },
 });

@@ -1,39 +1,42 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState, AppDispatch } from "@/redux/store";
 import { handleFetchAllProductList } from "@/redux/services/product/productSlice";
+import { RootState, AppDispatch } from "@/redux/store";
+import type { PaginationPayload } from "@/constants/config";
 
-const useProduct = () => {
+export default function useProduct(
+  name: string | null,
+  brandId: number | null,
+  pageSize = 20
+) {
   const dispatch = useDispatch<AppDispatch>();
-  const { products, status } = useSelector((state: RootState) => state.product);
-  const [name, setName] = useState("");
-  const [pagination, setPagination] = useState({ page: 1, size: 20 });
+  const { products, status } = useSelector((s: RootState) => s.product);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
-    dispatch(handleFetchAllProductList({ name, pagination }));
-  }, [dispatch, pagination, name]);
+    setPage(1);
+  }, [name, brandId]);
 
-  // ✅ Loading will be true if Redux status is "loading"
-  const loading = status === "loading";
+  useEffect(() => {
+    const pagination: PaginationPayload = { page, size: pageSize };
+    dispatch(
+      handleFetchAllProductList({
+        name,
+        brand_id: brandId != null && brandId > 0 ? brandId : undefined,
+        pagination,
+      })
+    );
+  }, [dispatch, name, brandId, page, pageSize]);
 
-  const loadMoreProducts = () => {
-    if (!loading) {
-      setPagination((prev) => ({
-        ...prev,
-        page: prev.page + 1,
-      }));
+  const loadMore = useCallback(() => {
+    if (status !== "loading") {
+      setPage((p) => p + 1);
     }
-  };
+  }, [status]);
 
   return {
     products,
-    loading,
-    pagination,
-    setPagination,
-    name,
-    setName,
-    loadMoreProducts, // ✅ Use this in FlatList `onEndReached`
+    loading: status === "loading",
+    loadMore,
   };
-};
-
-export default useProduct;
+}

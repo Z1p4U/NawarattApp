@@ -8,12 +8,13 @@ const useBrand = () => {
   const { brands } = useSelector((state: RootState) => state.brand);
   const [pagination, setPagination] = useState({ page: 1, size: 9 });
   const [loading, setLoading] = useState(false);
+  const [is_highlight, setIsHighlight] = useState(true);
 
   useEffect(() => {
     const fetchAllBrands = async () => {
       if (loading) return;
       setLoading(true);
-      await dispatch(handleFetchAllBrandList({ pagination }));
+      await dispatch(handleFetchAllBrandList({ pagination, is_highlight }));
       setLoading(false);
     };
 
@@ -24,7 +25,9 @@ const useBrand = () => {
     brands,
     loading,
     pagination,
+    is_highlight,
     setPagination,
+    setIsHighlight,
   };
 };
 

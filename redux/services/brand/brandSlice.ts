@@ -21,18 +21,21 @@ const initialState: BrandState = {
 // Fetch All Brands
 export const handleFetchAllBrandList = createAsyncThunk<
   AllBrandResponse, // Return type
-  { pagination: PaginationPayload }, // Argument type
+  { pagination: PaginationPayload; is_highlight: boolean }, // Argument type
   { rejectValue: string } // Error handling type
->("brands/fetchAll", async ({ pagination }, { rejectWithValue }) => {
-  try {
-    const response = await fetchAllBrands(pagination);
-    // console.log("Brand List Fetching success:", response);
-    return response;
-  } catch (error: any) {
-    console.error("Brand List Fetching error:", error);
-    return rejectWithValue(error.response?.data || "Failed to fetch brands");
+>(
+  "brands/fetchAll",
+  async ({ pagination, is_highlight }, { rejectWithValue }) => {
+    try {
+      const response = await fetchAllBrands(pagination, is_highlight);
+      // console.log("Brand List Fetching success:", response);
+      return response;
+    } catch (error: any) {
+      console.error("Brand List Fetching error:", error);
+      return rejectWithValue(error.response?.data || "Failed to fetch brands");
+    }
   }
-});
+);
 
 /** --------------- Slice --------------- **/
 const brandSlice = createSlice({

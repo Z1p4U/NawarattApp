@@ -3,15 +3,19 @@ import {
   AllProductResponse,
   PaginationPayload,
   ProductDetailResponse,
+  SpecialCategoryProductResponse,
 } from "@/constants/config";
 import environment from "@/constants/environment";
 
 const fetchAllProducts = async (
   name: string | null,
-  pagination: PaginationPayload
+  pagination: PaginationPayload,
+  brand_id?: number | null
 ): Promise<AllProductResponse> => {
   try {
-    const params = { name, ...(pagination || {}) };
+    const params = { brand_id, name, ...(pagination || {}) };
+
+    console.log(params);
 
     const response = await axiosInstance.get<AllProductResponse>(
       `${environment.API_URL}/products`,
@@ -21,6 +25,27 @@ const fetchAllProducts = async (
     return response?.data;
   } catch (error) {
     console.error("Failed to fetch products:", error);
+    throw error;
+  }
+};
+
+const fetchAllSpecialCategoryProducts = async (
+  pagination: PaginationPayload,
+  is_highlight: boolean
+): Promise<SpecialCategoryProductResponse> => {
+  try {
+    const params = { ...(pagination || {}), is_highlight };
+
+    console.log(params);
+
+    const response = await axiosInstance.get<SpecialCategoryProductResponse>(
+      `${environment.API_URL}/special_categories`,
+      { params }
+    );
+    // console.log(response);
+    return response?.data;
+  } catch (error) {
+    console.error("Failed to fetch special category products:", error);
     throw error;
   }
 };
@@ -39,4 +64,8 @@ const fetchProductDetail = async (
   }
 };
 
-export { fetchAllProducts, fetchProductDetail };
+export {
+  fetchAllProducts,
+  fetchAllSpecialCategoryProducts,
+  fetchProductDetail,
+};

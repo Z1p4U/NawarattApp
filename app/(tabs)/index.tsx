@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -12,21 +12,22 @@ import { LinearGradient } from "expo-linear-gradient"; // For Expo projects
 import Svg, { ClipPath, Defs, G, Path, Rect } from "react-native-svg";
 import ImageCarousel, {
   ImageCarouselItem,
-} from "@/components/Home/ImageCarousel"; // adjust path if needed
+} from "@/components/Home/ImageCarousel";
 import ProductSlider from "@/components/ui/ProductSlider";
 import BrandList from "@/components/Home/BrandList";
 import HeadLine from "@/components/ui/HeadLine";
-import useProduct from "@/redux/hooks/product/useProduct";
 import { Link, useRouter } from "expo-router";
 import useUser from "@/redux/hooks/user/useUser";
 import useAuth from "@/redux/hooks/auth/useAuth";
 import DiscoverCarousel from "@/components/Home/DiscoverCarousel";
+import useSpecialCategoryProducts from "@/redux/hooks/product/useSpecialCategoryProducts";
 
 export default function HomeScreen() {
   const router = useRouter();
   const { profileDetail } = useUser();
   const { isAuthenticated } = useAuth();
-  const { products } = useProduct();
+  const { newArrivalProducts, topPickProducts, topSellingProducts, loading } =
+    useSpecialCategoryProducts();
 
   const carouselData: ImageCarouselItem[] = [
     {
@@ -117,12 +118,12 @@ export default function HomeScreen() {
         <View style={styles.productSliderSection}>
           <View style={styles.productSliderHead}>
             <Text style={styles.productSliderName}>Top Selling Items</Text>
-            <TouchableOpacity onPress={() => router.replace("/catalog")}>
+            <Link href={`/productListByCategory?name=Top Selling`}>
               <Text style={styles.productSliderSeeAll}>See All</Text>
-            </TouchableOpacity>
+            </Link>
           </View>
           <View style={styles.productSliderCarousel}>
-            <ProductSlider products={products} />
+            <ProductSlider products={topSellingProducts} loading={loading} />
           </View>
         </View>
         {/* Top Selling Section End */}
@@ -131,12 +132,12 @@ export default function HomeScreen() {
         <View style={styles.productSliderSection}>
           <View style={styles.productSliderHead}>
             <Text style={styles.productSliderName}>New Arrivals</Text>
-            <TouchableOpacity onPress={() => router.replace("/catalog")}>
+            <Link href={`/productListByCategory?name=New Arrivals`}>
               <Text style={styles.productSliderSeeAll}>See All</Text>
-            </TouchableOpacity>
+            </Link>
           </View>
           <View style={styles.productSliderCarousel}>
-            <ProductSlider products={products} />
+            <ProductSlider products={newArrivalProducts} loading={loading} />
           </View>
         </View>
         {/* New Arrivals Section End */}
@@ -145,12 +146,12 @@ export default function HomeScreen() {
         <View style={styles.productSliderSection}>
           <View style={styles.productSliderHead}>
             <Text style={styles.productSliderName}>Top Picks for You</Text>
-            <TouchableOpacity onPress={() => router.replace("/catalog")}>
+            <Link href={`/productListByCategory?name=Top Picks`}>
               <Text style={styles.productSliderSeeAll}>See All</Text>
-            </TouchableOpacity>
+            </Link>
           </View>
           <View style={styles.productSliderCarousel}>
-            <ProductSlider products={products} />
+            <ProductSlider products={topPickProducts} loading={loading} />
           </View>
         </View>
         {/* Top Picks for You Section End */}

@@ -152,6 +152,21 @@ export interface AllProductResponse {
   meta: Record<string, unknown>;
 }
 
+export interface SpecialCategory {
+  id: number;
+  name: string;
+  status: string;
+  image: string;
+  created_at: string;
+  updated_at: string;
+  products: Product[];
+}
+export interface SpecialCategoryProductResponse {
+  data: SpecialCategory[] | null;
+  links: Record<string, unknown>;
+  meta: Record<string, unknown>;
+}
+
 export interface ProductDetailResponse {
   data: Product;
   related_products: Product[];

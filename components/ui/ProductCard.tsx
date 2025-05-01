@@ -78,8 +78,7 @@ export default ProductCard;
 
 const styles = StyleSheet.create({
   productCard: {
-    gap: 10,
-    // width: 150, // Ensures proper layout
+    maxWidth: 150, // Ensures proper layout
   },
   imageWrapper: {
     position: "relative",
@@ -96,6 +95,7 @@ const styles = StyleSheet.create({
   },
   productCardContent: {
     paddingTop: 10,
+    marginTop: 10,
     paddingHorizontal: 8,
   },
   productCardName: {

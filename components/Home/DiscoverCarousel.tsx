@@ -1,16 +1,15 @@
 import React from "react";
-import {
-  ScrollView,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  Dimensions,
-} from "react-native";
+import { ScrollView, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import useCategory from "@/redux/hooks/category/useCategory";
+import PillLoader from "../ui/PillLoader";
 
 const DiscoverCarousel = () => {
-  const { categories } = useCategory();
+  const { categories, loading } = useCategory();
+
+  if (loading) {
+    return <PillLoader />;
+  }
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>

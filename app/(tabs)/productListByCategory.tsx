@@ -1,33 +1,44 @@
-import React, { useCallback, useRef, useState } from "react";
-import { useFocusEffect } from "expo-router";
 import HeadLine from "@/components/ui/HeadLine";
-import SearchComponent from "@/components/ui/SearchComponent";
-import ProductCard from "@/components/ui/ProductCard";
 import {
   ActivityIndicator,
   Platform,
   ScrollView,
   StyleSheet,
+  Text,
   View,
 } from "react-native";
+import ProductCard from "@/components/ui/ProductCard";
 import { LinearGradient } from "expo-linear-gradient";
-import useProduct from "@/redux/hooks/product/useProduct";
+import { useEffect, useRef, useState } from "react";
+import useSpecialCategoryProducts from "@/redux/hooks/product/useSpecialCategoryProducts";
+import { useSearchParams } from "expo-router/build/hooks";
+import { Product } from "@/constants/config";
 
-export default function Catalog() {
-  const [search, setSearch] = useState<string | null>(null);
-  const [brandFilter, setBrandFilter] = useState<number | null>(null);
-  const { products, loading, loadMore } = useProduct(search, brandFilter, 20);
+export default function ProductListByCategory() {
+  const categoryName = useSearchParams().get("name") ?? "";
+  const [data, setData] = useState<Product[] | null>(null);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      setSearch(null);
-      setBrandFilter(null);
-    }, [])
-  );
+  const {
+    newArrivalProducts,
+    topPickProducts,
+    topSellingProducts,
+    loadMore,
+    loading,
+  } = useSpecialCategoryProducts();
+
+  useEffect(() => {
+    if (categoryName === "Top Selling") {
+      setData(topSellingProducts);
+    } else if (categoryName === "New Arrivals") {
+      setData(newArrivalProducts);
+    } else {
+      setData(topPickProducts);
+    }
+  }, [categoryName, newArrivalProducts, topPickProducts, topSellingProducts]);
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const handleScroll = ({ nativeEvent }: any) => {
-    if ((products?.length ?? 0) < 20) return;
+    if ((data?.length ?? 0) < 20) return;
     const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
     if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 20) {
       if (!debounceRef.current) {
@@ -49,11 +60,19 @@ export default function Catalog() {
           end={{ x: 1, y: 0 }}
           style={styles.banner}
         >
-          <SearchComponent onchange={setSearch} />
+          <Text style={styles.headText}>
+            {categoryName || "Special"} Category Products
+          </Text>
         </LinearGradient>
 
+        <View style={styles.menu}>
+          <Text style={styles.menuText}>
+            Showing: {categoryName || "Top Picks"}
+          </Text>
+        </View>
+
         <View style={styles.row}>
-          {products?.map((product) => (
+          {data?.map((product) => (
             <View key={product.id} style={styles.item}>
               <ProductCard product={product} />
             </View>
@@ -62,12 +81,7 @@ export default function Catalog() {
 
         {loading && (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator
-              animating
-              size="large"
-              color="#0000ff"
-              style={styles.loadingProcess}
-            />
+            <ActivityIndicator animating size="large" color="#0000ff" />
           </View>
         )}
       </ScrollView>
@@ -88,6 +102,26 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     justifyContent: "flex-end",
   },
+  headText: {
+    marginTop: 10,
+    fontSize: 22,
+    fontWeight: "500",
+    color: "#fff",
+    textAlign: "center",
+    fontFamily: "Saira-Medium",
+  },
+  menu: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginHorizontal: 20,
+    marginBottom: 10,
+  },
+  menuText: {
+    fontSize: 14,
+    fontWeight: "500",
+    fontFamily: "Saira-Medium",
+  },
   row: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -97,11 +131,12 @@ const styles = StyleSheet.create({
     rowGap: 20,
     columnGap: 15,
   },
-  item: { width: "47%" },
+  item: {
+    width: "47%",
+  },
   loadingContainer: {
     justifyContent: "center",
     alignItems: "center",
     height: 200,
   },
-  loadingProcess: { marginBottom: Platform.select({ ios: 100, android: 0 }) },
 });
