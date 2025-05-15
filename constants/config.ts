@@ -1,3 +1,88 @@
+// General
+export interface PaginationPayload {
+  page: number;
+  size: number;
+}
+
+export interface CardProps {
+  id: number;
+  thumbnail: string;
+  name: string;
+  price: number;
+}
+export interface MessageResponse {
+  message: string;
+}
+
+// General
+
+// Location
+
+export interface Country {
+  id: number;
+  name_en: string;
+  name_my: string;
+  code: string;
+}
+export interface State {
+  id: number;
+  country_id: number;
+  name_en: string;
+  name_my: string;
+  code: string;
+}
+export interface City {
+  id: number;
+  country_id: number;
+  state_id: number;
+  name_en: string;
+  name_my: string;
+  code: string;
+}
+
+export interface CountryResponse {
+  data: Country[];
+}
+export interface StateResponse {
+  data: State[];
+}
+export interface CityResponse {
+  data: City[];
+}
+
+// Location
+
+// Address
+export interface Address {
+  id: number;
+  country: Country;
+  state: State;
+  city: City;
+  address: string;
+  phone_no: string;
+  is_default: boolean;
+  additional_info: string;
+}
+export interface AllAddressResponse {
+  data: Address[];
+  links: Record<string, unknown>;
+  meta: Record<string, unknown>;
+}
+export interface AddressDetailResponse {
+  data: Address;
+}
+export interface AddressPayload {
+  country_id: number;
+  state_id: number;
+  city_id: number;
+  address: string;
+  phone_no: string;
+  is_default: boolean;
+  additional_info: string;
+}
+
+// Address
+
 // Login
 export interface LoginResponse {
   message: string;
@@ -46,20 +131,6 @@ export interface PinPayload {
   confirmPin: string;
 }
 // OTP & Resend OTP
-
-// General
-export interface PaginationPayload {
-  page: number;
-  size: number;
-}
-
-export interface CardProps {
-  id: number;
-  thumbnail: string;
-  name: string;
-  price: number;
-}
-// General
 
 // User Profile
 export interface UserData {

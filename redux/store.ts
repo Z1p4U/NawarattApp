@@ -5,6 +5,8 @@ import brandReducer from "@/redux/services/brand/brandSlice";
 import categoryReducer from "@/redux/services/category/categorySlice";
 import userReducer from "@/redux/services/user/userSlice";
 import wishlistReducer from "@/redux/services/wishlist/wishlistSlice";
+import locationReducer from "@/redux/services/location/locationSlice";
+import addressReducer from "@/redux/services/address/addressSlice";
 
 const store = configureStore({
   reducer: {
@@ -14,6 +16,8 @@ const store = configureStore({
     category: categoryReducer,
     user: userReducer,
     wishlist: wishlistReducer,
+    location: locationReducer,
+    address: addressReducer,
   },
 });
 
