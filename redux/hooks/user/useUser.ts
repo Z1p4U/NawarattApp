@@ -17,8 +17,6 @@ const useUser = () => {
     const fetchProfileDetail = async () => {
       setLoading(true);
 
-      console.log("doing");
-
       const res = await dispatch(handleFetchProfile());
       setLoading(false);
 
@@ -34,6 +32,7 @@ const useUser = () => {
         const response = await dispatch(
           handleFetchUpdateProfile(payload)
         ).unwrap();
+        await dispatch(handleFetchProfile());
 
         return response;
       } catch (err) {

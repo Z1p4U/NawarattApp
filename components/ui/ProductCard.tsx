@@ -63,10 +63,11 @@ const ProductCard: React.FC<{ product: CardProps }> = ({ product }) => {
           numberOfLines={1}
           ellipsizeMode="tail"
           style={styles.productCardName}
+          allowFontScaling={false}
         >
           {product?.name}
         </Text>
-        <Text style={styles.productCardPrice}>
+        <Text style={styles.productCardPrice} allowFontScaling={false}>
           {Number(product?.price)?.toLocaleString()} Ks
         </Text>
       </View>

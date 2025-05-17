@@ -14,23 +14,20 @@ export function injectStore(_dispatch: AppDispatch) {
 // Create Axios instance
 const axiosInstance = axios.create({
   baseURL: config.API_URL,
-  // headers: {
-  //   "Content-Type": "application/json",
-  // },
-  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  // withCredentials: true,
 });
 
 // Request interceptor – add token if available
-axiosInstance.interceptors.request.use(
-  async (req) => {
-    const token = await AsyncStorage.getItem("authToken");
-    if (token) {
-      req.headers.Authorization = `Bearer ${token}`;
-    }
-    return req;
-  },
-  (error) => Promise.reject(error)
-);
+axiosInstance.interceptors.request.use(async (req) => {
+  const token = await AsyncStorage.getItem("authToken");
+  if (token) {
+    req.headers.Authorization = `Bearer ${token}`;
+  }
+  return req;
+});
 
 // Response interceptor – handle 401 / 403 errors
 axiosInstance.interceptors.response.use(

@@ -47,8 +47,10 @@ const fetchCreateAddress = async (
   try {
     const response = await axiosInstance.post<MessageResponse>(
       `${environment.API_URL}/address-books`,
-      { payload }
+      payload
     );
+
+    // console.log("Address Created", response);
 
     return response?.data;
   } catch (error) {

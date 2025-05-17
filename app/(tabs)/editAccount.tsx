@@ -54,6 +54,7 @@ export default function EditAccount() {
 
       if (response) {
         alert("Profile updated successfully!");
+        router.push("/account");
       }
     } catch (error) {
       alert("Failed to update profile. Please try again.");

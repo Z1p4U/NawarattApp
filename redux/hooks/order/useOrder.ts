@@ -1,33 +1,31 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
-import { loadAddresses } from "@/redux/services/address/addressSlice";
+import { loadOrders } from "@/redux/services/order/orderSlice";
 
-const useAddress = () => {
+const useOrder = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { addresses, status } = useSelector(
-    (state: RootState) => state.address
-  );
+  const { orders, status } = useSelector((state: RootState) => state.order);
   const [pagination, setPagination] = useState({ page: 1, size: 12 });
 
   useEffect(() => {
-    const fetchAllAddress = async () => {
-      await dispatch(loadAddresses({ pagination }));
+    const fetchAllOrder = async () => {
+      await dispatch(loadOrders({ pagination }));
     };
 
-    fetchAllAddress();
+    fetchAllOrder();
   }, [dispatch, pagination]);
 
   const loading = status === "loading";
 
-  console.log(addresses);
+  console.log(orders);
 
   return {
-    addresses,
+    orders,
     loading,
     pagination,
     setPagination,
   };
 };
 
-export default useAddress;
+export default useOrder;

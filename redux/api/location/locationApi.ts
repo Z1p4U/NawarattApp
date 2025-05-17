@@ -28,7 +28,7 @@ const fetchAllCountries = async (
 
 const fetchAllStates = async (
   pagination: PaginationPayload,
-  countryId: number | null
+  countryId: number | null | undefined
 ): Promise<StateResponse> => {
   try {
     const params = { ...(pagination || {}) };
@@ -48,8 +48,8 @@ const fetchAllStates = async (
 
 const fetchAllCities = async (
   pagination: PaginationPayload,
-  countryId: number | null,
-  stateId: number | null
+  countryId: number | null | undefined,
+  stateId: number | null | undefined
 ): Promise<CityResponse> => {
   try {
     const params = { ...(pagination || {}) };

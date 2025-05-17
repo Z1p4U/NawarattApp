@@ -22,12 +22,14 @@ const fetchUpdateProfile = async (
   payload: ProfilePayload
 ): Promise<ProfileUpdateResponse> => {
   try {
-    console.log({ ...payload });
+    console.log(payload);
 
-    const response = await axiosInstance.put<ProfileUpdateResponse>(
+    const response = await axiosInstance.post<ProfileUpdateResponse>(
       `/profile/update`,
       payload
     );
+
+    console.log("response ", response);
 
     return response.data;
   } catch (error) {

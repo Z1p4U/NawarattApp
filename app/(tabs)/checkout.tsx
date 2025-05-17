@@ -1,13 +1,105 @@
-import React from "react";
-import { ScrollView, StyleSheet, Text, View, Platform } from "react-native";
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  Modal,
+  TouchableOpacity,
+  SafeAreaView,
+  Platform,
+  Alert,
+} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import HeadLine from "@/components/ui/HeadLine";
 import Svg, { Path } from "react-native-svg";
+import { useRouter } from "expo-router";
+import useAddress from "@/redux/hooks/address/useAddress";
+import { Address, OrderOption, OrderPayload } from "@/constants/config";
+import useAuth from "@/redux/hooks/auth/useAuth";
+import AddressLoader from "@/components/ui/AddressLoader";
+import useOrderAction from "@/redux/hooks/order/useOrderAction";
+
+interface CartItem {
+  productId: string;
+  pdData: {
+    name: string;
+    price: string;
+  };
+  count: number;
+  total: number;
+}
 
 export default function Checkout() {
+  const router = useRouter();
+  const { addresses, loading: addressLoading } = useAddress();
+  const { isAuthenticated, loading } = useAuth();
+  const { createOrder } = useOrderAction();
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+  const [agreed, setAgreed] = useState<boolean>(false);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [loading, isAuthenticated, router]);
+
+  useEffect(() => {
+    AsyncStorage.getItem("cart").then((data) => {
+      setCart(data ? JSON.parse(data) : []);
+    });
+
+    if (addresses) {
+      setSelectedAddress(
+        (prev) => addresses?.find((a) => a?.is_default) ?? addresses[0] ?? null
+      );
+    }
+  }, []);
+
+  const totalAmount = cart?.reduce((sum, item) => sum + item.total, 0);
+
+  const handlePlaceOrder = useCallback(async () => {
+    if (!selectedAddress) {
+      alert("Please select a delivery address");
+      return;
+    }
+
+    if (cart.length === 0) {
+      alert("Your cart is empty");
+      return;
+    }
+
+    // <— annotate the payload so TS knows it must be OrderPayload
+    const payload: OrderPayload = {
+      address_book_id: selectedAddress.id,
+      remark: "remark",
+      items: cart.map((item) => ({
+        product_id: Number(item.productId),
+        qty: item.count,
+        unit_price: Number(item.pdData.price),
+        option: "phone" as OrderOption,
+        discountable_item_id: null,
+      })),
+    };
+
+    try {
+      const result = await createOrder(payload);
+      console.log("Order placed!", result);
+      Alert.alert("Success", "Order placed!");
+      router.push("/");
+    } catch (err) {
+      console.error("Order failed:", err);
+      alert("Failed to place order. Please try again.");
+    }
+  }, [cart, selectedAddress, router]);
+
   return (
     <>
       <HeadLine />
+
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
@@ -15,73 +107,215 @@ export default function Checkout() {
         {/* Banner */}
         <LinearGradient
           colors={["#53CAFE", "#2555E7"]}
-          start={{ x: 0.0, y: 0.0 }}
-          end={{ x: 1.0, y: 0.0 }}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
           style={styles.banner}
         >
           <Text style={styles.headText}>Checkout</Text>
         </LinearGradient>
 
         <View style={{ paddingHorizontal: 15 }}>
-          <Text style={styles.deliAddress}>Choose Delivery Address</Text>
-
-          <View style={{ gap: 10, marginTop: 20 }}>
-            <View style={styles?.addressCard}>
-              <Svg width={25} height={24} viewBox="0 0 25 24" fill="none">
-                <Path
-                  d="M23.75 22.75H1.25m0-12.375l4.57-3.656m17.93 3.656l-9.142-7.313a3.375 3.375 0 00-4.216 0l-.88.704m6.925.421v-2.25A.563.563 0 0117 1.375h2.813a.562.562 0 01.562.563v5.625M3.5 22.75V8.687m18 0v4.5m0 9.563v-5.063"
-                  stroke="#000"
-                  strokeOpacity={0.5}
-                  strokeWidth={1.5}
-                  strokeLinecap="round"
-                />
-                <Path
-                  d="M15.875 22.75v-5.625c0-1.59 0-2.386-.495-2.88-.493-.495-1.288-.495-2.88-.495-1.592 0-2.386 0-2.88.495m-.495 8.505v-5.625"
-                  stroke="#000"
-                  strokeOpacity={0.5}
-                  strokeWidth={1.5}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <Path
-                  d="M14.75 8.688a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
-                  stroke="#000"
-                  strokeOpacity={0.5}
-                  strokeWidth={1.5}
-                />
-              </Svg>
-
-              <View style={styles?.addressCardDiv}>
-                <Text style={styles?.addressCardHead}>Address 1</Text>
-                <Text style={styles?.addressCardText}>
-                  Ka Na-105, Kannar St, Oh Tan Ward
+          {/* Selected Address */}
+          <Text style={styles.deliAddress}>Delivery Address</Text>
+          <TouchableOpacity
+            style={[styles.addressCard, { marginVertical: 16 }]}
+            onPress={() => setModalVisible(true)}
+          >
+            <Svg width={25} height={24} viewBox="0 0 25 24" fill="none">
+              <Path
+                d="M23.75 22.75H1.25m0-12.375l4.57-3.656m17.93 3.656l-9.142-7.313a3.375 3.375 0 00-4.216 0l-.88.704m6.925.421v-2.25A.563.563 0 0117 1.375h2.813a.562.562 0 01.562.563v5.625M3.5 22.75V8.687m18 0v4.5m0 9.563v-5.063"
+                stroke="#000"
+                strokeOpacity={0.5}
+                strokeWidth={1.5}
+                strokeLinecap="round"
+              />
+              <Path
+                d="M15.875 22.75v-5.625c0-1.59 0-2.386-.495-2.88-.493-.495-1.288-.495-2.88-.495-1.592 0-2.386 0-2.88.495m-.495 8.505v-5.625"
+                stroke="#000"
+                strokeOpacity={0.5}
+                strokeWidth={1.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <Path
+                d="M14.75 8.688a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
+                stroke="#000"
+                strokeOpacity={0.5}
+                strokeWidth={1.5}
+              />
+            </Svg>
+            <View style={styles.addressCardDiv}>
+              {selectedAddress ? (
+                <>
+                  <Text style={styles.addressCardHead}>
+                    Address {selectedAddress.id}
+                    {selectedAddress.is_default ? " (Default)" : ""}
+                  </Text>
+                  <Text style={styles.addressCardText}>
+                    {selectedAddress.address}, {selectedAddress.city.name_en},{" "}
+                    {selectedAddress.state.name_en},{" "}
+                    {selectedAddress.country.name_en}
+                  </Text>
+                </>
+              ) : (
+                <Text style={styles.addressCardText}>
+                  Tap to select address
                 </Text>
-                <Text style={styles?.addressCardText}>
-                  Township : Hlaing Thar Yar
-                </Text>
+              )}
+            </View>
+          </TouchableOpacity>
+
+          {/* Order Summary */}
+          <Text style={styles.orderSummary}>Order Summary</Text>
+          {cart.map((item) => (
+            <View key={item.productId} style={styles.summaryRow}>
+              <Text style={styles.summaryText}>
+                {item.pdData.name} × {item.count}
+              </Text>
+              <Text style={styles.summaryText}>
+                {item.total.toLocaleString()} Ks
+              </Text>
+            </View>
+          ))}
+
+          <View style={styles.summary}>
+            <View style={styles.summaryRow}>
+              <View
+                style={{ alignItems: "center", gap: 10, flexDirection: "row" }}
+              >
+                <Svg width={20} height={16} viewBox="0 0 20 16" fill="none">
+                  <Path
+                    d="M2 0a2 2 0 00-2 2v4a2 2 0 110 4v4a2 2 0 002 2h16a2 2 0 002-2v-4a2 2 0 010-4V2a2 2 0 00-2-2H2zm11.5 3L15 4.5 6.5 13 5 11.5 13.5 3zm-6.69.04a1.77 1.77 0 110 3.54 1.77 1.77 0 010-3.54zm6.38 6.38a1.77 1.77 0 110 3.54 1.77 1.77 0 010-3.54z"
+                    fill="#3173ED"
+                  />
+                </Svg>
+                <Text style={styles.summaryText}>SubTotal</Text>
               </View>
+              <Text style={styles.summaryText}>
+                {totalAmount.toLocaleString()} Ks
+              </Text>
+            </View>
+
+            <View style={styles.summaryRow}>
+              <View
+                style={{ alignItems: "center", gap: 7, flexDirection: "row" }}
+              >
+                <Text style={styles.summaryTextBold}>Total</Text>
+                <Text style={styles.summaryTextDim}>(Including Tax)</Text>
+              </View>
+              <Text style={styles.summaryText}>
+                {totalAmount.toLocaleString()} Ks
+              </Text>
             </View>
           </View>
-
-          <Text style={styles.orderSummary}>Order Summary</Text>
         </View>
       </ScrollView>
+
+      <View style={styles.placeOrderComponent}>
+        <TouchableOpacity
+          style={styles.radioRow}
+          onPress={() => setAgreed(!agreed)}
+        >
+          <View style={[styles.radioCircle, agreed && styles.selected]} />
+          <Text style={styles.placeOrderComponentText}>
+            I&apos;d read and agree to Terms and Conditions
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={handlePlaceOrder}
+          style={styles.placeOrderBtn}
+          disabled={!agreed}
+        >
+          <LinearGradient
+            colors={["#54CAFF", "#275AE8"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.placeOrderBtn}
+          >
+            <Text style={styles.placeOrderText}>Place Order</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      </View>
+
+      {/* Address Selection Modal */}
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <SafeAreaView style={styles.modalOverlay}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Select Address</Text>
+            <TouchableOpacity onPress={() => setModalVisible(false)}>
+              <Text style={styles.modalClose}>Close</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView contentContainerStyle={styles.modalContent}>
+            {addressLoading ? (
+              <AddressLoader count={10} />
+            ) : (
+              addresses?.map((addr) => (
+                <TouchableOpacity
+                  key={addr.id}
+                  onPress={() => {
+                    setSelectedAddress(addr);
+                    setModalVisible(false);
+                  }}
+                  style={[styles.addressCard, { marginBottom: 12 }]}
+                >
+                  <Svg width={25} height={24} viewBox="0 0 25 24" fill="none">
+                    <Path
+                      d="M23.75 22.75H1.25m0-12.375l4.57-3.656m17.93 3.656l-9.142-7.313a3.375 3.375 0 00-4.216 0l-.88.704m6.925.421v-2.25A.563.563 0 0117 1.375h2.813a.562.562 0 01.562.563v5.625M3.5 22.75V8.687m18 0v4.5m0 9.563v-5.063"
+                      stroke="#000"
+                      strokeOpacity={0.5}
+                      strokeWidth={1.5}
+                      strokeLinecap="round"
+                    />
+                    <Path
+                      d="M15.875 22.75v-5.625c0-1.59 0-2.386-.495-2.88-.493-.495-1.288-.495-2.88-.495-1.592 0-2.386 0-2.88.495m-.495 8.505v-5.625"
+                      stroke="#000"
+                      strokeOpacity={0.5}
+                      strokeWidth={1.5}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <Path
+                      d="M14.75 8.688a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
+                      stroke="#000"
+                      strokeOpacity={0.5}
+                      strokeWidth={1.5}
+                    />
+                  </Svg>
+                  <View style={styles.addressCardDiv}>
+                    <Text style={styles.addressCardHead}>
+                      Address {addr.id}
+                      {addr.is_default ? " (Default)" : ""}
+                    </Text>
+                    <Text style={styles.addressCardText}>
+                      {addr.address}, {addr.city.name_en}, {addr.state.name_en},{" "}
+                      {addr.country.name_en}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))
+            )}
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
+  safeArea: { flex: 1, backgroundColor: "#fff" },
   container: {
     flex: 1,
     position: "relative",
     backgroundColor: "#fff",
   },
   scrollContent: {
-    paddingBottom: 120, // ensure space for bottom checkout bar
+    paddingBottom: 120, // ensure space for bottom area
   },
   banner: {
     borderBottomLeftRadius: 30,
@@ -96,7 +330,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 22,
     fontWeight: "500",
-    color: "#ffffff",
+    color: "#fff",
     textAlign: "center",
     fontFamily: "Saira-Medium",
   },
@@ -106,7 +340,6 @@ const styles = StyleSheet.create({
     color: "#000",
     fontFamily: "Saira-Medium",
   },
-
   addressCard: {
     backgroundColor: "#F8F8F8",
     padding: 20,
@@ -128,12 +361,113 @@ const styles = StyleSheet.create({
     color: "#0000004D",
     fontFamily: "Saira-Medium",
   },
-
   orderSummary: {
     fontSize: 18,
     fontWeight: "500",
     color: "#000",
     fontFamily: "Saira-Medium",
     marginTop: 20,
+    marginBottom: 12,
+  },
+  summary: {
+    marginTop: 10,
+    borderTopColor: "#00000040",
+    borderTopWidth: 1,
+    paddingTop: 10,
+  },
+  summaryRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  summaryText: {
+    fontSize: 14,
+    color: "#000",
+    fontFamily: "Saira-Regular",
+  },
+  summaryTextBold: {
+    fontSize: 18,
+    fontWeight: 700,
+    color: "#000",
+    fontFamily: "Saira-Bold",
+  },
+  summaryTextDim: {
+    fontSize: 14,
+    color: "#00000050",
+    fontFamily: "Saira-Regular",
+  },
+
+  placeOrderComponent: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: Platform.select({ ios: 100, android: 20 }),
+    height: "auto",
+    gap: 10,
+    marginHorizontal: 10,
+  },
+  placeOrderComponentText: {
+    fontSize: 16,
+    color: "#000000",
+    fontFamily: "Saira-Regular",
+  },
+  placeOrderBtn: {
+    width: "100%",
+    paddingVertical: 12,
+    borderRadius: 10,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 15,
+  },
+  placeOrderText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "500",
+    fontFamily: "Saira-Medium",
+  },
+  radioRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "95%",
+  },
+  radioCircle: {
+    width: 22,
+    height: 22,
+    borderRadius: 1000,
+    borderWidth: 4,
+    borderColor: "#D9D9D9",
+    backgroundColor: "#D9D9D9",
+    marginRight: 12,
+  },
+  selected: {
+    backgroundColor: "#275AE8",
+  },
+
+  /* Modal styles */
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "#00000055",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 16,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderColor: "#ddd",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  modalClose: {
+    fontSize: 16,
+    color: "#007AFF",
+  },
+  modalContent: {
+    padding: 16,
+    backgroundColor: "#fff",
   },
 });

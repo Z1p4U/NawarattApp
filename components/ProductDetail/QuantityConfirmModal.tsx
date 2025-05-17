@@ -40,7 +40,6 @@ const QuantityConfirmModal: React.FC<QuantityConfirmModalProps> = ({
             အတိအကျမရနိုင်ပါက မည်သို့ ပြုလုပ်ပေးရမည်နည်း??
           </Text>
 
-          {/* Radio Options */}
           {options.map((option) => (
             <TouchableOpacity
               key={option}

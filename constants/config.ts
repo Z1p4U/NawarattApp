@@ -40,15 +40,9 @@ export interface City {
   code: string;
 }
 
-export interface CountryResponse {
-  data: Country[];
-}
-export interface StateResponse {
-  data: State[];
-}
-export interface CityResponse {
-  data: City[];
-}
+export type CountryResponse = Country[];
+export type StateResponse = State[];
+export type CityResponse = City[];
 
 // Location
 
@@ -72,9 +66,9 @@ export interface AddressDetailResponse {
   data: Address;
 }
 export interface AddressPayload {
-  country_id: number;
-  state_id: number;
-  city_id: number;
+  country_id: number | null;
+  state_id: number | null;
+  city_id: number | null;
   address: string;
   phone_no: string;
   is_default: boolean;
@@ -263,3 +257,89 @@ export interface ToggleWishlistResponse {
 }
 
 // Wishlist
+
+// Order
+
+export interface Order {
+  id: number;
+  order_code: string;
+  customer: UserData;
+  address_book: Address;
+  total_amount: number;
+  paid_amount: number;
+  total_qty: number;
+  status: string;
+  date: string;
+  remark: string;
+  created_at: string;
+  updated_at: string;
+  order_items: OrderItem[];
+  payment_slips: PaymentSlip[];
+  returnItems: any[];
+}
+export interface OrderItem {
+  id: number;
+  product: Product | null;
+  discountable_item: {
+    id: number;
+    type: string;
+    limited_qty: number;
+    limited_qty_per_customer: number;
+    unit: number;
+    deleted_at: string | null;
+    created_at: string | null;
+    updated_at: string | null;
+    product: Product | null;
+    discountable: {
+      id: number;
+      title: string;
+      body: string;
+      type: string;
+      status: string;
+      image: string | null;
+      start_date: string;
+      end_date: string;
+    };
+  } | null;
+  qty: number;
+  unit_price: number;
+  option: string;
+  sub_total_amount: number;
+  created_at: string;
+  updated_at: string;
+}
+export interface PaymentSlip {
+  id: number;
+  order_id: number;
+  caption: string | null;
+  image: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AllOrderResponse {
+  data: Order[] | null;
+  links: Record<string, unknown>;
+  meta: Record<string, unknown>;
+}
+export interface OrderDetailResponse {
+  data: Order;
+}
+
+export type OrderOption = "phone" | "remove";
+
+export interface OrderItemPayload {
+  product_id: number;
+  qty: number;
+  unit_price: number;
+  option: OrderOption;
+  discountable_item_id: number | null;
+}
+
+export interface OrderPayload {
+  address_book_id: number;
+  remark: string;
+  items: OrderItemPayload[];
+}
+
+// Order

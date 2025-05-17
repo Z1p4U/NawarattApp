@@ -13,9 +13,9 @@ import {
 
 /** --------------- State Interfaces --------------- **/
 interface CountryState {
-  countries: CountryResponse["data"] | null;
-  states: StateResponse["data"] | null;
-  cities: CityResponse["data"] | null;
+  countries: CountryResponse | null;
+  states: StateResponse | null;
+  cities: CityResponse | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
@@ -50,7 +50,7 @@ export const handleFetchAllCountries = createAsyncThunk<
 // Fetch All States
 export const handleFetchAllStates = createAsyncThunk<
   StateResponse,
-  { pagination: PaginationPayload; countryId: number | null },
+  { pagination: PaginationPayload; countryId: number | null | undefined },
   { rejectValue: string }
 >(
   "location/fetchAllStates",
@@ -71,8 +71,8 @@ export const handleFetchAllCities = createAsyncThunk<
   CityResponse,
   {
     pagination: PaginationPayload;
-    countryId: number | null;
-    stateId: number | null;
+    countryId: number | null | undefined;
+    stateId: number | null | undefined;
   },
   { rejectValue: string }
 >(
@@ -111,7 +111,7 @@ const locationSlice = createSlice({
       .addCase(handleFetchAllCountries.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.error = null;
-        state.countries = action.payload.data;
+        state.countries = action.payload;
       })
       .addCase(handleFetchAllCountries.rejected, (state, action) => {
         state.status = "failed";
@@ -125,7 +125,7 @@ const locationSlice = createSlice({
       .addCase(handleFetchAllStates.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.error = null;
-        state.states = action.payload.data;
+        state.states = action.payload;
       })
       .addCase(handleFetchAllStates.rejected, (state, action) => {
         state.status = "failed";
@@ -139,7 +139,7 @@ const locationSlice = createSlice({
       .addCase(handleFetchAllCities.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.error = null;
-        state.cities = action.payload.data;
+        state.cities = action.payload;
       })
       .addCase(handleFetchAllCities.rejected, (state, action) => {
         state.status = "failed";

@@ -5,6 +5,7 @@ import {
   createAddress,
   updateAddress,
   deleteAddress,
+  loadAddresses,
 } from "@/redux/services/address/addressSlice";
 import type { AddressPayload, MessageResponse } from "@/constants/config";
 
@@ -21,6 +22,8 @@ const useAddressAction = () => {
     async (payload: AddressPayload): Promise<MessageResponse | void> => {
       try {
         const response = await dispatch(createAddress(payload)).unwrap();
+
+        await dispatch(loadAddresses({ pagination: { page: 1, size: 10 } }));
 
         return response;
       } catch (err) {
@@ -39,6 +42,9 @@ const useAddressAction = () => {
         const response = await dispatch(
           updateAddress({ id, payload })
         ).unwrap();
+
+        await dispatch(loadAddresses({ pagination: { page: 1, size: 10 } }));
+
         return response;
       } catch (err) {
         console.error("Failed to update address:", err);
