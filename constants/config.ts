@@ -206,32 +206,73 @@ export interface Product {
   name: string;
   description: string;
   price: number;
-  brand: { id: number; name: string; image: string };
-  category: { id: number; name: string };
-  images: string[];
+  stock: number;
+  status: string;
+  is_highlight: boolean;
+  show_stock: boolean;
+  type: "single" | "combo" | string;
+  brand: {
+    id: number;
+    name: string;
+    status: string;
+    is_highlight: boolean;
+    image: string | null;
+  };
+  category: {
+    id: number;
+    name: string;
+    status: string;
+    is_highlight: boolean;
+    image: string | null;
+  };
+  sub_category: {
+    id: number;
+    category_id: number;
+    name: string;
+    status: string;
+    is_highlight: boolean;
+    image: string | null;
+  };
+  tags: { id: number; name: string }[];
   thumbnail: string;
+  images: { id: number; url: string }[];
+  // only on detail:
+  code?: number;
+  group_code?: string;
+  attributes?: Record<string, unknown> | null;
+  discount_type?: string | null;
+  discount_unit?: number | null;
+
+  // combo-only
+  combo_items?: ComboItem[];
+  free_items?: FreeItem[];
+  limited_qty?: number;
+  limited_qty_per_customer?: number;
+}
+
+export interface ComboItem {
+  id: number;
+  product: Pick<
+    Product,
+    "id" | "name" | "thumbnail" | "price" | "stock"
+  > | null;
+  qty: number;
+  discount_type: string | null;
+  discount_unit: number | null;
+}
+export interface FreeItem {
+  id: number;
+  product: Pick<
+    Product,
+    "id" | "name" | "thumbnail" | "price" | "stock"
+  > | null;
+  qty: number;
 }
 export interface AllProductResponse {
   data: Product[] | null;
   links: Record<string, unknown>;
   meta: Record<string, unknown>;
 }
-
-export interface SpecialCategory {
-  id: number;
-  name: string;
-  status: string;
-  image: string;
-  created_at: string;
-  updated_at: string;
-  products: Product[];
-}
-export interface SpecialCategoryProductResponse {
-  data: SpecialCategory[] | null;
-  links: Record<string, unknown>;
-  meta: Record<string, unknown>;
-}
-
 export interface ProductDetailResponse {
   data: Product;
   related_products: Product[];

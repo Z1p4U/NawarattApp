@@ -141,19 +141,13 @@ export default function ProductDetail() {
     }
   };
 
-  const renderItem = ({ item }: any) => {
-    const imageSource =
-      typeof item === "string" && item.startsWith("http")
-        ? { uri: item }
-        : require("@/assets/images/placeholder.jpg");
+  const imageData: { uri: string }[] = productDetail?.images?.length
+    ? productDetail.images.map((img) => ({ uri: img.url }))
+    : [require("@/assets/images/placeholder.jpg")];
 
-    return <Image source={imageSource} style={styles?.carouselImage} />;
-  };
-
-  const imageData =
-    Array.isArray(productDetail?.images) && productDetail?.images.length > 0
-      ? productDetail.images
-      : [require("@/assets/images/placeholder.jpg")]; // Fallback image
+  const renderItem = ({ item }: { item: { uri: string } }) => (
+    <Image source={item} style={styles.carouselImage} />
+  );
 
   return (
     <>
@@ -214,6 +208,52 @@ export default function ProductDetail() {
 
             <Text style={styles.brandName}>{productDetail?.brand?.name}</Text>
           </View>
+
+          {productDetail?.type === "combo" && (
+            <View style={styles.comboContainer}>
+              {/* Combo Items */}
+              {(productDetail?.combo_items ?? [])?.length > 0 && (
+                <View style={styles.comboSection}>
+                  <Text style={styles.comboTitle}>Combo Items</Text>
+                  {(productDetail?.combo_items ?? []).map((ci) =>
+                    ci.product ? (
+                      <View key={ci.id} style={styles.comboItemRow}>
+                        <Image
+                          source={{ uri: ci.product.thumbnail }}
+                          style={styles.comboItemImage}
+                        />
+                        <Text style={styles.comboItemText}>
+                          {ci.product.name} × {ci.qty}
+                        </Text>
+                      </View>
+                    ) : null
+                  )}
+                </View>
+              )}
+              {/* Combo Items */}
+
+              {/* Free Items */}
+              {(productDetail?.free_items ?? []).length > 0 && (
+                <View style={styles.comboSection}>
+                  <Text style={styles.comboTitle}>Free Items</Text>
+                  {(productDetail.free_items ?? []).map((fi) =>
+                    fi.product ? (
+                      <View key={fi.id} style={styles.comboItemRow}>
+                        <Image
+                          source={{ uri: fi.product.thumbnail }}
+                          style={styles.comboItemImage}
+                        />
+                        <Text style={styles.comboItemText}>
+                          {fi.product.name} × {fi.qty}
+                        </Text>
+                      </View>
+                    ) : null
+                  )}
+                </View>
+              )}
+              {/* Free Items */}
+            </View>
+          )}
 
           {/* ExpandableDescription */}
           <ExpandableDescription description={productDetail?.description} />
@@ -364,5 +404,35 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "500",
     fontFamily: "Saira-Medium",
+  },
+  comboContainer: {
+    gap: 15,
+  },
+  comboSection: {
+    gap: 10,
+  },
+  comboTitle: {
+    fontSize: 16,
+    fontWeight: "500",
+    fontFamily: "Saira-Bold",
+    color: "#000",
+    marginBottom: 6,
+  },
+  comboItemRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 8,
+  },
+  comboItemImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+    resizeMode: "cover",
+  },
+  comboItemText: {
+    fontSize: 14,
+    color: "#333",
+    flexShrink: 1,
   },
 });

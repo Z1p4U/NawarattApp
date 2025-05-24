@@ -2,9 +2,8 @@ import HeadLine from "@/components/ui/HeadLine";
 import ProductCard from "@/components/ui/ProductCard";
 import useAuth from "@/redux/hooks/auth/useAuth";
 import useWishlist from "@/redux/hooks/wishlist/useWishlist";
-import RouteGuard from "@/utils/RouteGuard";
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
+import { Link, router } from "expo-router";
 import { useEffect, useRef } from "react";
 import {
   ActivityIndicator,
@@ -33,46 +32,68 @@ export default function Favorites() {
     }
   };
 
-  useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.replace("/login");
-    }
-  }, [loading, isAuthenticated, router]);
+  // useEffect(() => {
+  //   if (!loading && !isAuthenticated) {
+  //     router.replace("/login");
+  //   }
+  // }, [loading, isAuthenticated, router]);
 
   return (
     <>
-      <RouteGuard>
-        <HeadLine />
-        <ScrollView style={styles.container} onScroll={handleScroll}>
-          <LinearGradient
-            colors={["#53CAFE", "#2555E7"]}
-            start={{ x: 0.0, y: 0.0 }}
-            end={{ x: 1.0, y: 0.0 }}
-            style={styles.banner}
-          >
-            <Text style={styles.headText}>Favorites</Text>
-          </LinearGradient>
+      {/* <RouteGuard> */}
+      <HeadLine />
+      <ScrollView style={styles.container} onScroll={handleScroll}>
+        <LinearGradient
+          colors={["#53CAFE", "#2555E7"]}
+          start={{ x: 0.0, y: 0.0 }}
+          end={{ x: 1.0, y: 0.0 }}
+          style={styles.banner}
+        >
+          <Text style={styles.headText}>Favorites</Text>
+        </LinearGradient>
 
-          <View style={styles.row}>
-            {wishlists?.map((item) => (
-              <View key={item?.id} style={styles.item}>
-                <ProductCard product={item?.product} />
-              </View>
-            ))}
+        {!isAuthenticated ? (
+          <View style={styles.bodyCentered}>
+            <Text style={styles.messageText}>
+              Please
+              <Link href={`/login`} style={{ color: "#52C5FE" }}>
+                {" "}
+                log in{" "}
+              </Link>
+              to view your favorites.
+            </Text>
           </View>
-
-          {loading && (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator
-                animating
-                size="large"
-                color="#0000ff"
-                style={styles.loadingProcess}
-              />
+        ) : wishlists?.length === 0 ? (
+          <View style={styles.bodyCentered}>
+            <Text style={styles.messageText}>Your wishlist is empty.</Text>
+          </View>
+        ) : (
+          <ScrollView
+            style={styles.container}
+            contentContainerStyle={styles.scrollContent}
+            onScroll={handleScroll}
+          >
+            <View style={styles.row}>
+              {wishlists.map((item) => (
+                <View key={item.id} style={styles.item}>
+                  <ProductCard product={item.product} />
+                </View>
+              ))}
             </View>
-          )}
-        </ScrollView>
-      </RouteGuard>
+            {loading && (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator
+                  animating
+                  size="large"
+                  color="#0000ff"
+                  style={styles.loadingProcess}
+                />
+              </View>
+            )}
+          </ScrollView>
+        )}
+      </ScrollView>
+      {/* </RouteGuard> */}
     </>
   );
 }
@@ -88,6 +109,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     paddingBottom: Platform.select({ ios: 50, android: 10 }),
+  },
+  scrollContent: {
+    paddingTop: 20,
+    paddingHorizontal: 15,
+    paddingBottom: 30,
   },
   banner: {
     borderBottomLeftRadius: 30,
@@ -124,5 +150,20 @@ const styles = StyleSheet.create({
   },
   loadingProcess: {
     marginBottom: Platform.select({ ios: 100, android: 0 }),
+  },
+  bodyCentered: {
+    flex: 1,
+    height: 500,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
+  messageText: {
+    fontSize: 20,
+    color: "#333",
+    fontWeight: 500,
+    fontFamily: "Saira-Bold",
+    textAlign: "center",
+    paddingHorizontal: 20,
   },
 });

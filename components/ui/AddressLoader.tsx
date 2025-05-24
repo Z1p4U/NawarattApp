@@ -1,5 +1,14 @@
 import React, { useEffect, useRef } from "react";
-import { View, StyleSheet, Animated, Easing } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Animated,
+  Easing,
+  ScrollView,
+  Dimensions,
+} from "react-native";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export default function AddressLoader({ count = 2 }: { count?: number }) {
   const shimmer = useRef(new Animated.Value(0)).current;
@@ -17,11 +26,14 @@ export default function AddressLoader({ count = 2 }: { count?: number }) {
 
   const backgroundColor = shimmer.interpolate({
     inputRange: [0, 0.5, 1],
-    outputRange: ["#e0e0e0", "#f5f5f5", "#e0e0e0"],
+    outputRange: ["#ECECEC", "#F5F5F5", "#ECECEC"],
   });
 
   return (
-    <>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={false}
+    >
       {Array.from({ length: count }).map((_, i) => (
         <View key={i} style={styles.skeletonCard}>
           <Animated.View style={[styles.skeletonIcon, { backgroundColor }]} />
@@ -38,17 +50,21 @@ export default function AddressLoader({ count = 2 }: { count?: number }) {
           </View>
         </View>
       ))}
-    </>
+    </ScrollView>
   );
 }
 
+const CARD_WIDTH = SCREEN_WIDTH - 40;
+
 const styles = StyleSheet.create({
+  container: {
+    paddingVertical: 16,
+  },
   skeletonCard: {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#ECECEC",
     borderRadius: 10,
     flexDirection: "row",
     padding: 20,
-    gap: 20,
     marginBottom: 16,
   },
   skeletonIcon: {
@@ -58,6 +74,7 @@ const styles = StyleSheet.create({
   },
   skeletonTextContainer: {
     flex: 1,
+    marginLeft: 20,
     justifyContent: "space-between",
   },
   skeletonLineShort: {

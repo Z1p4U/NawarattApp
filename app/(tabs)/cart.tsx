@@ -145,6 +145,10 @@ export default function Cart() {
         <View style={styles.column}>
           {loading ? (
             <AddressLoader count={6} />
+          ) : data?.length === 0 ? (
+            <View style={styles.bodyCentered}>
+              <Text style={styles.messageText}>Your cart is empty.</Text>
+            </View>
           ) : (
             data.map((item) => (
               <View key={item.productId} style={styles.pdCard}>
@@ -369,5 +373,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "500",
     fontFamily: "Saira-Medium",
+  },
+  bodyCentered: {
+    flex: 1,
+    height: 500,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
+  messageText: {
+    fontSize: 20,
+    color: "#333",
+    fontWeight: 500,
+    fontFamily: "Saira-Bold",
+    textAlign: "center",
+    paddingHorizontal: 20,
   },
 });
