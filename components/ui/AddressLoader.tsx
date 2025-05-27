@@ -17,7 +17,7 @@ export default function AddressLoader({ count = 2 }: { count?: number }) {
     Animated.loop(
       Animated.timing(shimmer, {
         toValue: 1,
-        duration: 1200,
+        duration: 1000,
         easing: Easing.linear,
         useNativeDriver: false,
       })

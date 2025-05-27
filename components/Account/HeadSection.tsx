@@ -1,18 +1,14 @@
 import React from "react";
 import { LinearGradient } from "expo-linear-gradient";
-import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Svg, { ClipPath, Defs, G, Path, Rect } from "react-native-svg";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
+import useWishlist from "@/redux/hooks/wishlist/useWishlist";
 
-// const ImageCarousel: React.FC<lProps> = ({ data }) => {
 const HeadSection = ({ data }: any) => {
+  const router = useRouter();
+  const { total: totalWishlist } = useWishlist();
+
   return (
     <>
       <LinearGradient
@@ -33,7 +29,10 @@ const HeadSection = ({ data }: any) => {
         </View>
 
         <View style={styles.amountBar}>
-          <View style={styles.barBlock}>
+          <TouchableOpacity
+            onPress={() => router.replace("/addressBook")}
+            style={styles.barBlock}
+          >
             <Svg width={28} height={28} viewBox="0 0 28 28" fill="none">
               <Path
                 d="M4.625 11.5c0-4.714 0-7.071 1.465-8.535C7.555 1.501 9.911 1.5 14.625 1.5H16.5c4.714 0 7.071 0 8.535 1.465C26.499 4.43 26.5 6.786 26.5 11.5v5c0 4.714 0 7.071-1.465 8.535C23.57 26.499 21.214 26.5 16.5 26.5h-1.875c-4.714 0-7.071 0-8.535-1.465-1.464-1.465-1.465-3.821-1.465-8.535v-5z"
@@ -51,19 +50,25 @@ const HeadSection = ({ data }: any) => {
               />
             </Svg>
             <Text style={styles.barText}>Address Book</Text>
-          </View>
+          </TouchableOpacity>
+
           <Svg width={1} height={71} viewBox="0 0 1 71" fill="none">
             <Path stroke="#fff" d="M0.5 2.18557e-8L0.499997 71" />
           </Svg>
+
           <View style={styles.barBlock}>
-            <Text style={styles.barNumber}>75</Text>
+            <Text style={styles.barNumber}>
+              {data?.data?.order_stats?.total}
+            </Text>
             <Text style={styles.barText}>Order in Total</Text>
           </View>
+
           <Svg width={1} height={71} viewBox="0 0 1 71" fill="none">
             <Path stroke="#fff" d="M0.5 2.18557e-8L0.499997 71" />
           </Svg>
+
           <View style={styles.barBlock}>
-            <Text style={styles.barNumber}>126</Text>
+            <Text style={styles.barNumber}>{totalWishlist}</Text>
             <Text style={styles.barText}>Wishlist</Text>
           </View>
         </View>

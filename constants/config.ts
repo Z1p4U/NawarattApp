@@ -152,6 +152,13 @@ export interface UserData {
     created_at: string;
     updated_at: string;
   };
+  order_stats: {
+    total: number;
+    submitted: number | null;
+    confirmed: number | null;
+    delivered: number | null;
+    canceled: number | null;
+  };
 }
 export interface ProfileResponse {
   data: UserData;
@@ -289,7 +296,7 @@ export interface Wishlist {
 export interface AllWishlistResponse {
   data: Wishlist[];
   links: Record<string, unknown>;
-  meta: Record<string, unknown>;
+  meta: Record<string, number>;
 }
 
 export interface ToggleWishlistResponse {

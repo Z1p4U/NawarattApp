@@ -5,7 +5,7 @@ import { handleFetchAllWishList } from "@/redux/services/wishlist/wishlistSlice"
 
 const useWishlist = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { wishlists, status } = useSelector(
+  const { wishlists, status, total } = useSelector(
     (state: RootState) => state.wishlist
   );
   const [pagination, setPagination] = useState({ page: 1, size: 20 });
@@ -37,6 +37,7 @@ const useWishlist = () => {
     wishlists,
     loading,
     pagination,
+    total,
     isInWishlist,
     setPagination,
     loadMoreWishlists,

@@ -191,9 +191,15 @@ export default function TabLayout() {
           href: null, // This hides the tab from the tab bar
         }}
       />
-
       <Tabs.Screen
         name="editAccount"
+        options={{
+          href: null, // This hides the tab from the tab bar
+        }}
+      />
+
+      <Tabs.Screen
+        name="addressBook"
         options={{
           href: null, // This hides the tab from the tab bar
         }}

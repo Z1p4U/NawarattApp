@@ -100,7 +100,7 @@ export default function Cart() {
   const clearCart = async () => {
     try {
       await AsyncStorage.removeItem("cart");
-      await AsyncStorage.clear();
+      // await AsyncStorage.clear();
       setData([]);
     } catch (error) {
       console.error("Error clearing cart:", error);
@@ -207,7 +207,7 @@ export default function Cart() {
             Total - {calculateTotal()?.toLocaleString()} Ks
           </Text>
         </View>
-        <TouchableOpacity onPress={handleCheckout}>
+        <TouchableOpacity disabled={loading} onPress={handleCheckout}>
           <LinearGradient
             colors={["#54CAFF", "#275AE8"]}
             start={{ x: 0, y: 0 }}

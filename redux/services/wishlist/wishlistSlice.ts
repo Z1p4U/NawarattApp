@@ -87,6 +87,8 @@ const wishlistSlice = createSlice({
           pagination.page === 1
             ? action.payload.data || []
             : [...(state.wishlists ?? []), ...(action.payload.data ?? [])];
+
+        state.total = action.payload.meta.total;
       })
       .addCase(handleFetchAllWishList.rejected, (state, action) => {
         state.status = "failed";

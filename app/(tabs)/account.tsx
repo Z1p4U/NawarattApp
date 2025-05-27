@@ -1,7 +1,5 @@
 import HeadSection from "@/components/Account/HeadSection";
-import AddressLoader from "@/components/ui/AddressLoader";
 import HeadLine from "@/components/ui/HeadLine";
-import useAddress from "@/redux/hooks/address/useAddress";
 import useAuth from "@/redux/hooks/auth/useAuth";
 import useUser from "@/redux/hooks/user/useUser";
 import RouteGuard from "@/utils/RouteGuard";
@@ -22,7 +20,6 @@ import Svg, { Path } from "react-native-svg";
 export default function Account() {
   const { profileDetail } = useUser();
   const { isAuthenticated, loading } = useAuth();
-  const { addresses, loading: addressLoading } = useAddress();
   const router = useRouter();
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -56,8 +53,13 @@ export default function Account() {
                         fill="#363636"
                       />
                     </Svg>
+                    <View style={styles?.iconCount}>
+                      <Text style={styles?.iconCountText}>
+                        {profileDetail?.data?.order_stats?.submitted}
+                      </Text>
+                    </View>
                   </View>
-                  <Text style={styles.iconText}>Pending</Text>
+                  <Text style={styles.iconText}>Submitted</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.iconBlock}>
@@ -68,6 +70,11 @@ export default function Account() {
                         fill="#363636"
                       />
                     </Svg>
+                    <View style={styles?.iconCount}>
+                      <Text style={styles?.iconCountText}>
+                        {profileDetail?.data?.order_stats?.confirmed}
+                      </Text>
+                    </View>
                   </View>
                   <Text style={styles.iconText}>Confirmed</Text>
                 </TouchableOpacity>
@@ -80,6 +87,11 @@ export default function Account() {
                         fill="#363636"
                       />
                     </Svg>
+                    <View style={styles?.iconCount}>
+                      <Text style={styles?.iconCountText}>
+                        {profileDetail?.data?.order_stats?.delivered}
+                      </Text>
+                    </View>
                   </View>
                   <Text style={styles.iconText}>Delivered</Text>
                 </TouchableOpacity>
@@ -92,6 +104,11 @@ export default function Account() {
                         fill="#363636"
                       />
                     </Svg>
+                    <View style={styles?.iconCount}>
+                      <Text style={styles?.iconCountText}>
+                        {profileDetail?.data?.order_stats?.canceled}
+                      </Text>
+                    </View>
                   </View>
                   <Text style={styles.iconText}>Cancelled</Text>
                 </TouchableOpacity>
@@ -119,96 +136,8 @@ export default function Account() {
                   <Text style={styles.chatText}>Chat with Admin</Text>
                 </LinearGradient>
               </TouchableOpacity>
-
-              <Text style={styles.headText}>My Address</Text>
-
-              <View style={styles?.addressSection}>
-                {addressLoading ? (
-                  <AddressLoader count={2} />
-                ) : (
-                  addresses?.slice(0, 2)?.map((address, index) => {
-                    return (
-                      <View key={index} style={{ gap: 10 }}>
-                        <View style={styles?.addressCard}>
-                          <Svg
-                            width={25}
-                            height={24}
-                            viewBox="0 0 25 24"
-                            fill="none"
-                          >
-                            <Path
-                              d="M23.75 22.75H1.25m0-12.375l4.57-3.656m17.93 3.656l-9.142-7.313a3.375 3.375 0 00-4.216 0l-.88.704m6.925.421v-2.25A.563.563 0 0117 1.375h2.813a.562.562 0 01.562.563v5.625M3.5 22.75V8.687m18 0v4.5m0 9.563v-5.063"
-                              stroke="#000"
-                              strokeOpacity={0.5}
-                              strokeWidth={1.5}
-                              strokeLinecap="round"
-                            />
-                            <Path
-                              d="M15.875 22.75v-5.625c0-1.59 0-2.386-.495-2.88-.493-.495-1.288-.495-2.88-.495-1.592 0-2.386 0-2.88.495m-.495 8.505v-5.625"
-                              stroke="#000"
-                              strokeOpacity={0.5}
-                              strokeWidth={1.5}
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                            <Path
-                              d="M14.75 8.688a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
-                              stroke="#000"
-                              strokeOpacity={0.5}
-                              strokeWidth={1.5}
-                            />
-                          </Svg>
-
-                          <View style={styles?.addressCardDiv}>
-                            <Text style={styles?.addressCardHead}>
-                              Address {address?.id}
-                              {address?.is_default ? (
-                                <>(Default Address)</>
-                              ) : (
-                                <></>
-                              )}
-                            </Text>
-                            <Text
-                              style={styles?.addressCardText}
-                              numberOfLines={2}
-                            >
-                              {address?.address} ,{address?.city?.name_en} ,
-                              {address?.state?.name_en} ,
-                              {address?.country?.name_en}
-                            </Text>
-                            <Text
-                              style={styles?.addressCardText}
-                              numberOfLines={2}
-                            >
-                              Info: {address?.additional_info}
-                            </Text>
-                          </View>
-                        </View>
-                      </View>
-                    );
-                  })
-                )}
-
-                <TouchableOpacity
-                  style={{ marginTop: 10, marginBottom: 20 }}
-                  onPress={() => router.push("/addressCreate")}
-                >
-                  <LinearGradient
-                    colors={["#54CAFF", "#275AE8"]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={styles.newAddress}
-                  >
-                    <Text style={styles.chatText}>Add New Address</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              </View>
             </View>
             {/* Body Section End */}
-
-            {/* Address Section Start */}
-
-            {/* Address Section End */}
 
             <Modal transparent animationType="fade" visible={modalVisible}>
               <View style={styles.centeredView}>
@@ -273,6 +202,24 @@ const styles = StyleSheet.create({
     gap: 8,
     flexDirection: "column",
     alignItems: "center",
+    position: "relative",
+  },
+  iconCount: {
+    position: "absolute",
+    backgroundColor: "#ff0000",
+    top: -6,
+    right: -6,
+    width: 24,
+    height: 24,
+    borderRadius: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  iconCountText: {
+    fontSize: 14,
+    fontWeight: 500,
+    color: "#fff",
+    fontFamily: "Saira-Medium",
   },
   icon: {
     width: 65,
@@ -352,43 +299,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "500",
     fontFamily: "Saira-Medium",
-  },
-
-  addressSection: {
-    gap: 10,
-    marginHorizontal: 15,
-    marginVertical: 20,
-  },
-  addressCard: {
-    backgroundColor: "#F8F8F8",
-    padding: 20,
-    borderRadius: 10,
-    flexDirection: "row",
-    gap: 20,
-  },
-  addressCardDiv: {
-    gap: 10,
-  },
-  addressCardHead: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "#000",
-    fontFamily: "Saira-Medium",
-  },
-  addressCardText: {
-    fontSize: 14,
-    color: "#0000004D",
-    fontFamily: "Saira-Medium",
-  },
-
-  newAddress: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 15,
   },
 });

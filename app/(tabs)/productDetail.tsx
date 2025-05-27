@@ -1,16 +1,4 @@
-import ExpandableDescription from "@/components/ProductDetail/ExpandableDescription";
-import QuantityConfirmModal from "@/components/ProductDetail/QuantityConfirmModal";
-import HeadLine from "@/components/ui/HeadLine";
-import QuantityControl from "@/components/ui/QuantityControl";
-import useAuth from "@/redux/hooks/auth/useAuth";
-import useProductDetail from "@/redux/hooks/product/useProductDetail";
-import useWishlist from "@/redux/hooks/wishlist/useWishlist";
-import useWishlistProcess from "@/redux/hooks/wishlist/useWishlistProcess";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
-import { useSearchParams } from "expo-router/build/hooks";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   Image,
@@ -20,9 +8,24 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Alert, // ← import Alert
 } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
 import Svg, { Path } from "react-native-svg";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
+import { useSearchParams } from "expo-router/build/hooks";
+
+import ExpandableDescription from "@/components/ProductDetail/ExpandableDescription";
+import QuantityConfirmModal from "@/components/ProductDetail/QuantityConfirmModal";
+import HeadLine from "@/components/ui/HeadLine";
+import QuantityControl from "@/components/ui/QuantityControl";
+
+import useAuth from "@/redux/hooks/auth/useAuth";
+import useProductDetail from "@/redux/hooks/product/useProductDetail";
+import useWishlist from "@/redux/hooks/wishlist/useWishlist";
+import useWishlistProcess from "@/redux/hooks/wishlist/useWishlistProcess";
 
 export default function ProductDetail() {
   const { width } = Dimensions.get("window");
@@ -55,13 +58,13 @@ export default function ProductDetail() {
     setPayload({
       productId,
       count: 1,
-      total: Number(productDetail.price),
+      total: Number(productDetail?.price),
       option: "Order မှဖယ်ရှားပေးပါ",
       pdData: {
-        name: productDetail.name,
-        price: Number(productDetail.price),
-        category: productDetail.category.name,
-        thumbnail: productDetail.thumbnail,
+        name: productDetail?.name,
+        price: Number(productDetail?.price),
+        category: productDetail?.category?.name,
+        thumbnail: productDetail?.thumbnail,
       },
     });
   }, [productDetail, productId]);
@@ -72,13 +75,22 @@ export default function ProductDetail() {
       const cart = cartData ? JSON.parse(cartData) : [];
       setAlreadyInCart(cart.some((item: any) => item.productId === productId));
     };
-
     checkCart();
   }, [productId]);
 
   const addedInWishlist = isInWishlist(productId);
 
-  const updateQuantity = (newCount: number) => {
+  // ← enforce limited_qty_per_customer here
+  const updateQuantity = (requestedCount: number) => {
+    const max = productDetail?.limited_qty_per_customer ?? Infinity;
+    let newCount = requestedCount;
+    if (newCount > max) {
+      Alert.alert(
+        "Quantity Limit",
+        `You can only order up to ${max} of this item.`
+      );
+      newCount = max;
+    }
     setPayload((prev) => ({
       ...prev,
       count: newCount,
@@ -89,32 +101,23 @@ export default function ProductDetail() {
   const handleConfirm = async () => {
     try {
       const cartData = await AsyncStorage.getItem("cart");
-      const cart: Array<{
-        productId: number;
-        count: number;
-        total: number;
-        option: string;
-        pdData: any;
-      }> = cartData ? JSON.parse(cartData) : [];
+      const cart: Array<any> = cartData ? JSON.parse(cartData) : [];
 
       const incomingCount = payload.count;
       const incomingOption = payload.option;
       const price = Number(productDetail?.price || 0);
 
       const idx = cart.findIndex((item) => item.productId === productId);
-
       if (idx !== -1) {
-        // Update existing entry, including option
         const existing = cart[idx];
         const newCount = existing.count + incomingCount;
         cart[idx] = {
           ...existing,
           count: newCount,
           total: newCount * price,
-          option: incomingOption, // ← overwrite with newly selected option
+          option: incomingOption,
         };
       } else {
-        // Add new entry
         cart.push({
           productId,
           count: incomingCount,
@@ -125,7 +128,6 @@ export default function ProductDetail() {
       }
 
       await AsyncStorage.setItem("cart", JSON.stringify(cart));
-
       setModalVisible(false);
       setPayload((prev) => ({
         ...prev,
@@ -133,7 +135,6 @@ export default function ProductDetail() {
         total: price,
         option: "Order မှဖယ်ရှားပေးပါ",
       }));
-
       setAlreadyInCart(true);
       router.push("/cart");
     } catch (error) {
@@ -142,7 +143,7 @@ export default function ProductDetail() {
   };
 
   const imageData: { uri: string }[] = productDetail?.images?.length
-    ? productDetail.images.map((img) => ({ uri: img.url }))
+    ? productDetail.images.map((img: any) => ({ uri: img.url }))
     : [require("@/assets/images/placeholder.jpg")];
 
   const renderItem = ({ item }: { item: { uri: string } }) => (
@@ -152,7 +153,6 @@ export default function ProductDetail() {
   return (
     <>
       <HeadLine />
-
       <ScrollView style={styles.container}>
         <Carousel
           loop
@@ -174,7 +174,7 @@ export default function ProductDetail() {
               >
                 <Svg width={20} height={20} viewBox="0 0 22 20" fill="none">
                   <Path
-                    d="M16.087.25C13.873.25 11.961 1.547 11 3.438 10.04 1.547 8.127.25 5.913.25 2.738.25.167 2.912.167 6.188s1.968 6.279 4.512 8.746C7.222 17.4 11 19.75 11 19.75s3.655-2.31 6.321-4.816c2.844-2.672 4.512-5.46 4.512-8.746 0-3.286-2.571-5.938-5.746-5.938z"
+                    d="M16.087.25C13.873.25 11.961 1.547 11 3.438 10.04 1.547 8.127.25 5.913.25C2.738.25.167 2.912.167 6.188s1.968 6.279 4.512 8.746C7.222 17.4 11 19.75 11 19.75s3.655-2.31 6.321-4.816c2.844-2.672 4.512-5.46 4.512-8.746 0-3.286-2.571-5.938-5.746-5.938z"
                     fill={addedInWishlist ? "#FF4B84" : "#000"}
                   />
                 </Svg>
@@ -183,39 +183,42 @@ export default function ProductDetail() {
           </View>
 
           <Text style={styles.productPriceText}>
-            {productDetail?.price
-              ? productDetail.price.toLocaleString()
-              : "N/A"}{" "}
-            Ks
+            {productDetail?.price?.toLocaleString() ?? "N/A"} Ks
           </Text>
 
           <View style={styles.row}>
-            <Text style={styles.productCategoryText}>Category : </Text>
-            <Text style={styles.productCategoryActiveText}>
-              {productDetail?.brand?.name}
-            </Text>
+            {productDetail?.category && (
+              <>
+                <Text style={styles.productCategoryText}>Category:</Text>
+                <Text style={styles.productCategoryActiveText}>
+                  {productDetail.category.name}
+                </Text>
+              </>
+            )}
           </View>
 
           <View style={styles.row}>
-            <Image
-              source={
-                productDetail?.brand?.image
-                  ? { uri: productDetail.brand.image }
-                  : require("@/assets/images/placeholder.jpg")
-              }
-              style={styles.shopImg}
-            />
-
-            <Text style={styles.brandName}>{productDetail?.brand?.name}</Text>
+            {productDetail?.brand && (
+              <>
+                <Image
+                  source={
+                    productDetail.brand.image
+                      ? { uri: productDetail.brand.image }
+                      : require("@/assets/images/placeholder.jpg")
+                  }
+                  style={styles.shopImg}
+                />
+                <Text style={styles.brandName}>{productDetail.brand.name}</Text>
+              </>
+            )}
           </View>
 
-          {productDetail?.type === "combo" && (
-            <View style={styles.comboContainer}>
-              {/* Combo Items */}
-              {(productDetail?.combo_items ?? [])?.length > 0 && (
-                <View style={styles.comboSection}>
-                  <Text style={styles.comboTitle}>Combo Items</Text>
-                  {(productDetail?.combo_items ?? []).map((ci) =>
+          {productDetail?.type === "combo" &&
+            (productDetail.combo_items ?? []).length > 0 && (
+              <View style={styles.comboContainer}>
+                <Text style={styles.comboTitle}>Combo Items</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  {productDetail?.combo_items?.map((ci) =>
                     ci.product ? (
                       <View key={ci.id} style={styles.comboItemRow}>
                         <Image
@@ -228,46 +231,18 @@ export default function ProductDetail() {
                       </View>
                     ) : null
                   )}
-                </View>
-              )}
-              {/* Combo Items */}
+                </ScrollView>
+              </View>
+            )}
 
-              {/* Free Items */}
-              {(productDetail?.free_items ?? []).length > 0 && (
-                <View style={styles.comboSection}>
-                  <Text style={styles.comboTitle}>Free Items</Text>
-                  {(productDetail.free_items ?? []).map((fi) =>
-                    fi.product ? (
-                      <View key={fi.id} style={styles.comboItemRow}>
-                        <Image
-                          source={{ uri: fi.product.thumbnail }}
-                          style={styles.comboItemImage}
-                        />
-                        <Text style={styles.comboItemText}>
-                          {fi.product.name} × {fi.qty}
-                        </Text>
-                      </View>
-                    ) : null
-                  )}
-                </View>
-              )}
-              {/* Free Items */}
-            </View>
-          )}
-
-          {/* ExpandableDescription */}
           <ExpandableDescription description={productDetail?.description} />
-          {/* ExpandableDescription */}
 
           <View style={styles.rowBetween}>
-            {/* QuantityControl */}
-            <QuantityControl count={payload?.count} setCount={updateQuantity} />
-            {/* QuantityControl */}
-
+            <QuantityControl count={payload.count} setCount={updateQuantity} />
             <Text style={styles.totalText}>
-              Total :{" "}
+              Total:{" "}
               {(
-                payload?.count * Number(productDetail?.price || 0)
+                payload.count * Number(productDetail?.price || 0)
               ).toLocaleString()}{" "}
               Ks
             </Text>
@@ -275,9 +250,7 @@ export default function ProductDetail() {
 
           <TouchableOpacity
             style={{ marginTop: 30 }}
-            onPress={() => {
-              setModalVisible(true);
-            }}
+            onPress={() => setModalVisible(true)}
           >
             <LinearGradient
               colors={["#54CAFF", "#275AE8"]}
@@ -292,45 +265,32 @@ export default function ProductDetail() {
           </TouchableOpacity>
         </View>
 
-        {/* QuantityConfirmModal */}
         <SafeAreaView style={{ flex: 1 }}>
           <QuantityConfirmModal
             modalVisible={modalVisible}
-            selectedOption={payload?.option}
+            selectedOption={payload.option}
             onSelect={(option) => setPayload((prev) => ({ ...prev, option }))}
             onConfirm={handleConfirm}
             onClose={() => setModalVisible(false)}
           />
         </SafeAreaView>
-        {/* QuantityConfirmModal */}
       </ScrollView>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#fff",
-    position: "relative",
-  },
+  container: { backgroundColor: "#fff", position: "relative" },
   rowBetween: {
-    width: "100%",
-    display: "flex",
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
+    alignItems: "center",
   },
   row: {
-    display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
   },
-  carouselImage: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
-  },
+  carouselImage: { width: "100%", height: "100%", resizeMode: "cover" },
   productDetailInfoContainer: {
     backgroundColor: "#fff",
     paddingHorizontal: 20,
@@ -341,19 +301,11 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 30,
     gap: 10,
   },
-  productNameText: {
-    fontSize: 16,
-    color: "#000000",
-    fontFamily: "Saira-Regular",
-  },
-  productPriceText: {
-    fontSize: 24,
-    color: "#000000",
-    fontFamily: "Saira-Medium",
-  },
+  productNameText: { fontSize: 16, color: "#000", fontFamily: "Saira-Regular" },
+  productPriceText: { fontSize: 24, color: "#000", fontFamily: "Saira-Medium" },
   productCategoryText: {
     fontSize: 14,
-    color: "#000000",
+    color: "#000",
     fontFamily: "Saira-Regular",
   },
   productCategoryActiveText: {
@@ -363,25 +315,15 @@ const styles = StyleSheet.create({
   },
   brandName: {
     fontSize: 14,
-    color: "#000000",
+    color: "#000",
     fontFamily: "Saira-Regular",
     marginLeft: 15,
   },
-  shopImg: {
-    width: 50,
-    height: 50,
-    borderRadius: 10,
-    boxShadow: "0px 0px 1px #00000060",
-  },
-  totalText: {
-    fontSize: 16,
-    color: "#00000080",
-    fontFamily: "Saira-Medium",
-  },
+  shopImg: { width: 50, height: 50, borderRadius: 10 },
+  totalText: { fontSize: 16, color: "#00000080", fontFamily: "Saira-Medium" },
   favButton: {
     width: 35,
     height: 35,
-    display: "flex",
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 100,
@@ -405,34 +347,29 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     fontFamily: "Saira-Medium",
   },
-  comboContainer: {
-    gap: 15,
-  },
-  comboSection: {
-    gap: 10,
-  },
+  comboContainer: { gap: 15 },
   comboTitle: {
     fontSize: 16,
     fontWeight: "500",
     fontFamily: "Saira-Bold",
-    color: "#000",
-    marginBottom: 6,
+    color: "#3173ED",
+    marginVertical: 10,
   },
   comboItemRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    marginBottom: 8,
+    gap: 10,
+    marginRight: 15,
+    backgroundColor: "#0000000D",
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 8,
   },
   comboItemImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 8,
+    width: 25,
+    height: 25,
+    borderRadius: 5,
     resizeMode: "cover",
   },
-  comboItemText: {
-    fontSize: 14,
-    color: "#333",
-    flexShrink: 1,
-  },
+  comboItemText: { fontSize: 12, color: "#333", flexShrink: 1 },
 });

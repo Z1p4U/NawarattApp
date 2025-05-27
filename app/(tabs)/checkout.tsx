@@ -89,6 +89,7 @@ export default function Checkout() {
       const result = await createOrder(payload);
       console.log("Order placed!", result);
       Alert.alert("Success", "Order placed!");
+      await AsyncStorage.removeItem("cart");
       router.push("/");
     } catch (err) {
       console.error("Order failed:", err);
