@@ -333,11 +333,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-  carouselImage: { width: "100%", height: "100%", resizeMode: "cover" },
+  carouselImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
   imageStyle: {
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#0000001A",
+    // borderRadius: 20,
+    // borderWidth: 1,
+    // borderColor: "#0000001A",
   },
   productDetailInfoContainer: {
     backgroundColor: "#fff",
