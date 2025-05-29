@@ -1,17 +1,20 @@
-import React, { useCallback, useRef, useState } from "react";
-import { useFocusEffect } from "expo-router";
-import HeadLine from "@/components/ui/HeadLine";
-import SearchComponent from "@/components/ui/SearchComponent";
-import ProductCard from "@/components/ui/ProductCard";
+import React, { useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Dimensions,
+  FlatList,
   Platform,
-  ScrollView,
   StyleSheet,
   View,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useFocusEffect } from "expo-router";
+import HeadLine from "@/components/ui/HeadLine";
+import SearchComponent from "@/components/ui/SearchComponent";
+import ProductCard from "@/components/ui/ProductCard";
 import useProduct from "@/redux/hooks/product/useProduct";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export default function Catalog() {
   const [search, setSearch] = useState<string | null>(null);
@@ -20,65 +23,69 @@ export default function Catalog() {
 
   useFocusEffect(
     React.useCallback(() => {
+      // reset filters on focus
       setSearch(null);
       setBrandFilter(null);
     }, [])
   );
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
-  const handleScroll = ({ nativeEvent }: any) => {
+  const onEndReached = () => {
     if ((products?.length ?? 0) < 20) return;
-    const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
-    if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 20) {
-      if (!debounceRef.current) {
-        debounceRef.current = setTimeout(() => {
-          loadMore();
-          debounceRef.current = null;
-        }, 500);
-      }
+    if (!debounceRef.current) {
+      debounceRef.current = setTimeout(() => {
+        loadMore();
+        debounceRef.current = null;
+      }, 500);
     }
   };
 
   return (
     <>
-      <HeadLine />
-      <ScrollView style={styles.container} onScroll={handleScroll}>
-        <LinearGradient
-          colors={["#53CAFE", "#2555E7"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.banner}
-        >
-          <SearchComponent onchange={setSearch} />
-        </LinearGradient>
-
-        <View style={styles.row}>
-          {products?.map((product) => (
-            <View key={product.id} style={styles.item}>
-              <ProductCard product={product} />
+      <FlatList
+        data={products}
+        keyExtractor={(item) => item.id.toString()}
+        numColumns={2}
+        ListHeaderComponent={
+          <>
+            <View style={{ marginHorizontal: -15 }}>
+              <HeadLine />
             </View>
-          ))}
-        </View>
-
-        {loading && (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator
-              animating
-              size="large"
-              color="#0000ff"
-              style={styles.loadingProcess}
-            />
-          </View>
-        )}
-      </ScrollView>
+            <LinearGradient
+              colors={["#53CAFE", "#2555E7"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.banner}
+            >
+              <SearchComponent onchange={setSearch} />
+            </LinearGradient>
+          </>
+        }
+        renderItem={({ item }) => <ProductCard product={item} />}
+        columnWrapperStyle={styles.row} // style for each row
+        contentContainerStyle={styles.container} // overall padding
+        onEndReached={onEndReached}
+        onEndReachedThreshold={0.2}
+        ListFooterComponent={
+          loading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#0000ff" />
+            </View>
+          ) : null
+        }
+      />
     </>
   );
 }
+
+const CARD_WIDTH = (SCREEN_WIDTH - 20 * 2 - 10) / 2;
 
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fff",
     paddingBottom: Platform.select({ ios: 50, android: 10 }),
+    paddingHorizontal: 15,
+    minHeight: "100%",
   },
   banner: {
     borderBottomLeftRadius: 30,
@@ -87,21 +94,16 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 20,
     justifyContent: "flex-end",
+    marginHorizontal: -15,
   },
   row: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginHorizontal: 15,
-    marginTop: 20,
-    marginBottom: 30,
-    rowGap: 20,
-    columnGap: 15,
+    justifyContent: "space-between",
+    marginBottom: 20,
   },
-  item: { width: "47%" },
+  item: {
+    width: CARD_WIDTH,
+  },
   loadingContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    height: 200,
+    paddingVertical: 30,
   },
-  loadingProcess: { marginBottom: Platform.select({ ios: 100, android: 0 }) },
 });

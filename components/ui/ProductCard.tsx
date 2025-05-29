@@ -1,13 +1,28 @@
 import React from "react";
 import { Link } from "expo-router";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  ImageBackground,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+} from "react-native";
 import Svg, { Defs, LinearGradient, Path, Stop } from "react-native-svg";
 import { CardProps } from "@/constants/config";
 
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const CARD_WIDTH = SCREEN_WIDTH * 0.45;
+
 const ProductCard: React.FC<{ product: CardProps }> = ({ product }) => {
+  const thumbnailSource =
+    typeof product.thumbnail === "string"
+      ? { uri: product.thumbnail }
+      : require("@/assets/images/placeholder.jpg");
+
   return (
     <View style={styles.productCard}>
-      {/* Wrapper to ensure proper positioning */}
       <View style={styles.imageWrapper}>
         {/* Wishlist Button */}
         {/* {isAuthenticated && (
@@ -39,25 +54,20 @@ const ProductCard: React.FC<{ product: CardProps }> = ({ product }) => {
           </TouchableOpacity>
         )} */}
 
-        {/* Product Image */}
-        <Link
-          href={`/productDetail?id=${product?.id}`}
-          style={{ width: "100%" }}
-        >
-          <View style={{ width: "100%" }}>
+        <Link href={`/productDetail?id=${product.id}`} style={styles.link}>
+          <ImageBackground
+            source={require("@/assets/images/placeholder.jpg")}
+            style={styles.imageBg}
+            imageStyle={styles.imageStyle}
+          >
             <Image
-              source={
-                typeof product?.thumbnail === "string"
-                  ? { uri: product?.thumbnail }
-                  : require("@/assets/images/placeholder.jpg")
-              }
-              style={styles.productImage}
+              source={thumbnailSource}
+              style={[styles.imageOverlay, styles.imageStyle]}
             />
-          </View>
+          </ImageBackground>
         </Link>
       </View>
 
-      {/* Product Content */}
       <View style={styles.productCardContent}>
         <Text
           numberOfLines={1}
@@ -65,10 +75,10 @@ const ProductCard: React.FC<{ product: CardProps }> = ({ product }) => {
           style={styles.productCardName}
           allowFontScaling={false}
         >
-          {product?.name}
+          {product.name}
         </Text>
         <Text style={styles.productCardPrice} allowFontScaling={false}>
-          {Number(product?.price)?.toLocaleString()} Ks
+          {Number(product.price).toLocaleString()} Ks
         </Text>
       </View>
     </View>
@@ -79,24 +89,37 @@ export default ProductCard;
 
 const styles = StyleSheet.create({
   productCard: {
-    maxWidth: 150, // Ensures proper layout
+    width: CARD_WIDTH,
+    // margin: (SCREEN_WIDTH - CARD_WIDTH * 2) / 4, // center two cards per row
   },
   imageWrapper: {
-    position: "relative",
-    width: "100%",
+    width: CARD_WIDTH,
+    height: CARD_WIDTH,
     alignItems: "center",
+    justifyContent: "center",
   },
-  productImage: {
+  link: {
     width: "100%",
-    aspectRatio: 1,
-    resizeMode: "cover",
+    height: "100%",
+  },
+  imageBg: {
+    width: "100%",
+    height: "100%",
+  },
+  imageOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+  },
+  imageStyle: {
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: "#0000001A",
-    borderRadius: 20,
   },
   productCardContent: {
     paddingTop: 10,
-    marginTop: 10,
     paddingHorizontal: 8,
   },
   productCardName: {
@@ -120,8 +143,8 @@ const styles = StyleSheet.create({
     right: 10,
     backgroundColor: "#fff",
     zIndex: 10,
-    elevation: 5, // Ensures visibility on Android
-    shadowColor: "#000", // Shadow for iOS
+    elevation: 5,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,

@@ -42,7 +42,8 @@ export default function HomeScreen() {
     },
     {
       id: "3",
-      image: require("@/assets/images/banner1.png"),
+      image:
+        "https://st4.depositphotos.com/41530418/41785/i/450/depositphotos_417851512-stock-photo-medical-banner-group-medicine-pills.jpg",
       bgContain: true,
     },
   ];

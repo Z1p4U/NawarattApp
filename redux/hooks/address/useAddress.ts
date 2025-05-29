@@ -20,8 +20,6 @@ const useAddress = () => {
 
   const loading = status === "loading";
 
-  console.log(addresses);
-
   return {
     addresses,
     loading,

@@ -211,6 +211,20 @@ export default function TabLayout() {
           href: null, // This hides the tab from the tab bar
         }}
       />
+
+      <Tabs.Screen
+        name="orderHistory"
+        options={{
+          href: null, // This hides the tab from the tab bar
+        }}
+      />
+
+      <Tabs.Screen
+        name="orderDetail"
+        options={{
+          href: null, // This hides the tab from the tab bar
+        }}
+      />
     </Tabs>
   );
 }

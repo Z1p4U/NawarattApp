@@ -2,7 +2,7 @@ import React from "react";
 import { View, Image, StyleSheet, Dimensions } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
 
-const { width } = Dimensions.get("window");
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export interface ImageCarouselItem {
   id: string;
@@ -30,8 +30,8 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ data }) => {
     <View style={styles.carouselContainer}>
       <Carousel
         loop
-        width={width}
-        height={180}
+        width={SCREEN_WIDTH}
+        height={SCREEN_HEIGHT * 0.25}
         data={data}
         renderItem={renderItem}
         autoPlay={true}
@@ -47,8 +47,8 @@ const styles = StyleSheet.create({
   carouselContainer: {
     marginTop: -80,
     borderRadius: 30,
-    width: "90%",
-    aspectRatio: "2/1",
+    width: SCREEN_WIDTH * 0.9,
+    height: SCREEN_HEIGHT * 0.25,
     marginHorizontal: 20,
     alignSelf: "center",
     overflow: "hidden",

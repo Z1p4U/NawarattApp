@@ -1,127 +1,120 @@
-import HeadLine from "@/components/ui/HeadLine";
-import ProductCard from "@/components/ui/ProductCard";
-import useAuth from "@/redux/hooks/auth/useAuth";
-import useWishlist from "@/redux/hooks/wishlist/useWishlist";
-import { LinearGradient } from "expo-linear-gradient";
-import { Link, router } from "expo-router";
-import { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import {
   ActivityIndicator,
+  Dimensions,
+  FlatList,
   Platform,
-  ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Link } from "expo-router";
+import HeadLine from "@/components/ui/HeadLine";
+import ProductCard from "@/components/ui/ProductCard";
+import useAuth from "@/redux/hooks/auth/useAuth";
+import useWishlist from "@/redux/hooks/wishlist/useWishlist";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const CARD_WIDTH = (SCREEN_WIDTH - 15 * 2 - 10) / 2;
 
 export default function Favorites() {
   const { wishlists, loading, loadMoreWishlists } = useWishlist();
   const { isAuthenticated } = useAuth();
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleScroll = ({ nativeEvent }: any) => {
+  const onEndReached = () => {
     if ((wishlists?.length ?? 0) < 20) return;
-    const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
-    if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 20) {
-      if (!debounceRef.current) {
-        debounceRef.current = setTimeout(() => {
-          loadMoreWishlists();
-          debounceRef.current = null;
-        }, 500);
-      }
+    if (!debounceRef.current) {
+      debounceRef.current = setTimeout(() => {
+        loadMoreWishlists();
+        debounceRef.current = null;
+      }, 500);
     }
   };
 
-  // useEffect(() => {
-  //   if (!loading && !isAuthenticated) {
-  //     router.replace("/login");
-  //   }
-  // }, [loading, isAuthenticated, router]);
-
   return (
-    <>
-      {/* <RouteGuard> */}
-      <HeadLine />
-      <ScrollView style={styles.container} onScroll={handleScroll}>
-        <LinearGradient
-          colors={["#53CAFE", "#2555E7"]}
-          start={{ x: 0.0, y: 0.0 }}
-          end={{ x: 1.0, y: 0.0 }}
-          style={styles.banner}
-        >
-          <Text style={styles.headText}>Favorites</Text>
-        </LinearGradient>
-
-        {!isAuthenticated ? (
-          <View style={styles.bodyCentered}>
-            <Text style={styles.messageText}>
-              Please
-              <Link href={`/login`} style={{ color: "#52C5FE" }}>
-                {" "}
-                log in{" "}
-              </Link>
-              to view your favorites.
-            </Text>
-          </View>
-        ) : wishlists?.length === 0 ? (
+    <FlatList
+      data={wishlists}
+      keyExtractor={(item) => item.id.toString()}
+      numColumns={2}
+      showsVerticalScrollIndicator={false}
+      // HEADER: HeadLine + Banner
+      ListHeaderComponent={() => (
+        <View style={styles.headerWrapper}>
+          <HeadLine />
+          <LinearGradient
+            colors={["#53CAFE", "#2555E7"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.banner}
+          >
+            <Text style={styles.headText}>Favorites</Text>
+          </LinearGradient>
+        </View>
+      )}
+      // EMPTY: not logged in or empty wishlist
+      ListEmptyComponent={() => {
+        if (!isAuthenticated) {
+          return (
+            <View style={styles.bodyCentered}>
+              <Text style={styles.messageText}>
+                Please
+                <Link href="/login" style={styles.linkText}>
+                  {" "}
+                  log in{" "}
+                </Link>
+                to view your favorites.
+              </Text>
+            </View>
+          );
+        }
+        return (
           <View style={styles.bodyCentered}>
             <Text style={styles.messageText}>Your wishlist is empty.</Text>
           </View>
-        ) : (
-          <ScrollView
-            style={styles.container}
-            contentContainerStyle={styles.scrollContent}
-            onScroll={handleScroll}
-          >
-            <View style={styles.row}>
-              {wishlists.map((item) => (
-                <View key={item.id} style={styles.item}>
-                  <ProductCard product={item.product} />
-                </View>
-              ))}
-            </View>
-            {loading && (
-              <View style={styles.loadingContainer}>
-                <ActivityIndicator
-                  animating
-                  size="large"
-                  color="#0000ff"
-                  style={styles.loadingProcess}
-                />
-              </View>
-            )}
-          </ScrollView>
-        )}
-      </ScrollView>
-      {/* </RouteGuard> */}
-    </>
+        );
+      }}
+      // ITEM RENDERER
+      renderItem={({ item }) => (
+        <View style={styles.item}>
+          <ProductCard product={item.product} />
+        </View>
+      )}
+      columnWrapperStyle={styles.row}
+      contentContainerStyle={styles.container}
+      // INFINITE SCROLL
+      onEndReached={onEndReached}
+      onEndReachedThreshold={0.2}
+      // FOOTER: loading spinner
+      ListFooterComponent={
+        loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#0000ff" />
+          </View>
+        ) : null
+      }
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  centered: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
   container: {
-    flex: 1,
     backgroundColor: "#fff",
     paddingBottom: Platform.select({ ios: 50, android: 10 }),
-  },
-  scrollContent: {
-    paddingTop: 20,
     paddingHorizontal: 15,
-    paddingBottom: 30,
+    minHeight: "100%",
+  },
+  headerWrapper: {
+    marginHorizontal: -15, // cancel the container's horizontal padding
   },
   banner: {
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     minHeight: 70,
     padding: 15,
-    marginBottom: 20,
     justifyContent: "flex-end",
+    marginBottom: 20,
   },
   headText: {
     marginTop: 10,
@@ -132,38 +125,29 @@ const styles = StyleSheet.create({
     fontFamily: "Saira-Medium",
   },
   row: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginHorizontal: 15,
-    marginTop: 20,
-    marginBottom: 30,
-    rowGap: 20,
-    columnGap: 15,
+    justifyContent: "space-between",
+    marginBottom: 20,
   },
   item: {
-    width: "47%",
+    width: CARD_WIDTH,
   },
   loadingContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    height: 200,
-  },
-  loadingProcess: {
-    marginBottom: Platform.select({ ios: 100, android: 0 }),
+    paddingVertical: 30,
   },
   bodyCentered: {
     flex: 1,
-    height: 500,
+    minHeight: 200,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
   },
   messageText: {
-    fontSize: 20,
+    fontSize: 18,
     color: "#333",
-    fontWeight: 500,
-    fontFamily: "Saira-Bold",
+    fontWeight: "500",
     textAlign: "center",
     paddingHorizontal: 20,
+  },
+  linkText: {
+    color: "#52C5FE",
   },
 });

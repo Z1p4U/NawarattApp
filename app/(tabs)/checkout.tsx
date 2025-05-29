@@ -41,6 +41,8 @@ export default function Checkout() {
   const [agreed, setAgreed] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState(false);
 
+  console.log(cart);
+
   useEffect(() => {
     if (!loading && !isAuthenticated) {
       router.replace("/login");

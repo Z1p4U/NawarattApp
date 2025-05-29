@@ -349,6 +349,7 @@ export interface OrderItem {
       end_date: string;
     };
   } | null;
+  combo_items: ComboItem[];
   qty: number;
   unit_price: number;
   option: string;

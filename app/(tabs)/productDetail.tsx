@@ -2,13 +2,15 @@ import React, { useEffect, useState } from "react";
 import {
   Dimensions,
   Image,
+  ImageBackground,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Alert, // ← import Alert
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
 import Svg, { Path } from "react-native-svg";
@@ -33,7 +35,7 @@ export default function ProductDetail() {
   const productId = Number(searchParams.get("id")) || 0;
   const router = useRouter();
 
-  const { productDetail } = useProductDetail(productId);
+  const { productDetail, loading: detailLoading } = useProductDetail(productId);
   const { toggleWishlist } = useWishlistProcess();
   const { isInWishlist } = useWishlist();
   const { isAuthenticated } = useAuth();
@@ -80,7 +82,7 @@ export default function ProductDetail() {
 
   const addedInWishlist = isInWishlist(productId);
 
-  // ← enforce limited_qty_per_customer here
+  // enforce limited_qty_per_customer here
   const updateQuantity = (requestedCount: number) => {
     const max = productDetail?.limited_qty_per_customer ?? Infinity;
     let newCount = requestedCount;
@@ -144,11 +146,31 @@ export default function ProductDetail() {
 
   const imageData: { uri: string }[] = productDetail?.images?.length
     ? productDetail.images.map((img: any) => ({ uri: img.url }))
-    : [require("@/assets/images/placeholder.jpg")];
+    : [{ uri: "" }];
 
   const renderItem = ({ item }: { item: { uri: string } }) => (
-    <Image source={item} style={styles.carouselImage} />
+    <ImageBackground
+      source={require("@/assets/images/placeholder.jpg")}
+      style={styles.carouselImage}
+      imageStyle={styles.imageStyle}
+    >
+      <Image
+        source={item.uri ? item : require("@/assets/images/placeholder.jpg")}
+        style={[styles.carouselImage, styles.imageStyle]}
+      />
+    </ImageBackground>
   );
+
+  if (detailLoading) {
+    return (
+      <>
+        <HeadLine />
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      </>
+    );
+  }
 
   return (
     <>
@@ -189,7 +211,7 @@ export default function ProductDetail() {
           <View style={styles.row}>
             {productDetail?.category && (
               <>
-                <Text style={styles.productCategoryText}>Category:</Text>
+                <Text style={styles.productCategoryText}>Category : </Text>
                 <Text style={styles.productCategoryActiveText}>
                   {productDetail.category.name}
                 </Text>
@@ -199,17 +221,23 @@ export default function ProductDetail() {
 
           <View style={styles.row}>
             {productDetail?.brand && (
-              <>
+              <ImageBackground
+                source={require("@/assets/images/placeholder.jpg")}
+                style={styles.shopImg}
+                imageStyle={styles.imageStyle}
+              >
                 <Image
                   source={
                     productDetail.brand.image
                       ? { uri: productDetail.brand.image }
                       : require("@/assets/images/placeholder.jpg")
                   }
-                  style={styles.shopImg}
+                  style={[styles.shopImg, styles.imageStyle]}
                 />
-                <Text style={styles.brandName}>{productDetail.brand.name}</Text>
-              </>
+              </ImageBackground>
+            )}
+            {productDetail?.brand && (
+              <Text style={styles.brandName}>{productDetail.brand.name}</Text>
             )}
           </View>
 
@@ -221,10 +249,16 @@ export default function ProductDetail() {
                   {productDetail?.combo_items?.map((ci) =>
                     ci.product ? (
                       <View key={ci.id} style={styles.comboItemRow}>
-                        <Image
-                          source={{ uri: ci.product.thumbnail }}
+                        <ImageBackground
+                          source={require("@/assets/images/placeholder.jpg")}
                           style={styles.comboItemImage}
-                        />
+                          imageStyle={styles.imageStyle}
+                        >
+                          <Image
+                            source={{ uri: ci.product.thumbnail }}
+                            style={[styles.comboItemImage, styles.imageStyle]}
+                          />
+                        </ImageBackground>
                         <Text style={styles.comboItemText}>
                           {ci.product.name} × {ci.qty}
                         </Text>
@@ -280,7 +314,16 @@ export default function ProductDetail() {
 }
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: "#fff", position: "relative" },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
+  container: {
+    backgroundColor: "#fff",
+    position: "relative",
+  },
   rowBetween: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -291,6 +334,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   carouselImage: { width: "100%", height: "100%", resizeMode: "cover" },
+  imageStyle: {
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#0000001A",
+  },
   productDetailInfoContainer: {
     backgroundColor: "#fff",
     paddingHorizontal: 20,
@@ -331,7 +379,6 @@ const styles = StyleSheet.create({
   },
   chat: {
     borderRadius: 18,
-    display: "flex",
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",

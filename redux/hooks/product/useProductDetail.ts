@@ -7,15 +7,16 @@ const useProductDetail = (id: any) => {
   const dispatch = useDispatch<AppDispatch>();
   const productResponse = useSelector((state: RootState) => state.product);
   const productDetail = productResponse?.productDetail;
-  const [loading, setLoading] = useState(true);
+  const status = productResponse?.status;
 
   useEffect(() => {
     const fetchProductDetail = async () => {
       dispatch(handleFetchProductDetail(id));
-      setLoading(false);
     };
     fetchProductDetail();
   }, [dispatch, id]);
+
+  const loading = status === "loading";
 
   return {
     productDetail,

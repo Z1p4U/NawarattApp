@@ -45,7 +45,10 @@ export default function Account() {
               <Text style={styles.headText}>My Orders</Text>
 
               <View style={styles.iconList}>
-                <TouchableOpacity style={styles.iconBlock}>
+                <TouchableOpacity
+                  style={styles.iconBlock}
+                  onPress={() => router.push("/orderHistory")}
+                >
                   <View style={styles.icon}>
                     <Svg width={22} height={27} viewBox="0 0 25 27" fill="none">
                       <Path
@@ -62,7 +65,10 @@ export default function Account() {
                   <Text style={styles.iconText}>Submitted</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.iconBlock}>
+                <TouchableOpacity
+                  style={styles.iconBlock}
+                  onPress={() => router.push("/orderHistory")}
+                >
                   <View style={styles.icon}>
                     <Svg width={22} height={30} viewBox="0 0 27 30" fill="none">
                       <Path
@@ -79,7 +85,10 @@ export default function Account() {
                   <Text style={styles.iconText}>Confirmed</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.iconBlock}>
+                <TouchableOpacity
+                  style={styles.iconBlock}
+                  onPress={() => router.push("/orderHistory")}
+                >
                   <View style={styles.icon}>
                     <Svg width={22} height={25} viewBox="0 0 26 25" fill="none">
                       <Path
@@ -96,7 +105,10 @@ export default function Account() {
                   <Text style={styles.iconText}>Delivered</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.iconBlock}>
+                <TouchableOpacity
+                  style={styles.iconBlock}
+                  onPress={() => router.push("/orderHistory")}
+                >
                   <View style={styles.icon}>
                     <Svg width={20} height={27} viewBox="0 0 24 27" fill="none">
                       <Path
