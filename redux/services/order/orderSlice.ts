@@ -3,6 +3,7 @@ import {
   fetchAllOrder,
   fetchOrderDetail,
   fetchCreateOrder,
+  fetchPayOrder,
 } from "@/redux/api/order/orderApi";
 import {
   AllOrderResponse,
@@ -10,6 +11,7 @@ import {
   OrderPayload,
   MessageResponse,
   PaginationPayload,
+  OrderPayPayload,
 } from "@/constants/config";
 
 interface OrderState {
@@ -63,29 +65,17 @@ export const createOrder = createAsyncThunk<
   }
 });
 
-// export const updateOrder = createAsyncThunk<
-//   MessageResponse,
-//   { id: number; payload: OrderPayload },
-//   { rejectValue: string }
-// >("order/update", async ({ id, payload }, { rejectWithValue }) => {
-//   try {
-//     return await fetchUpdateOrder(id, payload);
-//   } catch (err: any) {
-//     return rejectWithValue(err.message);
-//   }
-// });
-
-// export const deleteOrder = createAsyncThunk<
-//   MessageResponse,
-//   number,
-//   { rejectValue: string }
-// >("order/delete", async (id, { rejectWithValue }) => {
-//   try {
-//     return await fetchDeleteOrder(id);
-//   } catch (err: any) {
-//     return rejectWithValue(err.message);
-//   }
-// });
+export const payOrder = createAsyncThunk<
+  MessageResponse,
+  { id: number; payload: OrderPayPayload },
+  { rejectValue: string }
+>("order/pay", async ({ id, payload }, { rejectWithValue }) => {
+  try {
+    return await fetchPayOrder(id, payload);
+  } catch (err: any) {
+    return rejectWithValue(err.message);
+  }
+});
 
 const orderSlice = createSlice({
   name: "order",
@@ -112,10 +102,9 @@ const orderSlice = createSlice({
       .addCase(loadOrders.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload ?? action.error.message ?? null;
-      });
+      })
 
-    // -- loadDetail
-    builder
+      // -- loadDetail
       .addCase(loadOrderDetail.pending, (state) => {
         state.status = "loading";
         state.error = null;
@@ -130,10 +119,9 @@ const orderSlice = createSlice({
       .addCase(loadOrderDetail.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload ?? action.error.message ?? null;
-      });
+      })
 
-    // -- create
-    builder
+      // -- create
       .addCase(createOrder.pending, (state) => {
         state.status = "loading";
         state.error = null;
@@ -150,6 +138,26 @@ const orderSlice = createSlice({
         }
       )
       .addCase(createOrder.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload ?? action.error.message ?? null;
+      })
+
+      .addCase(payOrder.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(
+        payOrder.fulfilled,
+        (state, action: PayloadAction<MessageResponse>) => {
+          state.status = "succeeded";
+          // if (state.orders) {
+          //   state.orders.unshift(action.payload.data);
+          // } else {
+          //   state.orders = [action.payload.data];
+          // }
+        }
+      )
+      .addCase(payOrder.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload ?? action.error.message ?? null;
       });

@@ -5,6 +5,7 @@ import {
   AllOrderResponse,
   MessageResponse,
   PaginationPayload,
+  OrderPayPayload,
 } from "@/constants/config";
 import environment from "@/constants/environment";
 
@@ -21,7 +22,7 @@ const fetchAllOrder = async (
 
     return response?.data;
   } catch (error) {
-    console.error("Failed to fetch order:", error);
+    console.error("Failed to fetch orders:", error);
     throw error;
   }
 };
@@ -36,7 +37,7 @@ const fetchOrderDetail = async (
 
     return response?.data;
   } catch (error) {
-    console.error("Failed to process:", error);
+    console.error("Failed to get detail:", error);
     throw error;
   }
 };
@@ -52,41 +53,26 @@ const fetchCreateOrder = async (
 
     return response?.data;
   } catch (error) {
-    console.error("Failed to process:", error);
+    console.error("Failed to create:", error);
     throw error;
   }
 };
 
-// const fetchUpdateOrder = async (
-//   id: number | null,
-//   payload: OrderPayload
-// ): Promise<MessageResponse> => {
-//   try {
-//     const response = await axiosInstance.post<MessageResponse>(
-//       `${environment.API_URL}/orders/${id}`,
-//       { payload }
-//     );
+const fetchPayOrder = async (
+  id: number | null,
+  payload: OrderPayPayload
+): Promise<MessageResponse> => {
+  try {
+    const response = await axiosInstance.post<MessageResponse>(
+      `${environment.API_URL}/orders/${id}/pay`,
+      payload
+    );
 
-//     return response?.data;
-//   } catch (error) {
-//     console.error("Failed to process:", error);
-//     throw error;
-//   }
-// };
+    return response?.data;
+  } catch (error) {
+    console.error("Failed to pay:", error);
+    throw error;
+  }
+};
 
-// const fetchDeleteOrder = async (
-//   id: number | null
-// ): Promise<MessageResponse> => {
-//   try {
-//     const response = await axiosInstance.delete<MessageResponse>(
-//       `${environment.API_URL}/orders/${id}`
-//     );
-
-//     return response?.data;
-//   } catch (error) {
-//     console.error("Failed to process:", error);
-//     throw error;
-//   }
-// };
-
-export { fetchAllOrder, fetchOrderDetail, fetchCreateOrder };
+export { fetchAllOrder, fetchOrderDetail, fetchCreateOrder, fetchPayOrder };

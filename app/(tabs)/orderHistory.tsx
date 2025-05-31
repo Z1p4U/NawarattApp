@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -13,11 +13,14 @@ import useAuth from "@/redux/hooks/auth/useAuth";
 import AddressLoader from "@/components/ui/AddressLoader";
 import useOrder from "@/redux/hooks/order/useOrder";
 import { Link } from "expo-router";
+import useOrderAction from "@/redux/hooks/order/useOrderAction";
 
 export default function OrderHistory() {
   const router = useRouter();
   const { orders, loading: orderLoading } = useOrder();
+  const { loadOrder } = useOrderAction();
   const { isAuthenticated, loading } = useAuth();
+  const [refreshing, setRefreshing] = useState(false); // controls spinner
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -32,6 +35,17 @@ export default function OrderHistory() {
     ).padStart(2, "0")}-${d.getFullYear()}`;
   };
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await loadOrder();
+    } catch (e) {
+      console.error("Failed to fetch:", e);
+    } finally {
+      setRefreshing(false); // hide the spinner
+    }
+  }, []);
+
   return (
     <>
       <HeadLine />
@@ -39,6 +53,9 @@ export default function OrderHistory() {
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
         {/* Banner */}
         <LinearGradient
@@ -55,7 +72,7 @@ export default function OrderHistory() {
             <AddressLoader count={6} />
           ) : (
             orders?.map((o) => (
-              <Link href={`/orderDetail?id=${o?.id}`}>
+              <Link key={o?.id} href={`/orderDetail?id=${o?.id}`}>
                 <View key={o.id} style={styles.orderCard}>
                   <View style={styles.orderInfo}>
                     <Text style={styles.orderCode}>{o.order_code}</Text>

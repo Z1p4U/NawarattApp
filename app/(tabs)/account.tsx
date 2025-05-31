@@ -129,7 +129,7 @@ export default function Account() {
               <TouchableOpacity
                 style={{ marginTop: 20, marginBottom: 30 }}
                 onPress={() => {
-                  console.log("Modal Visible:", modalVisible);
+                  // console.log("Modal Visible:", modalVisible);
                   setModalVisible(true);
                 }}
               >

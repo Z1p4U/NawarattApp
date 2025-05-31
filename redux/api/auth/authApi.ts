@@ -19,7 +19,6 @@ const fetchLogin = async (
       }
     );
 
-    console.log(response);
     return response.data;
   } catch (error: any) {
     console.error("Failed to Login:", error);

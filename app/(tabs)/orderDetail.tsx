@@ -6,10 +6,11 @@ import {
   View,
   ActivityIndicator,
   Image,
+  TouchableOpacity,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import HeadLine from "@/components/ui/HeadLine";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import useAuth from "@/redux/hooks/auth/useAuth";
 import useOrderDetail from "@/redux/hooks/order/useOrderDetail";
 import { useSearchParams } from "expo-router/build/hooks";
@@ -234,6 +235,19 @@ export default function OrderDetail() {
             <Text style={styles.summaryLabel}>SHIPPING COST</Text>
             <Text style={styles.summaryValue}>Ks{od?.shipping_cost || 0}</Text>
           </View> */}
+
+          {od?.status?.toLowerCase() === "confirmed" && (
+            <Link href={`/orderPay?id=${od?.id}`} style={{ marginTop: 30 }}>
+              <LinearGradient
+                colors={["#54CAFF", "#275AE8"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.newAddress}
+              >
+                <Text style={styles.chatText}>Pay For Order</Text>
+              </LinearGradient>
+            </Link>
+          )}
         </View>
       </ScrollView>
     </>
@@ -401,5 +415,22 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: "Saira-Regular",
     color: "#333",
+  },
+  newAddress: {
+    width: "100%",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 15,
+  },
+  chatText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "500",
+    fontFamily: "Saira-Medium",
   },
 });

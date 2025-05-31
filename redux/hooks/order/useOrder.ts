@@ -9,16 +9,10 @@ const useOrder = () => {
   const [pagination, setPagination] = useState({ page: 1, size: 12 });
 
   useEffect(() => {
-    const fetchAllOrder = async () => {
-      await dispatch(loadOrders({ pagination }));
-    };
-
-    fetchAllOrder();
+    dispatch(loadOrders({ pagination }));
   }, [dispatch, pagination]);
 
   const loading = status === "loading";
-
-  console.log(orders);
 
   return {
     orders,

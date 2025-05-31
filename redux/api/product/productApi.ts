@@ -3,7 +3,6 @@ import {
   AllProductResponse,
   PaginationPayload,
   ProductDetailResponse,
-  SpecialCategoryProductResponse,
 } from "@/constants/config";
 import environment from "@/constants/environment";
 
@@ -15,7 +14,7 @@ const fetchAllProducts = async (
   try {
     const params = { brand_id, name, ...(pagination || {}) };
 
-    console.log(params);
+    // console.log(params);
 
     const response = await axiosInstance.get<AllProductResponse>(
       `${environment.API_URL}/products`,
@@ -32,13 +31,13 @@ const fetchAllProducts = async (
 const fetchAllSpecialCategoryProducts = async (
   pagination: PaginationPayload,
   is_highlight: boolean
-): Promise<SpecialCategoryProductResponse> => {
+): Promise<AllProductResponse> => {
   try {
     const params = { ...(pagination || {}), is_highlight };
 
-    console.log(params);
+    // console.log(params);
 
-    const response = await axiosInstance.get<SpecialCategoryProductResponse>(
+    const response = await axiosInstance.get<AllProductResponse>(
       `${environment.API_URL}/special_categories`,
       { params }
     );

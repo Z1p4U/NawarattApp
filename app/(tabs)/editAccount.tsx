@@ -66,7 +66,7 @@ export default function EditAccount() {
       alert("New PINs do not match!");
       return;
     }
-    console.log("Submitting pin data", pinData);
+    // console.log("Submitting pin data", pinData);
     alert("This feature will coming soon");
     // dispatch update pin action here
   };

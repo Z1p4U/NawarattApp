@@ -41,7 +41,7 @@ export default function Checkout() {
   const [agreed, setAgreed] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState(false);
 
-  console.log(cart);
+  // console.log(cart);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -89,7 +89,7 @@ export default function Checkout() {
 
     try {
       const result = await createOrder(payload);
-      console.log("Order placed!", result);
+      // console.log("Order placed!", result);
       Alert.alert("Success", "Order placed!");
       await AsyncStorage.removeItem("cart");
       router.push("/");

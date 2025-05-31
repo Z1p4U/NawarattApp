@@ -1,52 +1,34 @@
 import axios from "axios";
 import config from "@/constants/environment";
-
-import type { AppDispatch } from "@/redux/store";
-import { logout } from "@/redux/services/auth/authSlice";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-let dispatch: AppDispatch;
-
-export function injectStore(_dispatch: AppDispatch) {
-  dispatch = _dispatch;
-}
-
-// Create Axios instance
 const axiosInstance = axios.create({
   baseURL: config.API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  // withCredentials: true,
+  headers: { "Content-Type": "application/json" },
 });
 
-// Request interceptor – add token if available
+// Attach token
 axiosInstance.interceptors.request.use(async (req) => {
   const token = await AsyncStorage.getItem("authToken");
-  if (token) {
-    req.headers.Authorization = `Bearer ${token}`;
-  }
+  if (token) req.headers.Authorization = `Bearer ${token}`;
   return req;
 });
 
-// Response interceptor – handle 401 / 403 errors
-axiosInstance.interceptors.response.use(
-  (res) => res,
-  async (error) => {
-    const status = error.response?.status;
-
-    if ((status === 401 || status === 403) && dispatch) {
-      try {
-        dispatch(logout());
-        window.location.href = "/login";
-      } catch (err) {
-        console.error(err);
+/**
+ * Call this once from your store setup.
+ * onAuthError should dispatch(logout()).
+ */
+export function registerAuthInterceptor(onAuthError: () => void) {
+  axiosInstance.interceptors.response.use(
+    (res) => res,
+    (error) => {
+      const status = error.response?.status;
+      if ((status === 401 || status === 403) && onAuthError) {
+        onAuthError();
       }
-      return Promise.reject(new Error("Session expired"));
+      return Promise.reject(error);
     }
-
-    return Promise.reject(error);
-  }
-);
+  );
+}
 
 export default axiosInstance;

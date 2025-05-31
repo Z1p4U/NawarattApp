@@ -391,4 +391,14 @@ export interface OrderPayload {
   items: OrderItemPayload[];
 }
 
+export interface SlipImage {
+  image: string; // base64-encoded image string
+  caption: string; // optional caption text
+}
+
+export interface OrderPayPayload {
+  amount: number;
+  slip_images: SlipImage[];
+}
+
 // Order

@@ -1,8 +1,17 @@
 import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useCallback, useMemo } from "react";
 import type { AppDispatch, RootState } from "@/redux/store";
-import { createOrder, loadOrders } from "@/redux/services/order/orderSlice";
-import type { OrderPayload, MessageResponse } from "@/constants/config";
+import {
+  createOrder,
+  loadOrders,
+  payOrder,
+} from "@/redux/services/order/orderSlice";
+import type {
+  OrderPayload,
+  MessageResponse,
+  OrderPayPayload,
+  AllOrderResponse,
+} from "@/constants/config";
 
 const useOrderAction = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -25,40 +34,39 @@ const useOrderAction = () => {
     [dispatch]
   );
 
-  //   const handleUpdateOrder = useCallback(
-  //     async (
-  //       id: number,
-  //       payload: OrderPayload
-  //     ): Promise<MessageResponse | void> => {
-  //       try {
-  //         const response = await dispatch(updateOrder({ id, payload })).unwrap();
+  const handleLoadOrder =
+    useCallback(async (): Promise<AllOrderResponse | void> => {
+      try {
+        await dispatch(loadOrders({ pagination: { page: 1, size: 12 } }));
+      } catch (err) {
+        console.error("Failed to load order:", err);
+      }
+    }, [dispatch]);
 
-  //         await dispatch(loadOrders({ pagination: { page: 1, size: 10 } }));
+  const handlePayOrder = useCallback(
+    async (
+      id: number,
+      payload: OrderPayPayload
+    ): Promise<MessageResponse | void> => {
+      try {
+        const response = await dispatch(payOrder({ id, payload })).unwrap();
 
-  //         return response;
-  //       } catch (err) {
-  //         console.error("Failed to update order:", err);
-  //       }
-  //     },
-  //     [dispatch]
-  //   );
+        await dispatch(loadOrders({ pagination: { page: 1, size: 10 } }));
 
-  //   const handleDeleteOrder = useCallback(
-  //     async (id: number): Promise<MessageResponse | void> => {
-  //       try {
-  //         const response = await dispatch(deleteOrder(id)).unwrap();
-  //         return response;
-  //       } catch (err) {
-  //         console.error("Failed to delete order:", err);
-  //       }
-  //     },
-  //     [dispatch]
-  //   );
+        return response;
+      } catch (err) {
+        console.error("Failed to pay order:", err);
+      }
+    },
+    [dispatch]
+  );
 
   return {
     status,
     error,
+    loadOrder: handleLoadOrder,
     createOrder: handleCreateOrder,
+    payOrder: handlePayOrder,
   };
 };
 
