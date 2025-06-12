@@ -1,9 +1,10 @@
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
   FlatList,
   Platform,
+  RefreshControl,
   StyleSheet,
   View,
 } from "react-native";
@@ -19,6 +20,9 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 export default function Catalog() {
   const [search, setSearch] = useState<string | null>(null);
   const [brandFilter, setBrandFilter] = useState<number | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
   const { products, loading, loadMore } = useProduct(search, brandFilter, 20);
 
   useFocusEffect(
@@ -40,9 +44,18 @@ export default function Catalog() {
     }
   };
 
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    // bump key so FlatList fully remounts and useProduct re-fetches first page
+    setRefreshKey((k) => k + 1);
+    // give it a moment for the remount+fetch to start
+    setTimeout(() => setRefreshing(false), 800);
+  }, []);
+
   return (
     <>
       <FlatList
+        key={refreshKey} // <-- force remount on refresh
         data={products}
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
@@ -72,6 +85,10 @@ export default function Catalog() {
               <ActivityIndicator size="large" color="#0000ff" />
             </View>
           ) : null
+        }
+        // Pull-to-refresh props:
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       />
     </>

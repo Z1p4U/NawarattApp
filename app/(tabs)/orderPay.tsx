@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -13,11 +13,11 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
-import HeadLine from "@/components/ui/HeadLine";
 import { useRouter } from "expo-router";
 import { useSearchParams } from "expo-router/build/hooks";
 import useOrderAction from "@/redux/hooks/order/useOrderAction";
 import useOrderDetail from "@/redux/hooks/order/useOrderDetail";
+import HeadLine from "@/components/ui/HeadLine";
 
 interface SlipImage {
   image: string;
@@ -36,6 +36,7 @@ export default function orderPay() {
   const { orderDetail, loading: detailLoading } = useOrderDetail(orderId);
 
   const [imageBase64, setImageBase64] = useState<string>("");
+  const [imageLoading, setImageLoading] = useState<boolean>(false);
   const [caption, setCaption] = useState<string>("");
 
   useEffect(() => {
@@ -53,6 +54,7 @@ export default function orderPay() {
 
   // launch picker
   const pickImage = async () => {
+    setImageLoading(true);
     const result = await ImagePicker.launchImageLibraryAsync({
       base64: true,
       quality: 0.7,
@@ -70,6 +72,7 @@ export default function orderPay() {
         );
       }
     }
+    setImageLoading(false);
   };
 
   const handleSubmit = useCallback(async () => {
@@ -125,8 +128,14 @@ export default function orderPay() {
             </Text>
 
             <Text style={styles.label}>Slip Image</Text>
-            <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
-              {imageBase64 ? (
+            <TouchableOpacity
+              style={styles.imagePicker}
+              onPress={pickImage}
+              disabled={imageLoading}
+            >
+              {imageLoading ? (
+                <ActivityIndicator size="large" color="#0000ff" />
+              ) : imageBase64 ? (
                 <Image
                   source={{ uri: `data:image/jpeg;base64,${imageBase64}` }}
                   style={styles.preview}

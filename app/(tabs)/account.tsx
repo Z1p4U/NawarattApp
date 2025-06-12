@@ -8,6 +8,7 @@ import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Modal,
+  Platform,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -177,6 +178,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    marginTop: Platform.select({ ios: -15, android: 0 }),
   },
   bodyContent: {
     marginTop: 25,

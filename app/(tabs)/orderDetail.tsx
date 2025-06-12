@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Image,
   TouchableOpacity,
+  RefreshControl,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import HeadLine from "@/components/ui/HeadLine";
@@ -20,8 +21,25 @@ export default function OrderDetail() {
   const searchParams = useSearchParams();
   const orderId = Number(searchParams.get("id")) || 0;
   const router = useRouter();
-  const { orderDetail, loading: orderLoading } = useOrderDetail(orderId);
+  const {
+    orderDetail,
+    loading: orderLoading,
+    handleLoadOrderDetail,
+  } = useOrderDetail(orderId);
   const { isAuthenticated, loading: authLoading } = useAuth();
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await handleLoadOrderDetail();
+    } catch (e) {
+      console.error("Failed to fetch:", e);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [handleLoadOrderDetail]);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -29,21 +47,8 @@ export default function OrderDetail() {
     }
   }, [authLoading, isAuthenticated, router]);
 
-  if (orderLoading) {
-    return (
-      <>
-        <HeadLine />
-        <View style={styles.loaderContainer}>
-          <ActivityIndicator size="large" color="#0000ff" />
-        </View>
-      </>
-    );
-  }
-
   const od = orderDetail!;
 
-  // Determine which “step” we’re on:
-  // 0: pending, 1: paid, 2: delivering, 3: delivered
   let currentStep = 0;
   const fullyPaid = od?.paid_amount >= od?.total_amount;
   if (fullyPaid) currentStep = 1;
@@ -64,14 +69,27 @@ export default function OrderDetail() {
     ).padStart(2, "0")}-${d.getFullYear()}`;
   };
 
+  if (orderLoading) {
+    return (
+      <>
+        <HeadLine />
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      </>
+    );
+  }
+
   return (
     <>
+      <HeadLine />
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
-        <HeadLine />
-
         {/* Banner */}
         <LinearGradient
           colors={["#53CAFE", "#2555E7"]}

@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { RootState, AppDispatch } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { loadOrderDetail } from "@/redux/services/order/orderSlice";
+import { OrderDetailResponse } from "@/constants/config";
 
 const useOrderDetail = (id: any) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -17,7 +18,17 @@ const useOrderDetail = (id: any) => {
     fetchOrderDetail();
   }, [dispatch, id]);
 
+  const handleLoadOrderDetail =
+    useCallback(async (): Promise<OrderDetailResponse | void> => {
+      try {
+        await dispatch(loadOrderDetail(id));
+      } catch (err) {
+        console.error("Failed to load order:", err);
+      }
+    }, [dispatch, id]);
+
   return {
+    handleLoadOrderDetail,
     orderDetail,
     loading,
   };

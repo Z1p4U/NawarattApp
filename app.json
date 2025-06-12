@@ -4,26 +4,33 @@
     "slug": "NawarattApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/placeholder.jpg",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.z1p4u.NawarattApp"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/placeholder.jpg",
         "backgroundColor": "#ffffff"
       },
       "package": "com.z1p4u.NawarattApp",
-      "permissions": ["INTERNET"],
+      "permissions": [
+        "INTERNET"
+      ],
       "usesCleartextTraffic": true
     },
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png"
+    },
+    "notification": {
+      "icon": "./assets/images/placeholder.jpg",
+      "color": "#ffffff"
     },
     "plugins": [
       "expo-router",

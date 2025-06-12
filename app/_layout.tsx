@@ -13,11 +13,21 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { Provider } from "react-redux";
 import store from "@/redux/store";
 import { LinearGradient } from "expo-linear-gradient";
+import { logout } from "@/redux/services/auth/authSlice";
+import { registerAuthInterceptor } from "@/constants/axios";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  SplashScreen.preventAutoHideAsync();
+
   const colorScheme = useColorScheme();
+
+  useEffect(() => {
+    registerAuthInterceptor(() => {
+      store.dispatch(logout());
+    });
+  }, []);
 
   const [loaded] = useFonts({
     "Saira-Bold": require("../assets/fonts/Saira-Bold.ttf"),

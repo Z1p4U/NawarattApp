@@ -20,7 +20,7 @@ export default function OrderHistory() {
   const { orders, loading: orderLoading } = useOrder();
   const { loadOrder } = useOrderAction();
   const { isAuthenticated, loading } = useAuth();
-  const [refreshing, setRefreshing] = useState(false); // controls spinner
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
