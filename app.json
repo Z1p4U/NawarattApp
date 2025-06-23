@@ -8,19 +8,24 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "assetBundlePatterns": ["assets/images/*"],
+    "notification": {
+      "icon": "./assets/images/placeholder.jpg",
+      "color": "#ffffff"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.z1p4u.NawarattApp"
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
+      "useNextNotificationsApi": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/placeholder.jpg",
         "backgroundColor": "#ffffff"
       },
       "package": "com.z1p4u.NawarattApp",
-      "permissions": [
-        "INTERNET"
-      ],
+      "permissions": ["INTERNET"],
       "usesCleartextTraffic": true
     },
     "web": {
@@ -28,16 +33,13 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "notification": {
-      "icon": "./assets/images/placeholder.jpg",
-      "color": "#ffffff"
-    },
     "plugins": [
       "expo-router",
+      "expo-notifications",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/placeholder.jpg",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"

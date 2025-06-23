@@ -20,14 +20,13 @@ import { Link, useRouter } from "expo-router";
 import useUser from "@/redux/hooks/user/useUser";
 import useAuth from "@/redux/hooks/auth/useAuth";
 import DiscoverCarousel from "@/components/Home/DiscoverCarousel";
-import useSpecialCategoryProducts from "@/redux/hooks/product/useSpecialCategoryProducts";
+import useSpecialCategory from "@/redux/hooks/category/useSpecialCategory";
 
 export default function HomeScreen() {
   const router = useRouter();
   const { profileDetail } = useUser();
   const { isAuthenticated } = useAuth();
-  const { newArrivalProducts, topPickProducts, topSellingProducts, loading } =
-    useSpecialCategoryProducts();
+  const { specialCategories, loading } = useSpecialCategory();
 
   const carouselData: ImageCarouselItem[] = [
     {
@@ -115,47 +114,23 @@ export default function HomeScreen() {
         </View>
         {/* Discover Section End */}
 
-        {/* Top Selling Section Start */}
-        <View style={styles.productSliderSection}>
-          <View style={styles.productSliderHead}>
-            <Text style={styles.productSliderName}>Top Selling Items</Text>
-            <Link href={`/productListByCategory?name=Top Selling`}>
-              <Text style={styles.productSliderSeeAll}>See All</Text>
-            </Link>
-          </View>
-          <View style={styles.productSliderCarousel}>
-            <ProductSlider products={topSellingProducts} loading={loading} />
-          </View>
-        </View>
-        {/* Top Selling Section End */}
-
-        {/* New Arrivals Section Start */}
-        <View style={styles.productSliderSection}>
-          <View style={styles.productSliderHead}>
-            <Text style={styles.productSliderName}>New Arrivals</Text>
-            <Link href={`/productListByCategory?name=New Arrivals`}>
-              <Text style={styles.productSliderSeeAll}>See All</Text>
-            </Link>
-          </View>
-          <View style={styles.productSliderCarousel}>
-            <ProductSlider products={newArrivalProducts} loading={loading} />
-          </View>
-        </View>
-        {/* New Arrivals Section End */}
-
-        {/* Top Picks for You Section Start */}
-        <View style={styles.productSliderSection}>
-          <View style={styles.productSliderHead}>
-            <Text style={styles.productSliderName}>Top Picks for You</Text>
-            <Link href={`/productListByCategory?name=Top Picks`}>
-              <Text style={styles.productSliderSeeAll}>See All</Text>
-            </Link>
-          </View>
-          <View style={styles.productSliderCarousel}>
-            <ProductSlider products={topPickProducts} loading={loading} />
-          </View>
-        </View>
-        {/* Top Picks for You Section End */}
+        {specialCategories?.map((spc, index) => {
+          return (
+            <View key={spc?.id} style={styles.productSliderSection}>
+              <View style={styles.productSliderHead}>
+                <Text style={styles.productSliderName}>{spc.name}</Text>
+                <Link
+                  href={`/productListByCategory?id=${spc?.id}&name=${spc?.name}`}
+                >
+                  <Text style={styles.productSliderSeeAll}>See All</Text>
+                </Link>
+              </View>
+              <View style={styles.productSliderCarousel}>
+                <ProductSlider products={spc?.products} loading={loading} />
+              </View>
+            </View>
+          );
+        })}
 
         {/* Top Brands Section Start */}
         <View style={styles.productSliderSection}>

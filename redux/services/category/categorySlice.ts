@@ -1,10 +1,18 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { fetchAllCategories } from "@/redux/api/category/categoryApi";
-import { AllCategoryResponse, PaginationPayload } from "@/constants/config";
+import {
+  fetchAllCategories,
+  fetchAllSpecialCategories,
+} from "@/redux/api/category/categoryApi";
+import {
+  AllCategoryResponse,
+  AllSpecialCategoryResponse,
+  PaginationPayload,
+} from "@/constants/config";
 
 /** --------------- State Interfaces --------------- **/
 interface CategoryState {
   categories: AllCategoryResponse["data"] | null;
+  specialCategories: AllSpecialCategoryResponse["data"] | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
@@ -12,6 +20,7 @@ interface CategoryState {
 /** --------------- Initial State --------------- **/
 const initialState: CategoryState = {
   categories: null,
+  specialCategories: null,
   status: "idle",
   error: null,
 };
@@ -35,6 +44,29 @@ export const handleFetchAllCategoryList = createAsyncThunk<
   }
 });
 
+// Fetch All Special Categories
+export const handleFetchAllSpecialCategoryList = createAsyncThunk<
+  AllSpecialCategoryResponse, // Return type
+  { pagination: PaginationPayload; is_highlight: boolean }, // Argument type
+  { rejectValue: string } // Error handling type
+>(
+  "categories/fetchAllSpecialCategories",
+  async ({ pagination, is_highlight }, { rejectWithValue }) => {
+    try {
+      const response = await fetchAllSpecialCategories(
+        pagination,
+        is_highlight
+      );
+      return response;
+    } catch (error: any) {
+      console.error("Special Category List Fetching error:", error);
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch categories"
+      );
+    }
+  }
+);
+
 /** --------------- Slice --------------- **/
 const categorySlice = createSlice({
   name: "categories",
@@ -44,6 +76,7 @@ const categorySlice = createSlice({
       state.status = "idle";
       state.error = null;
       state.categories = [];
+      state.specialCategories = [];
     },
   },
   extraReducers: (builder) => {
@@ -60,6 +93,20 @@ const categorySlice = createSlice({
       .addCase(handleFetchAllCategoryList.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload || "Category list fetch failed";
+      })
+
+      // Fetch All special categories
+      .addCase(handleFetchAllSpecialCategoryList.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(handleFetchAllSpecialCategoryList.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.error = null;
+        state.specialCategories = action.payload.data;
+      })
+      .addCase(handleFetchAllSpecialCategoryList.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload || "Special Category list fetch failed";
       });
   },
 });

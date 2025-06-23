@@ -22,18 +22,16 @@ export default function Catalog() {
   const [brandFilter, setBrandFilter] = useState<number | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
-
-  const { products, loading, loadMore } = useProduct(search, brandFilter, 20);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const { products, loading, loadMore } = useProduct(search, brandFilter);
 
   useFocusEffect(
     React.useCallback(() => {
-      // reset filters on focus
       setSearch(null);
       setBrandFilter(null);
     }, [])
   );
 
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const onEndReached = () => {
     if ((products?.length ?? 0) < 20) return;
     if (!debounceRef.current) {
@@ -58,6 +56,7 @@ export default function Catalog() {
         key={refreshKey} // <-- force remount on refresh
         data={products}
         keyExtractor={(item) => item.id.toString()}
+        showsVerticalScrollIndicator={false}
         numColumns={2}
         ListHeaderComponent={
           <>
@@ -74,8 +73,12 @@ export default function Catalog() {
             </LinearGradient>
           </>
         }
-        renderItem={({ item }) => <ProductCard product={item} />}
-        columnWrapperStyle={styles.row} // style for each row
+        renderItem={({ item }) => (
+          <View style={styles.item}>
+            <ProductCard product={item} />
+          </View>
+        )}
+        columnWrapperStyle={styles.row}
         contentContainerStyle={styles.container} // overall padding
         onEndReached={onEndReached}
         onEndReachedThreshold={0.2}

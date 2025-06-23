@@ -1,5 +1,9 @@
 import axiosInstance from "@/constants/axios";
-import { AllCategoryResponse, PaginationPayload } from "@/constants/config";
+import {
+  AllCategoryResponse,
+  AllSpecialCategoryResponse,
+  PaginationPayload,
+} from "@/constants/config";
 import environment from "@/constants/environment";
 
 const fetchAllCategories = async (
@@ -20,4 +24,23 @@ const fetchAllCategories = async (
   }
 };
 
-export { fetchAllCategories };
+const fetchAllSpecialCategories = async (
+  pagination: PaginationPayload,
+  is_highlight: boolean
+): Promise<AllSpecialCategoryResponse> => {
+  try {
+    const params = { ...(pagination || {}), is_highlight };
+
+    const response = await axiosInstance.get<AllSpecialCategoryResponse>(
+      `${environment.API_URL}/special_categories`,
+      { params }
+    );
+    // console.log(response);
+    return response.data; // Return only the data portion
+  } catch (error) {
+    console.error("Failed to fetch special categories:", error);
+    throw error;
+  }
+};
+
+export { fetchAllCategories, fetchAllSpecialCategories };

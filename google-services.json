@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "672167291532",
+    "project_id": "nawaratt-3657c",
+    "storage_bucket": "nawaratt-3657c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:672167291532:android:389eecc86f7ae23cdb69a9",
+        "android_client_info": {
+          "package_name": "com.z1p4u.NawarattApp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5dCXUWhPgtdByPdZrlQnYv2mlmZwYeWk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

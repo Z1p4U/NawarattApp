@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "expo-router";
 import {
   View,
@@ -6,8 +6,9 @@ import {
   Image,
   ImageBackground,
   StyleSheet,
-  TouchableOpacity,
   Dimensions,
+  ImageErrorEventData,
+  NativeSyntheticEvent,
 } from "react-native";
 import Svg, { Defs, LinearGradient, Path, Stop } from "react-native-svg";
 import { CardProps } from "@/constants/config";
@@ -15,20 +16,40 @@ import { CardProps } from "@/constants/config";
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CARD_WIDTH = SCREEN_WIDTH * 0.45;
 
+type Placeholder = number;
+const placeholderImage: Placeholder = require("../../assets/images/placeholder.jpg");
+
 const ProductCard: React.FC<{ product: CardProps }> = ({ product }) => {
+  const [addedInWishlist, setAddedInWishlist] = useState(false);
+
+  // if product.thumbnail is a valid string URI, use it; otherwise show placeholder
   const thumbnailSource =
-    typeof product.thumbnail === "string"
+    typeof product.thumbnail === "string" && product.thumbnail.length > 0
       ? { uri: product.thumbnail }
-      : require("@/assets/images/placeholder.jpg");
+      : placeholderImage;
+
+  const handleImgError = (e: NativeSyntheticEvent<ImageErrorEventData>) => {
+    // console.warn(
+    //   `Failed to load image for product ${product.id}:`,
+    //   e.nativeEvent.error
+    // );
+  };
+
+  // placeholder toggle function for wishlist
+  const toggleWishlist = (id: string | number) => {
+    // Implement your wishlist logic here
+    setAddedInWishlist((prev) => !prev);
+  };
 
   return (
     <View style={styles.productCard}>
       <View style={styles.imageWrapper}>
         {/* Wishlist Button */}
-        {/* {isAuthenticated && (
+        {/*
+        {isAuthenticated && (
           <TouchableOpacity
             style={styles.favButton}
-            onPress={() => toggleWishlist(product?.id)}
+            onPress={() => toggleWishlist(product.id)}
           >
             <Svg width={21} height={21} viewBox="0 0 21 21" fill="none">
               <Path
@@ -52,17 +73,19 @@ const ProductCard: React.FC<{ product: CardProps }> = ({ product }) => {
               </Defs>
             </Svg>
           </TouchableOpacity>
-        )} */}
+        )}
+        */}
 
         <Link href={`/productDetail?id=${product.id}`} style={styles.link}>
           <ImageBackground
-            source={require("@/assets/images/placeholder.jpg")}
+            source={placeholderImage}
             style={styles.imageBg}
             imageStyle={styles.imageStyle}
           >
             <Image
               source={thumbnailSource}
               style={[styles.imageOverlay, styles.imageStyle]}
+              onError={handleImgError}
             />
           </ImageBackground>
         </Link>

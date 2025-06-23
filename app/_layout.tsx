@@ -15,10 +15,11 @@ import store from "@/redux/store";
 import { LinearGradient } from "expo-linear-gradient";
 import { logout } from "@/redux/services/auth/authSlice";
 import { registerAuthInterceptor } from "@/constants/axios";
-
-SplashScreen.preventAutoHideAsync();
+import usePushTokenSync from "@/hooks/usePushTokenSync";
 
 export default function RootLayout() {
+  usePushTokenSync();
+
   SplashScreen.preventAutoHideAsync();
 
   const colorScheme = useColorScheme();

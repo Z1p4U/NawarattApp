@@ -200,11 +200,22 @@ export interface Category {
   is_highlight: boolean;
   image: string;
 }
+
+export interface SpecialCategory extends Category {
+  products: Product[];
+}
 export interface AllCategoryResponse {
   data: Category[];
   links: Record<string, unknown>;
-  meta: Record<string, unknown>;
+  meta: Record<string, number>;
 }
+
+export interface AllSpecialCategoryResponse {
+  data: SpecialCategory[];
+  links: Record<string, unknown>;
+  meta: Record<string, number>;
+}
+
 // Category
 
 // Product
@@ -276,10 +287,17 @@ export interface FreeItem {
   qty: number;
 }
 export interface AllProductResponse {
-  data: Product[] | null;
+  data: Product[];
   links: Record<string, unknown>;
-  meta: Record<string, unknown>;
+  meta: Record<string, number>;
 }
+
+export interface SpecialCategoryProductResponse {
+  data: Product[];
+  links: Record<string, unknown>;
+  meta: Record<string, number>;
+}
+
 export interface ProductDetailResponse {
   data: Product;
   related_products: Product[];

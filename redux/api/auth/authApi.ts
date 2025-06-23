@@ -5,25 +5,47 @@ import {
   RegisterResponse,
 } from "@/constants/config";
 import axiosInstance from "@/constants/axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Application from "expo-application";
+
+interface LoginRequestBody {
+  credential: string;
+  password: string;
+  token?: string;
+  imei?: string;
+}
 
 const fetchLogin = async (
   credential: string,
   password: string
 ): Promise<LoginResponse> => {
-  try {
-    const response = await axiosInstance.post<LoginResponse>(
-      `${environment.API_URL}/login`,
-      {
-        credential,
-        password,
-      }
-    );
+  // read from storage
+  let [token, imei] = await Promise.all([
+    AsyncStorage.getItem("@pushToken"),
+    AsyncStorage.getItem("@deviceId"),
+  ]);
 
-    return response.data;
-  } catch (error: any) {
-    console.error("Failed to Login:", error);
-    throw error;
+  // if any is missing, try fetching directly
+  if (!imei) {
+    try {
+      imei = Application.getAndroidId
+        ? await Application.getAndroidId()
+        : await Application.getIosIdForVendorAsync();
+    } catch {
+      /* ignore */
+    }
   }
+
+  // build payload
+  const body: LoginRequestBody = { credential, password };
+  if (token) body.token = token;
+  if (imei) body.imei = imei;
+
+  const response = await axiosInstance.post<LoginResponse>(
+    `${environment.API_URL}/login`,
+    body
+  );
+  return response.data;
 };
 
 const fetchRegister = async (

@@ -14,23 +14,19 @@ import {
 
 interface ProductState {
   products: AllProductResponse["data"];
-  newArrivalProducts: AllProductResponse["data"];
-  featuredProducts: AllProductResponse["data"];
-  bestSellingProducts: AllProductResponse["data"];
-  topPickProducts: AllProductResponse["data"];
-  topSellingProducts: AllProductResponse["data"];
+  specialCategoriesProducts: SpecialCategoryProductResponse["data"];
   productDetail: ProductDetailResponse["data"] | null;
+  totalProduct: number;
+  totalSpecialCategoriesProducts: number;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
 
 const initialState: ProductState = {
   products: [],
-  newArrivalProducts: [],
-  featuredProducts: [],
-  bestSellingProducts: [],
-  topPickProducts: [],
-  topSellingProducts: [],
+  specialCategoriesProducts: [],
+  totalProduct: 0,
+  totalSpecialCategoriesProducts: 0,
   productDetail: null,
   status: "idle",
   error: null,
@@ -54,14 +50,14 @@ export const handleFetchAllProductList = createAsyncThunk<
 
 /** Thunk: fetch all special-category products (returns array of categories each having `.products`) **/
 export const handleFetchAllSpecialCategoryProducts = createAsyncThunk<
-  SpecialCategoryProductResponse, // the backend returns { data: SpecialCategory[] }
-  { pagination: PaginationPayload; is_highlight: boolean },
+  SpecialCategoryProductResponse,
+  { id: string; pagination: PaginationPayload },
   { rejectValue: string }
 >(
   "products/fetchSpecialCategories",
-  async ({ pagination, is_highlight }, { rejectWithValue }) => {
+  async ({ id, pagination }, { rejectWithValue }) => {
     try {
-      return await fetchAllSpecialCategoryProducts(pagination, is_highlight);
+      return await fetchAllSpecialCategoryProducts(id, pagination);
     } catch (err: any) {
       return rejectWithValue(err.response?.data || err.message);
     }
@@ -87,12 +83,10 @@ const productSlice = createSlice({
   reducers: {
     clearProductState(state) {
       state.products = [];
-      state.newArrivalProducts = [];
-      state.featuredProducts = [];
-      state.bestSellingProducts = [];
-      state.topPickProducts = [];
-      state.topSellingProducts = [];
+      state.specialCategoriesProducts = [];
       state.productDetail = null;
+      state.totalProduct = 0;
+      state.totalSpecialCategoriesProducts = 0;
       state.status = "idle";
       state.error = null;
     },
@@ -115,6 +109,8 @@ const productSlice = createSlice({
           pagination.page === 1
             ? action.payload.data || []
             : [...(state.products ?? []), ...(action.payload.data ?? [])];
+
+        state.totalProduct = action.payload.meta.total;
       })
       .addCase(handleFetchAllProductList.rejected, (state, { payload }) => {
         state.status = "failed";
@@ -141,22 +137,23 @@ const productSlice = createSlice({
       })
       .addCase(
         handleFetchAllSpecialCategoryProducts.fulfilled,
-        (state, { payload }) => {
+        (state, action) => {
           state.status = "succeeded";
           state.error = null;
-          const categories = payload.data;
 
-          state.newArrivalProducts =
-            categories?.find((c) => c.name === "New Arrivals")?.products ?? [];
-          state.featuredProducts =
-            categories?.find((c) => c.name === "Featured Products")?.products ??
-            [];
-          state.bestSellingProducts =
-            categories?.find((c) => c.name === "Best Selling")?.products ?? [];
-          state.topPickProducts =
-            categories?.find((c) => c.name === "Top Picks")?.products ?? [];
-          state.topSellingProducts =
-            categories?.find((c) => c.name === "Top Selling")?.products ?? [];
+          const { pagination } = action.meta.arg as {
+            pagination: PaginationPayload;
+          };
+
+          state.specialCategoriesProducts =
+            pagination.page === 1
+              ? action.payload.data || []
+              : [
+                  ...(state.specialCategoriesProducts ?? []),
+                  ...(action.payload.data ?? []),
+                ];
+
+          state.totalSpecialCategoriesProducts = action.payload.meta.total;
         }
       )
       .addCase(

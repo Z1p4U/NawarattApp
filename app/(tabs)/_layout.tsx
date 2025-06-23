@@ -232,6 +232,15 @@ export default function TabLayout() {
           href: null, // This hides the tab from the tab bar
         }}
       />
+
+      <Tabs.Screen
+        name="debug"
+        options={
+          {
+            // href: null, // This hides the tab from the tab bar
+          }
+        }
+      />
     </Tabs>
   );
 }

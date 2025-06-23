@@ -6,19 +6,14 @@ import type { PaginationPayload } from "@/constants/config";
 
 export default function useProduct(
   name: string | null,
-  brandId: number | null,
-  pageSize = 20
+  brandId: number | null
 ) {
   const dispatch = useDispatch<AppDispatch>();
   const { products, status } = useSelector((s: RootState) => s.product);
-  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ page: 1, size: 20 });
 
   useEffect(() => {
-    setPage(1);
-  }, [name, brandId]);
-
-  useEffect(() => {
-    const pagination: PaginationPayload = { page, size: pageSize };
+    console.log(pagination);
     dispatch(
       handleFetchAllProductList({
         name,
@@ -26,11 +21,16 @@ export default function useProduct(
         pagination,
       })
     );
-  }, [dispatch, name, brandId, page, pageSize]);
+  }, [dispatch, name, brandId, pagination]);
 
   const loadMore = useCallback(() => {
-    if (status !== "loading") {
-      setPage((p) => p + 1);
+    console.log("first");
+    if (status != "loading") {
+      console.log("sec");
+      setPagination((prev) => ({
+        ...prev,
+        page: prev.page + 1,
+      }));
     }
   }, [status]);
 
