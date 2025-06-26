@@ -113,7 +113,9 @@ export default function orderPay() {
           end={{ x: 1, y: 0 }}
           style={styles.banner}
         >
-          <Text style={styles.headText}>Pay For Order</Text>
+          <Text style={styles.headText} allowFontScaling={false}>
+            Pay For Order
+          </Text>
         </LinearGradient>
 
         {detailLoading || !orderDetail ? (
@@ -122,12 +124,16 @@ export default function orderPay() {
           </View>
         ) : (
           <View style={styles.form}>
-            <Text style={styles.label}>Total Amount</Text>
-            <Text style={styles.value}>
+            <Text style={styles.label} allowFontScaling={false}>
+              Total Amount
+            </Text>
+            <Text style={styles.value} allowFontScaling={false}>
               Ks {orderDetail.total_amount.toLocaleString()}
             </Text>
 
-            <Text style={styles.label}>Slip Image</Text>
+            <Text style={styles.label} allowFontScaling={false}>
+              Slip Image
+            </Text>
             <TouchableOpacity
               style={styles.imagePicker}
               onPress={pickImage}
@@ -141,11 +147,15 @@ export default function orderPay() {
                   style={styles.preview}
                 />
               ) : (
-                <Text style={styles.pickText}>Tap to choose image</Text>
+                <Text style={styles.pickText} allowFontScaling={false}>
+                  Tap to choose image
+                </Text>
               )}
             </TouchableOpacity>
 
-            <Text style={styles.label}>Caption</Text>
+            <Text style={styles.label} allowFontScaling={false}>
+              Caption
+            </Text>
             <TextInput
               style={styles.input}
               placeholder="e.g. Kpay 3 သိန်း"
@@ -160,7 +170,9 @@ export default function orderPay() {
                 end={{ x: 1, y: 0 }}
                 style={styles.button}
               >
-                <Text style={styles.buttonText}>Submit Payment</Text>
+                <Text style={styles.buttonText} allowFontScaling={false}>
+                  Submit Payment
+                </Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>

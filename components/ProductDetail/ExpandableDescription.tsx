@@ -20,6 +20,7 @@ const ExpandableDescription: React.FC<ExpandableDescriptionProps> = ({
       <Text
         numberOfLines={expanded ? undefined : numberOfLines}
         style={styles.description}
+        allowFontScaling={false}
       >
         {description}
       </Text>

@@ -27,7 +27,9 @@ export default function QuantityControl({
       </TouchableOpacity>
 
       <View style={styles.quantityTextContainer}>
-        <Text style={styles.quantityText}>{count}</Text>
+        <Text style={styles.quantityText} allowFontScaling={false}>
+          {count}
+        </Text>
       </View>
 
       <TouchableOpacity onPress={() => setCount(count + 1)}>

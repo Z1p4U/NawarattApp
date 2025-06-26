@@ -35,7 +35,7 @@ const QuantityConfirmModal: React.FC<QuantityConfirmModalProps> = ({
       {/* Close modal when clicking outside */}
       <SafeAreaView style={styles.modalBackground}>
         <View style={styles.modalContainer}>
-          <Text style={styles.title}>
+          <Text style={styles.title} allowFontScaling={false}>
             ယခုမှာယူသောပစ္စည်းအား မရနိုင်ပါက (သို့မဟုတ်) အရေအတွက်
             အတိအကျမရနိုင်ပါက မည်သို့ ပြုလုပ်ပေးရမည်နည်း??
           </Text>
@@ -52,7 +52,9 @@ const QuantityConfirmModal: React.FC<QuantityConfirmModalProps> = ({
                   selectedOption === option && styles.selected,
                 ]}
               />
-              <Text style={styles.radioText}>{option}</Text>
+              <Text style={styles.radioText} allowFontScaling={false}>
+                {option}
+              </Text>
             </TouchableOpacity>
           ))}
 
@@ -64,7 +66,9 @@ const QuantityConfirmModal: React.FC<QuantityConfirmModalProps> = ({
               end={{ x: 1, y: 0 }}
               style={styles.confirmButton}
             >
-              <Text style={styles.buttonText}>Confirm</Text>
+              <Text style={styles.buttonText} allowFontScaling={false}>
+                Confirm
+              </Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>

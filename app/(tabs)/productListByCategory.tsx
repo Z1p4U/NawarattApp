@@ -64,15 +64,27 @@ export default function ProductListByCategory() {
               end={{ x: 1, y: 0 }}
               style={styles.banner}
             >
-              <Text style={styles.headText}>{categoryName}</Text>
+              <Text style={styles.headText} allowFontScaling={false}>
+                {categoryName}
+              </Text>
             </LinearGradient>
           </View>
         )}
         renderItem={({ item }) => <ProductCard product={item} />}
+        style={styles.flatList}
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.container}
         onEndReached={onEndReached}
         onEndReachedThreshold={0.2}
+        ListEmptyComponent={() => {
+          return (
+            <View style={styles.bodyCentered}>
+              <Text style={styles.messageText} allowFontScaling={false}>
+                Your category product is empty.
+              </Text>
+            </View>
+          );
+        }}
         ListFooterComponent={
           loading ? (
             <View style={styles.loadingContainer}>
@@ -92,11 +104,13 @@ export default function ProductListByCategory() {
 const CARD_WIDTH = (SCREEN_WIDTH - 20 * 2 - 10) / 2;
 
 const styles = StyleSheet.create({
-  container: {
+  flatList: {
+    flex: 1,
     backgroundColor: "#fff",
+  },
+  container: {
     paddingBottom: Platform.select({ ios: 50, android: 10 }),
     paddingHorizontal: 15,
-    minHeight: "100%",
   },
   headerWrapper: {
     marginHorizontal: -15, // cancel the container's horizontal padding
@@ -120,12 +134,25 @@ const styles = StyleSheet.create({
   row: {
     justifyContent: "space-between",
     marginBottom: 20,
-    flex: 1,
   },
   item: {
     width: CARD_WIDTH,
   },
   loadingContainer: {
     paddingVertical: 30,
+  },
+  bodyCentered: {
+    flex: 1,
+    minHeight: 200,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  messageText: {
+    fontSize: 18,
+    color: "#333",
+    fontWeight: "500",
+    textAlign: "center",
+    paddingHorizontal: 20,
+    fontFamily: "Saira-Medium",
   },
 });

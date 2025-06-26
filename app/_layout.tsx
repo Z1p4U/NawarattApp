@@ -1,4 +1,8 @@
+import "react-native-gesture-handler";
+import { AppRegistry, Platform, Alert } from "react-native";
 import React, { useEffect } from "react";
+
+import * as Notifications from "expo-notifications";
 import {
   DarkTheme,
   DefaultTheme,
@@ -16,13 +20,97 @@ import { LinearGradient } from "expo-linear-gradient";
 import { logout } from "@/redux/services/auth/authSlice";
 import { registerAuthInterceptor } from "@/constants/axios";
 import usePushTokenSync from "@/hooks/usePushTokenSync";
+import { getApp } from "@react-native-firebase/app";
+import {
+  getMessaging,
+  onMessage,
+  setBackgroundMessageHandler,
+} from "@react-native-firebase/messaging";
+
+// 0️⃣ Grab your default Firebase App & Messaging instance
+const app = getApp();
+const messaging = getMessaging(app);
+
+// Tell Expo how to display notifications
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
+
+// Background handler (outside React) for messages when app is backgrounded/killed
+setBackgroundMessageHandler(messaging, async (remoteMessage) => {
+  const data = (remoteMessage.data ?? {}) as Record<string, string>;
+  const title = data.title;
+  const body = data.description;
+  console.log("BG handler got data:", data);
+  console.log("BG title:", title);
+  console.log("BG body:", body);
+
+  await Notifications.scheduleNotificationAsync({
+    content: { title, body, data, sound: "default" },
+    trigger: null,
+  });
+});
 
 export default function RootLayout() {
   usePushTokenSync();
 
   SplashScreen.preventAutoHideAsync();
-
   const colorScheme = useColorScheme();
+
+  useEffect(() => {
+    (async () => {
+      // 1️⃣ Android channel
+      if (Platform.OS === "android") {
+        await Notifications.setNotificationChannelAsync("default", {
+          name: "Default",
+          importance: Notifications.AndroidImportance.MAX,
+          sound: "default",
+        });
+      }
+
+      // 2️⃣ Foreground messages
+      const unsubscribeOnMessage = onMessage(
+        messaging,
+        async (remoteMessage) => {
+          const data = (remoteMessage.data ?? {}) as Record<string, string>;
+          const title = remoteMessage.notification?.title ?? data.title;
+          const body = remoteMessage.notification?.body ?? data.description;
+
+          await Notifications.scheduleNotificationAsync({
+            content: { title, body, data, sound: "default" },
+            trigger: null,
+          });
+        }
+      );
+
+      // 3️⃣ Notification taps
+      const subscription =
+        Notifications.addNotificationResponseReceivedListener(
+          ({ notification }) => {
+            const tappedData = notification.request.content.data as Record<
+              string,
+              string
+            >;
+            console.log("Notification tapped:", tappedData);
+          }
+        );
+
+      return () => {
+        unsubscribeOnMessage();
+        subscription.remove();
+      };
+    })();
+  }, []);
+
+  useEffect(() => {
+    registerAuthInterceptor(() => {
+      store.dispatch(logout());
+    });
+  }, []);
 
   useEffect(() => {
     registerAuthInterceptor(() => {
@@ -67,3 +155,5 @@ export default function RootLayout() {
     </Provider>
   );
 }
+
+AppRegistry.registerComponent("main", () => RootLayout);

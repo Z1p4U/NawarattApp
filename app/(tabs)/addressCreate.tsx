@@ -70,12 +70,16 @@ export default function AddressCreate() {
           end={{ x: 1, y: 0 }}
           style={styles.banner}
         >
-          <Text style={styles.headText}>Create Address</Text>
+          <Text style={styles.headText} allowFontScaling={false}>
+            Create Address
+          </Text>
         </LinearGradient>
 
         <View style={styles.inputContainer}>
           {/* Country */}
-          <Text style={styles.label}>Country</Text>
+          <Text style={styles.label} allowFontScaling={false}>
+            Country
+          </Text>
           <View style={styles.pickerWrapper}>
             <Picker
               selectedValue={formData.country_id}
@@ -89,7 +93,9 @@ export default function AddressCreate() {
           </View>
 
           {/* State */}
-          <Text style={styles.label}>State</Text>
+          <Text style={styles.label} allowFontScaling={false}>
+            State
+          </Text>
           <View style={styles.pickerWrapper}>
             <Picker
               enabled={formData.country_id !== null}
@@ -104,7 +110,9 @@ export default function AddressCreate() {
           </View>
 
           {/* City */}
-          <Text style={styles.label}>City</Text>
+          <Text style={styles.label} allowFontScaling={false}>
+            City
+          </Text>
           <View style={styles.pickerWrapper}>
             <Picker
               enabled={formData.state_id !== null}
@@ -119,7 +127,9 @@ export default function AddressCreate() {
           </View>
 
           {/* Street Address */}
-          <Text style={styles.label}>Street Address</Text>
+          <Text style={styles.label} allowFontScaling={false}>
+            Street Address
+          </Text>
           <TextInput
             style={styles.input}
             placeholder="123 Main St., Apt 4B"
@@ -128,7 +138,9 @@ export default function AddressCreate() {
           />
 
           {/* Phone */}
-          <Text style={styles.label}>Phone No.</Text>
+          <Text style={styles.label} allowFontScaling={false}>
+            Phone No.
+          </Text>
           <TextInput
             style={styles.input}
             placeholder="+1 (555) 123-4567"

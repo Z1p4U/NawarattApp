@@ -9,6 +9,7 @@ export interface CardProps {
   thumbnail: string;
   name: string;
   price: number;
+  discount_price: number;
 }
 export interface MessageResponse {
   message: string;
@@ -224,6 +225,7 @@ export interface Product {
   name: string;
   description: string;
   price: number;
+  discount_price: number;
   stock: number;
   status: string;
   is_highlight: boolean;

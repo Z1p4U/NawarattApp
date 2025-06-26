@@ -19,7 +19,9 @@ const GoBack = () => {
             strokeLinejoin="round"
           />
         </Svg>
-        <Text style={styles.goBackText}>Go back</Text>
+        <Text style={styles.goBackText} allowFontScaling={false}>
+          Go back
+        </Text>
       </TouchableOpacity>
     </>
   );

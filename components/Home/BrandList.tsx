@@ -1,5 +1,3 @@
-// src/components/brand/BrandList.tsx
-
 import React from "react";
 import useBrand from "@/redux/hooks/brand/useBrand";
 import { Link } from "expo-router";
@@ -26,7 +24,7 @@ const BrandList: React.FC = () => {
         // Otherwise, we fall back to the local placeholder right away.
         const thumbnailSource = brand.image
           ? { uri: brand.image }
-          : require("@/assets/images/placeholder.jpg");
+          : require("@/assets/images/placeholder.png");
 
         return (
           <Link
@@ -36,7 +34,7 @@ const BrandList: React.FC = () => {
           >
             <ImageBackground
               // Always display the placeholder behind
-              source={require("@/assets/images/placeholder.jpg")}
+              source={require("@/assets/images/placeholder.png")}
               style={styles.imageBg}
               imageStyle={styles.imageStyle}
             >

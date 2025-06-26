@@ -131,13 +131,17 @@ export default function Cart() {
           end={{ x: 1.0, y: 0.0 }}
           style={styles.banner}
         >
-          <Text style={styles.headText}>Cart</Text>
+          <Text style={styles.headText} allowFontScaling={false}>
+            Cart
+          </Text>
         </LinearGradient>
 
         {/* Clear Cart Button */}
         <View style={styles.clearContainer}>
           <TouchableOpacity onPress={clearCart}>
-            <Text style={styles.clearText}>Clear Cart</Text>
+            <Text style={styles.clearText} allowFontScaling={false}>
+              Clear Cart
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -147,7 +151,9 @@ export default function Cart() {
             <AddressLoader count={6} />
           ) : data?.length === 0 ? (
             <View style={styles.bodyCentered}>
-              <Text style={styles.messageText}>Your cart is empty.</Text>
+              <Text style={styles.messageText} allowFontScaling={false}>
+                Your cart is empty.
+              </Text>
             </View>
           ) : (
             data.map((item) => (
@@ -156,7 +162,7 @@ export default function Cart() {
                   source={
                     item?.pdData?.images && item?.pdData?.images.length > 0
                       ? { uri: item?.pdData?.images[0] }
-                      : require("@/assets/images/placeholder.jpg")
+                      : require("@/assets/images/placeholder.png")
                   }
                   style={styles.pdCardImg}
                 />
@@ -166,12 +172,15 @@ export default function Cart() {
                     numberOfLines={1}
                     ellipsizeMode="tail"
                     style={styles.pdCardName}
+                    allowFontScaling={false}
                   >
                     {item.pdData.name}
                   </Text>
-                  <Text style={styles.pdCardCat}>{item.pdData.category}</Text>
+                  <Text style={styles.pdCardCat} allowFontScaling={false}>
+                    {item.pdData.category}
+                  </Text>
                   <View style={styles.pdCardQuantity}>
-                    <Text style={styles.totalText}>
+                    <Text style={styles.totalText} allowFontScaling={false}>
                       {item?.total?.toLocaleString()} Ks
                     </Text>
                     {/* Quantity Control */}
@@ -191,7 +200,9 @@ export default function Cart() {
                   onPress={() => removeCartItem(item.productId)}
                   style={styles.removeBtn}
                 >
-                  <Text style={styles.removeBtnText}>x</Text>
+                  <Text style={styles.removeBtnText} allowFontScaling={false}>
+                    x
+                  </Text>
                 </TouchableOpacity>
               </View>
             ))
@@ -202,8 +213,10 @@ export default function Cart() {
       {/* Bottom Checkout Section */}
       <View style={styles.confirmComponent}>
         <View style={styles.confirmComponentInfo}>
-          <Text style={styles.confirmComponentText}>Delivery Fee - Free</Text>
-          <Text style={styles.confirmComponentTotal}>
+          <Text style={styles.confirmComponentText} allowFontScaling={false}>
+            Delivery Fee - Free
+          </Text>
+          <Text style={styles.confirmComponentTotal} allowFontScaling={false}>
             Total - {calculateTotal()?.toLocaleString()} Ks
           </Text>
         </View>
@@ -214,7 +227,9 @@ export default function Cart() {
             end={{ x: 1, y: 0 }}
             style={styles.confirmButton}
           >
-            <Text style={styles.buttonText}>Checkout ({data.length})</Text>
+            <Text style={styles.buttonText} allowFontScaling={false}>
+              Checkout ({data.length})
+            </Text>
           </LinearGradient>
         </TouchableOpacity>
       </View>
@@ -293,7 +308,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#000000",
     fontFamily: "Saira-Bold",
-    width: 260,
+    width: 190,
   },
   pdCardCat: {
     fontSize: 12,

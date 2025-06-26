@@ -16,7 +16,7 @@ import Carousel from "react-native-reanimated-carousel";
 import Svg, { Path } from "react-native-svg";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useSearchParams } from "expo-router/build/hooks";
 
 import ExpandableDescription from "@/components/ProductDetail/ExpandableDescription";
@@ -150,12 +150,12 @@ export default function ProductDetail() {
 
   const renderItem = ({ item }: { item: { uri: string } }) => (
     <ImageBackground
-      source={require("@/assets/images/placeholder.jpg")}
+      source={require("@/assets/images/placeholder.png")}
       style={styles.carouselImage}
       imageStyle={styles.imageStyle}
     >
       <Image
-        source={item.uri ? item : require("@/assets/images/placeholder.jpg")}
+        source={item.uri ? item : require("@/assets/images/placeholder.png")}
         style={[styles.carouselImage, styles.imageStyle]}
       />
     </ImageBackground>
@@ -188,7 +188,9 @@ export default function ProductDetail() {
 
         <View style={styles.productDetailInfoContainer}>
           <View style={styles.rowBetween}>
-            <Text style={styles.productNameText}>{productDetail?.name}</Text>
+            <Text style={styles.productNameText} allowFontScaling={false}>
+              {productDetail?.name}
+            </Text>
             {isAuthenticated && (
               <TouchableOpacity
                 style={styles.favButton}
@@ -204,17 +206,26 @@ export default function ProductDetail() {
             )}
           </View>
 
-          <Text style={styles.productPriceText}>
+          <Text style={styles.productPriceText} allowFontScaling={false}>
             {productDetail?.price?.toLocaleString() ?? "N/A"} Ks
           </Text>
 
           <View style={styles.row}>
             {productDetail?.category && (
               <>
-                <Text style={styles.productCategoryText}>Category : </Text>
-                <Text style={styles.productCategoryActiveText}>
-                  {productDetail.category.name}
+                <Text
+                  style={styles.productCategoryText}
+                  allowFontScaling={false}
+                >
+                  Category :{" "}
                 </Text>
+                <Link
+                  style={styles.productCategoryActiveText}
+                  allowFontScaling={false}
+                  href={`/productListByCategory?id=${productDetail.category?.id}&name=${productDetail.category?.name}`}
+                >
+                  {productDetail.category.name}
+                </Link>
               </>
             )}
           </View>
@@ -222,7 +233,7 @@ export default function ProductDetail() {
           <View style={styles.row}>
             {productDetail?.brand && (
               <ImageBackground
-                source={require("@/assets/images/placeholder.jpg")}
+                source={require("@/assets/images/placeholder.png")}
                 style={styles.shopImg}
                 imageStyle={styles.imageStyle}
               >
@@ -230,27 +241,35 @@ export default function ProductDetail() {
                   source={
                     productDetail.brand.image
                       ? { uri: productDetail.brand.image }
-                      : require("@/assets/images/placeholder.jpg")
+                      : require("@/assets/images/placeholder.png")
                   }
                   style={[styles.shopImg, styles.imageStyle]}
                 />
               </ImageBackground>
             )}
             {productDetail?.brand && (
-              <Text style={styles.brandName}>{productDetail.brand.name}</Text>
+              <Link
+                href={`/productListByBrand?id=${productDetail.brand.id}&name=${productDetail.brand.name}`}
+                style={styles.brandName}
+                allowFontScaling={false}
+              >
+                {productDetail.brand.name}
+              </Link>
             )}
           </View>
 
           {productDetail?.type === "combo" &&
             (productDetail.combo_items ?? []).length > 0 && (
               <View style={styles.comboContainer}>
-                <Text style={styles.comboTitle}>Combo Items</Text>
+                <Text style={styles.comboTitle} allowFontScaling={false}>
+                  Combo Items
+                </Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   {productDetail?.combo_items?.map((ci) =>
                     ci.product ? (
                       <View key={ci.id} style={styles.comboItemRow}>
                         <ImageBackground
-                          source={require("@/assets/images/placeholder.jpg")}
+                          source={require("@/assets/images/placeholder.png")}
                           style={styles.comboItemImage}
                           imageStyle={styles.imageStyle}
                         >
@@ -259,7 +278,10 @@ export default function ProductDetail() {
                             style={[styles.comboItemImage, styles.imageStyle]}
                           />
                         </ImageBackground>
-                        <Text style={styles.comboItemText}>
+                        <Text
+                          style={styles.comboItemText}
+                          allowFontScaling={false}
+                        >
                           {ci.product.name} × {ci.qty}
                         </Text>
                       </View>
@@ -273,7 +295,7 @@ export default function ProductDetail() {
 
           <View style={styles.rowBetween}>
             <QuantityControl count={payload.count} setCount={updateQuantity} />
-            <Text style={styles.totalText}>
+            <Text style={styles.totalText} allowFontScaling={false}>
               Total:{" "}
               {(
                 payload.count * Number(productDetail?.price || 0)
@@ -292,7 +314,7 @@ export default function ProductDetail() {
               end={{ x: 1, y: 0 }}
               style={styles.chat}
             >
-              <Text style={styles.chatText}>
+              <Text style={styles.chatText} allowFontScaling={false}>
                 {alreadyInCart ? "Add More" : "Add to cart"}
               </Text>
             </LinearGradient>

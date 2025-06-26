@@ -17,15 +17,21 @@ const HeadSection = ({ data }: any) => {
         end={{ x: 1.0, y: 0.0 }}
         style={styles.banner}
       >
-        <Text style={styles.headText}>Profile</Text>
+        <Text style={styles.headText} allowFontScaling={false}>
+          Profile
+        </Text>
         <View style={styles.center}>
           <Image
             source={require("@/assets/images/user.png")}
             style={styles.avatar}
           />
 
-          <Text style={styles.name}>{data?.data?.name}</Text>
-          <Text style={styles.phone}>{data?.data?.phone}</Text>
+          <Text style={styles.name} allowFontScaling={false}>
+            {data?.data?.name}
+          </Text>
+          <Text style={styles.phone} allowFontScaling={false}>
+            {data?.data?.phone}
+          </Text>
         </View>
 
         <View style={styles.amountBar}>
@@ -49,7 +55,9 @@ const HeadSection = ({ data }: any) => {
                 strokeLinejoin="round"
               />
             </Svg>
-            <Text style={styles.barText}>Address Book</Text>
+            <Text style={styles.barText} allowFontScaling={false}>
+              Address Book
+            </Text>
           </TouchableOpacity>
 
           <Svg width={1} height={71} viewBox="0 0 1 71" fill="none">
@@ -57,10 +65,12 @@ const HeadSection = ({ data }: any) => {
           </Svg>
 
           <View style={styles.barBlock}>
-            <Text style={styles.barNumber}>
+            <Text style={styles.barNumber} allowFontScaling={false}>
               {data?.data?.order_stats?.total}
             </Text>
-            <Text style={styles.barText}>Order in Total</Text>
+            <Text style={styles.barText} allowFontScaling={false}>
+              Order in Total
+            </Text>
           </View>
 
           <Svg width={1} height={71} viewBox="0 0 1 71" fill="none">
@@ -68,8 +78,12 @@ const HeadSection = ({ data }: any) => {
           </Svg>
 
           <View style={styles.barBlock}>
-            <Text style={styles.barNumber}>{totalWishlist}</Text>
-            <Text style={styles.barText}>Wishlist</Text>
+            <Text style={styles.barNumber} allowFontScaling={false}>
+              {totalWishlist}
+            </Text>
+            <Text style={styles.barText} allowFontScaling={false}>
+              Wishlist
+            </Text>
           </View>
         </View>
 

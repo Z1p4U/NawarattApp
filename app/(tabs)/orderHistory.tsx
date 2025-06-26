@@ -64,7 +64,9 @@ export default function OrderHistory() {
           end={{ x: 1, y: 0 }}
           style={styles.banner}
         >
-          <Text style={styles.headText}>Order History</Text>
+          <Text style={styles.headText} allowFontScaling={false}>
+            Order History
+          </Text>
         </LinearGradient>
 
         <View style={styles.orderSection}>
@@ -75,13 +77,19 @@ export default function OrderHistory() {
               <Link key={o?.id} href={`/orderDetail?id=${o?.id}`}>
                 <View key={o.id} style={styles.orderCard}>
                   <View style={styles.orderInfo}>
-                    <Text style={styles.orderCode}>{o.order_code}</Text>
-                    <Text style={styles.orderDate}>{formatDate(o.date)}</Text>
-                    <Text style={styles.orderMeta}>
-                      Total Products -{" "}
-                      <Text style={styles.metaValue}>{o.total_qty}</Text>
+                    <Text style={styles.orderCode} allowFontScaling={false}>
+                      {o.order_code}
                     </Text>
-                    <Text style={styles.orderMeta}>
+                    <Text style={styles.orderDate} allowFontScaling={false}>
+                      {formatDate(o.date)}
+                    </Text>
+                    <Text style={styles.orderMeta} allowFontScaling={false}>
+                      Total Products -{" "}
+                      <Text style={styles.metaValue} allowFontScaling={false}>
+                        {o.total_qty}
+                      </Text>
+                    </Text>
+                    <Text style={styles.orderMeta} allowFontScaling={false}>
                       Payment Status -{" "}
                       <Text
                         style={[
@@ -94,13 +102,14 @@ export default function OrderHistory() {
                             ? styles.canceled
                             : styles.defaultStatus,
                         ]}
+                        allowFontScaling={false}
                       >
                         {o.status}
                       </Text>
                     </Text>
                   </View>
 
-                  <Text style={styles.orderAmount}>
+                  <Text style={styles.orderAmount} allowFontScaling={false}>
                     Ks {o.total_amount.toLocaleString()}
                   </Text>
                 </View>
@@ -195,9 +204,9 @@ const styles = StyleSheet.create({
   },
   orderAmount: {
     fontSize: 16,
-    fontWeight: "700",
     color: "#000",
-    fontFamily: "Saira-Medium",
+    fontWeight: "600",
+    fontFamily: "Saira-Bold",
     marginLeft: 10,
   },
 });

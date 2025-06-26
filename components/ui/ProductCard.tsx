@@ -17,7 +17,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CARD_WIDTH = SCREEN_WIDTH * 0.45;
 
 type Placeholder = number;
-const placeholderImage: Placeholder = require("../../assets/images/placeholder.jpg");
+const placeholderImage: Placeholder = require("../../assets/images/placeholder.png");
 
 const ProductCard: React.FC<{ product: CardProps }> = ({ product }) => {
   const [addedInWishlist, setAddedInWishlist] = useState(false);
@@ -40,6 +40,8 @@ const ProductCard: React.FC<{ product: CardProps }> = ({ product }) => {
     // Implement your wishlist logic here
     setAddedInWishlist((prev) => !prev);
   };
+
+  const hasDiscount = product.discount_price != null;
 
   return (
     <View style={styles.productCard}>
@@ -100,9 +102,29 @@ const ProductCard: React.FC<{ product: CardProps }> = ({ product }) => {
         >
           {product.name}
         </Text>
-        <Text style={styles.productCardPrice} allowFontScaling={false}>
-          {Number(product.price).toLocaleString()} Ks
-        </Text>
+        <View style={styles.priceContainer}>
+          {hasDiscount && (
+            <Text
+              style={[styles.productCardPrice, styles.originalPrice]}
+              allowFontScaling={false}
+            >
+              {Number(product.price).toLocaleString()} Ks
+            </Text>
+          )}
+
+          <Text
+            style={[
+              styles.productCardPrice,
+              hasDiscount && styles.discountPrice,
+            ]}
+            allowFontScaling={false}
+          >
+            {Number(
+              hasDiscount ? product.discount_price! : product.price
+            ).toLocaleString()}{" "}
+            Ks
+          </Text>
+        </View>
       </View>
     </View>
   );
@@ -150,10 +172,22 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontFamily: "Saira-Bold",
   },
+  priceContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   productCardPrice: {
     fontSize: 14,
     fontWeight: "500",
     fontFamily: "Saira-Regular",
+  },
+  originalPrice: {
+    textDecorationLine: "line-through",
+    color: "#888888",
+    marginRight: 6,
+  },
+  discountPrice: {
+    color: "#D32F2F",
   },
   favButton: {
     width: 34,

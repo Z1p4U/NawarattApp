@@ -22,7 +22,7 @@ export default function ProductListByBrand() {
   const brandId = Number(searchParams.get("id")) || 0;
   const brandName = String(searchParams.get("name")) || "Anonymous Brand";
 
-  const { products, loading, loadMore } = useProduct(search, brandId, 20);
+  const { products, loading, loadMore } = useProduct(search, brandId);
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -53,9 +53,13 @@ export default function ProductListByBrand() {
         </LinearGradient>
 
         <View style={styles.menu}>
-          <Text style={styles.menuText}>Showing {brandName} Products </Text>
+          <Text style={styles.menuText} allowFontScaling={false}>
+            Showing {brandName} Products{" "}
+          </Text>
           <View style={{ display: "none" }}>
-            <Text style={styles.menuText}>Sort</Text>
+            <Text style={styles.menuText} allowFontScaling={false}>
+              Sort
+            </Text>
             <Svg width={12} height={14} viewBox="0 0 12 14" fill="none">
               <Path
                 d="M3.333 12.333V5.667m0 6.666l-2-2m2 2l2-2m3.334-8.666v6.666m0-6.666l2 2m-2-2l-2 2"

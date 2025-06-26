@@ -78,6 +78,7 @@ export default function Catalog() {
             <ProductCard product={item} />
           </View>
         )}
+        style={styles.flatList}
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.container} // overall padding
         onEndReached={onEndReached}
@@ -101,11 +102,13 @@ export default function Catalog() {
 const CARD_WIDTH = (SCREEN_WIDTH - 20 * 2 - 10) / 2;
 
 const styles = StyleSheet.create({
-  container: {
+  flatList: {
+    flex: 1,
     backgroundColor: "#fff",
+  },
+  container: {
     paddingBottom: Platform.select({ ios: 50, android: 10 }),
     paddingHorizontal: 15,
-    minHeight: "100%",
   },
   banner: {
     borderBottomLeftRadius: 30,

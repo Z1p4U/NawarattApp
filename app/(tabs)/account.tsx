@@ -43,7 +43,9 @@ export default function Account() {
 
             {/* Body Section Start */}
             <View style={styles.bodyContent}>
-              <Text style={styles.headText}>My Orders</Text>
+              <Text style={styles.headText} allowFontScaling={false}>
+                My Orders
+              </Text>
 
               <View style={styles.iconList}>
                 <TouchableOpacity
@@ -58,12 +60,17 @@ export default function Account() {
                       />
                     </Svg>
                     <View style={styles?.iconCount}>
-                      <Text style={styles?.iconCountText}>
+                      <Text
+                        style={styles?.iconCountText}
+                        allowFontScaling={false}
+                      >
                         {profileDetail?.data?.order_stats?.submitted}
                       </Text>
                     </View>
                   </View>
-                  <Text style={styles.iconText}>Submitted</Text>
+                  <Text style={styles.iconText} allowFontScaling={false}>
+                    Submitted
+                  </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -78,12 +85,17 @@ export default function Account() {
                       />
                     </Svg>
                     <View style={styles?.iconCount}>
-                      <Text style={styles?.iconCountText}>
+                      <Text
+                        style={styles?.iconCountText}
+                        allowFontScaling={false}
+                      >
                         {profileDetail?.data?.order_stats?.confirmed}
                       </Text>
                     </View>
                   </View>
-                  <Text style={styles.iconText}>Confirmed</Text>
+                  <Text style={styles.iconText} allowFontScaling={false}>
+                    Confirmed
+                  </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -98,12 +110,17 @@ export default function Account() {
                       />
                     </Svg>
                     <View style={styles?.iconCount}>
-                      <Text style={styles?.iconCountText}>
+                      <Text
+                        style={styles?.iconCountText}
+                        allowFontScaling={false}
+                      >
                         {profileDetail?.data?.order_stats?.delivered}
                       </Text>
                     </View>
                   </View>
-                  <Text style={styles.iconText}>Delivered</Text>
+                  <Text style={styles.iconText} allowFontScaling={false}>
+                    Delivered
+                  </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -118,12 +135,17 @@ export default function Account() {
                       />
                     </Svg>
                     <View style={styles?.iconCount}>
-                      <Text style={styles?.iconCountText}>
+                      <Text
+                        style={styles?.iconCountText}
+                        allowFontScaling={false}
+                      >
                         {profileDetail?.data?.order_stats?.canceled}
                       </Text>
                     </View>
                   </View>
-                  <Text style={styles.iconText}>Cancelled</Text>
+                  <Text style={styles.iconText} allowFontScaling={false}>
+                    Cancelled
+                  </Text>
                 </TouchableOpacity>
               </View>
 
@@ -146,7 +168,9 @@ export default function Account() {
                       fill="#fff"
                     />
                   </Svg>
-                  <Text style={styles.chatText}>Chat with Admin</Text>
+                  <Text style={styles.chatText} allowFontScaling={false}>
+                    Chat with Admin
+                  </Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -155,14 +179,16 @@ export default function Account() {
             <Modal transparent animationType="fade" visible={modalVisible}>
               <View style={styles.centeredView}>
                 <View style={styles.modalView}>
-                  <Text style={styles.modalText}>
+                  <Text style={styles.modalText} allowFontScaling={false}>
                     Chat system will be Coming Soon!
                   </Text>
                   <TouchableOpacity
                     style={[styles.button, styles.buttonClose]}
                     onPress={() => setModalVisible(!modalVisible)}
                   >
-                    <Text style={styles.textStyle}>OK</Text>
+                    <Text style={styles.textStyle} allowFontScaling={false}>
+                      OK
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>

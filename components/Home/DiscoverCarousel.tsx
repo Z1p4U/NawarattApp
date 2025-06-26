@@ -3,6 +3,7 @@ import { ScrollView, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import useCategory from "@/redux/hooks/category/useCategory";
 import PillLoader from "../ui/PillLoader";
+import { Link } from "expo-router";
 
 const DiscoverCarousel = () => {
   const { categories, loading } = useCategory();
@@ -14,10 +15,10 @@ const DiscoverCarousel = () => {
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
       {categories?.map((category) => (
-        <TouchableOpacity
+        <Link
           key={category?.id}
           style={styles.tagContainer}
-          onPress={() => console.log("Navigate to", category?.name)}
+          href={`/productListByCategory?id=${category?.id}&name=${category?.name}`}
         >
           <LinearGradient
             colors={["#54CAFF", "#275AE8"]}
@@ -25,9 +26,11 @@ const DiscoverCarousel = () => {
             end={{ x: 1, y: 0 }}
             style={styles.tag}
           >
-            <Text style={styles.tagText}>{category?.name}</Text>
+            <Text style={styles.tagText} allowFontScaling={false}>
+              {category?.name}
+            </Text>
           </LinearGradient>
-        </TouchableOpacity>
+        </Link>
       ))}
     </ScrollView>
   );

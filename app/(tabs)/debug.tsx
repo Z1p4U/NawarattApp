@@ -1,149 +1,62 @@
-import { useState, useEffect, useRef } from "react";
-import { Text, View, Button, Platform } from "react-native";
-import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
-import Constants from "expo-constants";
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
-});
+import React, { useEffect, useState } from "react";
+import { View, Text, Alert, Button } from "react-native";
+import messaging from "@react-native-firebase/messaging";
 
 export default function App() {
-  const [expoPushToken, setExpoPushToken] = useState("");
-  const [channels, setChannels] = useState<Notifications.NotificationChannel[]>(
-    []
-  );
-  const [notification, setNotification] = useState<
-    Notifications.Notification | undefined
-  >(undefined);
+  const [fcmToken, setFcmToken] = useState<string | null>(null);
 
   useEffect(() => {
-    registerForPushNotificationsAsync().then(
-      (token) => token && setExpoPushToken(token)
-    );
-
-    if (Platform.OS === "android") {
-      Notifications.getNotificationChannelsAsync().then((value) =>
-        setChannels(value ?? [])
-      );
-    }
-    const notificationListener = Notifications.addNotificationReceivedListener(
-      (notification) => {
-        setNotification(notification);
+    (async () => {
+      // 1. Request notification permissions (iOS shows prompt; Android auto-grants)
+      const authStatus = await messaging().requestPermission();
+      if (
+        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        authStatus === messaging.AuthorizationStatus.PROVISIONAL
+      ) {
+        // 2. Get the FCM registration token
+        const token = await messaging().getToken();
+        setFcmToken(token);
+        console.log("🔑 FCM Token:", token);
+        // TODO: send `token` to your Laravel backend
+      } else {
+        Alert.alert(
+          "Permission denied",
+          "Cannot get FCM token without permissions"
+        );
       }
-    );
+    })();
 
-    const responseListener =
-      Notifications.addNotificationResponseReceivedListener((response) => {
-        console.log(response);
-      });
+    // Optional: listen for incoming messages
+    const unsubscribe = messaging().onMessage(async (remoteMessage) => {
+      console.log("FCM Message:", remoteMessage);
+      Alert.alert(
+        remoteMessage.notification?.title ?? "",
+        remoteMessage.notification?.body ?? ""
+      );
+    });
 
-    return () => {
-      notificationListener.remove();
-      responseListener.remove();
-    };
+    return unsubscribe;
   }, []);
 
   return (
     <View
       style={{
         flex: 1,
+        justifyContent: "center",
         alignItems: "center",
-        justifyContent: "space-around",
         backgroundColor: "#fff",
       }}
     >
-      <Text>Your expo push token: {expoPushToken}</Text>
-      <Text>{`Channels: ${JSON.stringify(
-        channels.map((c) => c.id),
-        null,
-        2
-      )}`}</Text>
-      <View style={{ alignItems: "center", justifyContent: "center" }}>
-        <Text>
-          Title: {notification && notification.request.content.title}{" "}
-        </Text>
-        <Text>Body: {notification && notification.request.content.body}</Text>
-        <Text>
-          Data:{" "}
-          {notification && JSON.stringify(notification.request.content.data)}
-        </Text>
-      </View>
+      <Text>FCM registration token:</Text>
+      <Text selectable>{fcmToken ?? "Fetching..."}</Text>
       <Button
-        title="Press to schedule a notification"
+        title="Refresh Token"
         onPress={async () => {
-          await schedulePushNotification();
+          const newToken = await messaging().getToken();
+          setFcmToken(newToken);
+          console.log("🔄 New FCM Token:", newToken);
         }}
       />
     </View>
   );
-}
-
-async function schedulePushNotification() {
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: "You've got mail! 📬",
-      body: "Here is the notification body",
-      data: { data: "goes here", test: { test1: "more data" } },
-    },
-    trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-      seconds: 2,
-    },
-  });
-}
-
-async function registerForPushNotificationsAsync() {
-  let token;
-
-  if (Platform.OS === "android") {
-    await Notifications.setNotificationChannelAsync("myNotificationChannel", {
-      name: "A channel is needed for the permissions prompt to appear",
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: "#FF231F7C",
-    });
-  }
-
-  if (Device.isDevice) {
-    const { status: existingStatus } =
-      await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== "granted") {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-    if (finalStatus !== "granted") {
-      alert("Failed to get push token for push notification!");
-      return;
-    }
-    // Learn more about projectId:
-    // https://docs.expo.dev/push-notifications/push-notifications-setup/#configure-projectid
-    // EAS projectId is used here.
-    try {
-      const projectId =
-        Constants?.expoConfig?.extra?.eas?.projectId ??
-        Constants?.easConfig?.projectId;
-      if (!projectId) {
-        throw new Error("Project ID not found");
-      }
-      token = (
-        await Notifications.getExpoPushTokenAsync({
-          projectId,
-        })
-      ).data;
-      console.log(token);
-    } catch (e) {
-      token = `${e}`;
-    }
-  } else {
-    alert("Must use physical device for Push Notifications");
-  }
-
-  return token;
 }

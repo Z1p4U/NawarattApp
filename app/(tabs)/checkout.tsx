@@ -114,12 +114,16 @@ export default function Checkout() {
           end={{ x: 1, y: 0 }}
           style={styles.banner}
         >
-          <Text style={styles.headText}>Checkout</Text>
+          <Text style={styles.headText} allowFontScaling={false}>
+            Checkout
+          </Text>
         </LinearGradient>
 
         <View style={{ paddingHorizontal: 15 }}>
           {/* Selected Address */}
-          <Text style={styles.deliAddress}>Delivery Address</Text>
+          <Text style={styles.deliAddress} allowFontScaling={false}>
+            Delivery Address
+          </Text>
           <TouchableOpacity
             style={[styles.addressCard, { marginVertical: 16 }]}
             onPress={() => setModalVisible(true)}
@@ -150,18 +154,18 @@ export default function Checkout() {
             <View style={styles.addressCardDiv}>
               {selectedAddress ? (
                 <>
-                  <Text style={styles.addressCardHead}>
+                  <Text style={styles.addressCardHead} allowFontScaling={false}>
                     Address {selectedAddress.id}
                     {selectedAddress.is_default ? " (Default)" : ""}
                   </Text>
-                  <Text style={styles.addressCardText}>
+                  <Text style={styles.addressCardText} allowFontScaling={false}>
                     {selectedAddress.address}, {selectedAddress.city.name_en},{" "}
                     {selectedAddress.state.name_en},{" "}
                     {selectedAddress.country.name_en}
                   </Text>
                 </>
               ) : (
-                <Text style={styles.addressCardText}>
+                <Text style={styles.addressCardText} allowFontScaling={false}>
                   Tap to select address
                 </Text>
               )}
@@ -169,13 +173,15 @@ export default function Checkout() {
           </TouchableOpacity>
 
           {/* Order Summary */}
-          <Text style={styles.orderSummary}>Order Summary</Text>
+          <Text style={styles.orderSummary} allowFontScaling={false}>
+            Order Summary
+          </Text>
           {cart.map((item) => (
             <View key={item.productId} style={styles.summaryRow}>
-              <Text style={styles.summaryText}>
+              <Text style={styles.summaryText} allowFontScaling={false}>
                 {item.pdData.name} × {item.count}
               </Text>
-              <Text style={styles.summaryText}>
+              <Text style={styles.summaryText} allowFontScaling={false}>
                 {item.total.toLocaleString()} Ks
               </Text>
             </View>
@@ -192,9 +198,11 @@ export default function Checkout() {
                     fill="#3173ED"
                   />
                 </Svg>
-                <Text style={styles.summaryText}>SubTotal</Text>
+                <Text style={styles.summaryText} allowFontScaling={false}>
+                  SubTotal
+                </Text>
               </View>
-              <Text style={styles.summaryText}>
+              <Text style={styles.summaryText} allowFontScaling={false}>
                 {totalAmount.toLocaleString()} Ks
               </Text>
             </View>
@@ -203,10 +211,14 @@ export default function Checkout() {
               <View
                 style={{ alignItems: "center", gap: 7, flexDirection: "row" }}
               >
-                <Text style={styles.summaryTextBold}>Total</Text>
-                <Text style={styles.summaryTextDim}>(Including Tax)</Text>
+                <Text style={styles.summaryTextBold} allowFontScaling={false}>
+                  Total
+                </Text>
+                <Text style={styles.summaryTextDim} allowFontScaling={false}>
+                  (Including Tax)
+                </Text>
               </View>
-              <Text style={styles.summaryText}>
+              <Text style={styles.summaryText} allowFontScaling={false}>
                 {totalAmount.toLocaleString()} Ks
               </Text>
             </View>
@@ -220,7 +232,7 @@ export default function Checkout() {
           onPress={() => setAgreed(!agreed)}
         >
           <View style={[styles.radioCircle, agreed && styles.selected]} />
-          <Text style={styles.placeOrderComponentText}>
+          <Text style={styles.placeOrderComponentText} allowFontScaling={false}>
             I&apos;d read and agree to Terms and Conditions
           </Text>
         </TouchableOpacity>
@@ -235,7 +247,9 @@ export default function Checkout() {
             end={{ x: 1, y: 0 }}
             style={styles.placeOrderBtn}
           >
-            <Text style={styles.placeOrderText}>Place Order</Text>
+            <Text style={styles.placeOrderText} allowFontScaling={false}>
+              Place Order
+            </Text>
           </LinearGradient>
         </TouchableOpacity>
       </View>
@@ -249,9 +263,13 @@ export default function Checkout() {
       >
         <SafeAreaView style={styles.modalOverlay}>
           <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Select Address</Text>
+            <Text style={styles.modalTitle} allowFontScaling={false}>
+              Select Address
+            </Text>
             <TouchableOpacity onPress={() => setModalVisible(false)}>
-              <Text style={styles.modalClose}>Close</Text>
+              <Text style={styles.modalClose} allowFontScaling={false}>
+                Close
+              </Text>
             </TouchableOpacity>
           </View>
           <ScrollView contentContainerStyle={styles.modalContent}>
@@ -291,11 +309,17 @@ export default function Checkout() {
                     />
                   </Svg>
                   <View style={styles.addressCardDiv}>
-                    <Text style={styles.addressCardHead}>
+                    <Text
+                      style={styles.addressCardHead}
+                      allowFontScaling={false}
+                    >
                       Address {addr.id}
                       {addr.is_default ? " (Default)" : ""}
                     </Text>
-                    <Text style={styles.addressCardText}>
+                    <Text
+                      style={styles.addressCardText}
+                      allowFontScaling={false}
+                    >
                       {addr.address}, {addr.city.name_en}, {addr.state.name_en},{" "}
                       {addr.country.name_en}
                     </Text>

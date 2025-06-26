@@ -66,8 +66,10 @@ export default function HomeScreen() {
             <View style={styles.center}>
               {isAuthenticated ? (
                 <>
-                  <Text style={styles.name}>{profileDetail?.data?.name}</Text>
-                  <Text style={styles.address}>
+                  <Text style={styles.name} allowFontScaling={false}>
+                    {profileDetail?.data?.name}
+                  </Text>
+                  <Text style={styles.address} allowFontScaling={false}>
                     {profileDetail?.data?.phone}
                   </Text>
                 </>
@@ -103,8 +105,10 @@ export default function HomeScreen() {
         {/* Discover Section Start */}
         <View style={styles.discover}>
           <View style={styles.discoverHead}>
-            <Text style={styles.discoverName}>Discover</Text>
-            <Text style={styles.discoverText}>
+            <Text style={styles.discoverName} allowFontScaling={false}>
+              Discover
+            </Text>
+            <Text style={styles.discoverText} allowFontScaling={false}>
               Essential Medicines & Health Solutions
             </Text>
           </View>
@@ -118,11 +122,18 @@ export default function HomeScreen() {
           return (
             <View key={spc?.id} style={styles.productSliderSection}>
               <View style={styles.productSliderHead}>
-                <Text style={styles.productSliderName}>{spc.name}</Text>
+                <Text style={styles.productSliderName} allowFontScaling={false}>
+                  {spc.name}
+                </Text>
                 <Link
                   href={`/productListByCategory?id=${spc?.id}&name=${spc?.name}`}
                 >
-                  <Text style={styles.productSliderSeeAll}>See All</Text>
+                  <Text
+                    style={styles.productSliderSeeAll}
+                    allowFontScaling={false}
+                  >
+                    See All
+                  </Text>
                 </Link>
               </View>
               <View style={styles.productSliderCarousel}>
@@ -135,7 +146,9 @@ export default function HomeScreen() {
         {/* Top Brands Section Start */}
         <View style={styles.productSliderSection}>
           <View style={styles.productSliderHead}>
-            <Text style={styles.productSliderName}>Top Brands</Text>
+            <Text style={styles.productSliderName} allowFontScaling={false}>
+              Top Brands
+            </Text>
           </View>
           <View style={styles.brandList}>
             <BrandList />

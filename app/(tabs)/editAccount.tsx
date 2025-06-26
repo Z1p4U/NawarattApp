@@ -107,7 +107,9 @@ export default function EditAccount() {
           end={{ x: 1.0, y: 0.0 }}
           style={styles.banner}
         >
-          <Text style={styles.headText}>Edit Account</Text>
+          <Text style={styles.headText} allowFontScaling={false}>
+            Edit Account
+          </Text>
         </LinearGradient>
 
         <View style={styles.inputContainer}>
@@ -162,7 +164,9 @@ export default function EditAccount() {
               marginTop: 15,
             }}
           >
-            <Text style={styles.radioText}>Gender : </Text>
+            <Text style={styles.radioText} allowFontScaling={false}>
+              Gender :{" "}
+            </Text>
             {["male", "female"].map((option) => (
               <TouchableOpacity
                 key={option}
@@ -177,7 +181,9 @@ export default function EditAccount() {
                     formData.gender === option && styles.selected,
                   ]}
                 />
-                <Text style={styles.radioText}>{option}</Text>
+                <Text style={styles.radioText} allowFontScaling={false}>
+                  {option}
+                </Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -191,13 +197,17 @@ export default function EditAccount() {
               end={{ x: 1, y: 0 }}
               style={styles.chat}
             >
-              <Text style={styles.chatText}>Update Account</Text>
+              <Text style={styles.chatText} allowFontScaling={false}>
+                Update Account
+              </Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
 
         <View style={styles.inputContainer}>
-          <Text style={styles.centerText}>Change Password</Text>
+          <Text style={styles.centerText} allowFontScaling={false}>
+            Change Password
+          </Text>
 
           <TextInput
             style={styles.input}
@@ -233,13 +243,17 @@ export default function EditAccount() {
               end={{ x: 1, y: 0 }}
               style={styles.chat}
             >
-              <Text style={styles.chatText}>Update Pin</Text>
+              <Text style={styles.chatText} allowFontScaling={false}>
+                Update Pin
+              </Text>
             </LinearGradient>
           </TouchableOpacity>
 
           <TouchableOpacity style={{ marginTop: 30 }} onPress={handleLogout}>
             <View style={styles.outline}>
-              <Text style={styles.outlineText}>Logout</Text>
+              <Text style={styles.outlineText} allowFontScaling={false}>
+                Logout
+              </Text>
             </View>
           </TouchableOpacity>
         </View>

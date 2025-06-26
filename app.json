@@ -4,29 +4,28 @@
     "slug": "NawarattApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/placeholder.jpg",
+    "icon": "./assets/images/placeholder.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "assetBundlePatterns": ["assets/images/*"],
     "notification": {
-      "icon": "./assets/images/placeholder.jpg",
+      "icon": "./assets/images/placeholder.png",
       "color": "#ffffff"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.z1p4u.NawarattApp"
+      "bundleIdentifier": "com.z1p4u.NawarattApp",
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "googleServicesFile": "./google-services.json",
-      "useNextNotificationsApi": true,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/placeholder.jpg",
+        "foregroundImage": "./assets/images/placeholder.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.z1p4u.NawarattApp",
-      "permissions": ["INTERNET"],
-      "usesCleartextTraffic": true
+      "permissions": ["INTERNET"]
     },
     "web": {
       "bundler": "metro",
@@ -36,10 +35,19 @@
     "plugins": [
       "expo-router",
       "expo-notifications",
+      "@react-native-firebase/app",
+      "@react-native-firebase/messaging",
+      [
+        "expo-build-properties",
+        {
+          "android": { "useNextNotificationsApi": true },
+          "ios": { "deploymentTarget": "15.1" }
+        }
+      ],
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/placeholder.jpg",
+          "image": "./assets/images/placeholder.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"

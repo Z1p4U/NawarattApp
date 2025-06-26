@@ -40,7 +40,9 @@ export default function AddressBook() {
           end={{ x: 1, y: 0 }}
           style={styles.banner}
         >
-          <Text style={styles.headText}>Address Book</Text>
+          <Text style={styles.headText} allowFontScaling={false}>
+            Address Book
+          </Text>
         </LinearGradient>
 
         <View style={styles?.addressSection}>
@@ -54,7 +56,9 @@ export default function AddressBook() {
               end={{ x: 1, y: 0 }}
               style={styles.newAddress}
             >
-              <Text style={styles.chatText}>Add New Address</Text>
+              <Text style={styles.chatText} allowFontScaling={false}>
+                Add New Address
+              </Text>
             </LinearGradient>
           </TouchableOpacity>
 
@@ -90,15 +94,26 @@ export default function AddressBook() {
                     </Svg>
 
                     <View style={styles?.addressCardDiv}>
-                      <Text style={styles?.addressCardHead}>
+                      <Text
+                        style={styles?.addressCardHead}
+                        allowFontScaling={false}
+                      >
                         Address {address?.id}
                         {address?.is_default ? <>(Default Address)</> : <></>}
                       </Text>
-                      <Text style={styles?.addressCardText} numberOfLines={2}>
+                      <Text
+                        style={styles?.addressCardText}
+                        numberOfLines={2}
+                        allowFontScaling={false}
+                      >
                         {address?.address} ,{address?.city?.name_en} ,
                         {address?.state?.name_en} ,{address?.country?.name_en}
                       </Text>
-                      <Text style={styles?.addressCardText} numberOfLines={2}>
+                      <Text
+                        style={styles?.addressCardText}
+                        numberOfLines={2}
+                        allowFontScaling={false}
+                      >
                         Info: {address?.additional_info}
                       </Text>
                     </View>

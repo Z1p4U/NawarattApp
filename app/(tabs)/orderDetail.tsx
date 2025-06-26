@@ -97,7 +97,9 @@ export default function OrderDetail() {
           end={{ x: 1, y: 0 }}
           style={styles.banner}
         >
-          <Text style={styles.headText}>Order Detail</Text>
+          <Text style={styles.headText} allowFontScaling={false}>
+            Order Detail
+          </Text>
         </LinearGradient>
 
         {/* Timeline */}
@@ -122,7 +124,9 @@ export default function OrderDetail() {
                 )}
               </Svg>
 
-              <Text style={styles.stepLabel}>{s.label}</Text>
+              <Text style={styles.stepLabel} allowFontScaling={false}>
+                {s.label}
+              </Text>
             </View>
           ))}
         </View>
@@ -132,17 +136,27 @@ export default function OrderDetail() {
           <View style={styles.row}>
             <View style={styles.col}>
               <View>
-                <Text style={styles.metaLabel}>Order Code</Text>
-                <Text style={styles.metaValue}>{od?.order_code}</Text>
+                <Text style={styles.metaLabel} allowFontScaling={false}>
+                  Order Code
+                </Text>
+                <Text style={styles.metaValue} allowFontScaling={false}>
+                  {od?.order_code}
+                </Text>
               </View>
 
               <View>
-                <Text style={styles.metaLabel}>Order Date</Text>
-                <Text style={styles.metaValue}>{formatDate(od?.date)}</Text>
+                <Text style={styles.metaLabel} allowFontScaling={false}>
+                  Order Date
+                </Text>
+                <Text style={styles.metaValue} allowFontScaling={false}>
+                  {formatDate(od?.date)}
+                </Text>
               </View>
 
               <View>
-                <Text style={styles.metaLabel}>Order Status</Text>
+                <Text style={styles.metaLabel} allowFontScaling={false}>
+                  Order Status
+                </Text>
                 <Text
                   style={[
                     styles.metaValue,
@@ -154,6 +168,7 @@ export default function OrderDetail() {
                       ? styles.paid
                       : styles.unpaid,
                   ]}
+                  allowFontScaling={false}
                 >
                   {od?.status === "delivering"
                     ? "Delivering"
@@ -162,33 +177,40 @@ export default function OrderDetail() {
               </View>
 
               <View>
-                <Text style={styles.metaLabel}>Payment Status</Text>
+                <Text style={styles.metaLabel} allowFontScaling={false}>
+                  Payment Status
+                </Text>
                 <Text
                   style={[
                     styles.metaValue,
                     fullyPaid ? styles.paid : styles.unpaid,
                   ]}
+                  allowFontScaling={false}
                 >
                   {fullyPaid ? "Paid" : "Unpaid"}
                 </Text>
               </View>
 
               <View>
-                <Text style={styles.metaLabel}>Address</Text>
-                <Text style={styles.metaValue}>{od?.address_book.address}</Text>
+                <Text style={styles.metaLabel} allowFontScaling={false}>
+                  Address
+                </Text>
+                <Text style={styles.metaValue} allowFontScaling={false}>
+                  {od?.address_book.address}
+                </Text>
               </View>
             </View>
 
             {/* <View style={styles.col}>
-              <Text style={styles.metaLabel}>Shipping Method</Text>
+              <Text style={styles.metaLabel} allowFontScaling={false}>Shipping Method</Text>
               <Text style={styles.metaValue}>
                 {od?.shipping_method || "Standard Delivery"}
               </Text>
 
-              <Text style={styles.metaLabel}>Payment Method</Text>
-              <Text style={styles.metaValue}>{od?.payment_method || "Mpu"}</Text>
+              <Text style={styles.metaLabel} allowFontScaling={false}>Payment Method</Text>
+              <Text style={styles.metaValue} allowFontScaling={false}>{od?.payment_method || "Mpu"}</Text>
 
-              <Text style={styles.totalAmount}>
+              <Text style={styles.totalAmount} allowFontScaling={false}>
                 Ks{od?.total_amount.toLocaleString()}
               </Text>
             </View> */}
@@ -196,15 +218,23 @@ export default function OrderDetail() {
         </View>
 
         {/* Ordered Products */}
-        <Text style={styles.sectionTitle}>Ordered Product</Text>
+        <Text style={styles.sectionTitle} allowFontScaling={false}>
+          Ordered Product
+        </Text>
         {od?.order_items.map((item) => (
           <View key={item.id} style={styles?.orderEach}>
             <View style={styles.itemRow}>
-              <Text style={styles.itemName} numberOfLines={1}>
+              <Text
+                style={styles.itemName}
+                numberOfLines={1}
+                allowFontScaling={false}
+              >
                 {item.product?.name || "—"}
               </Text>
-              <Text style={styles.itemQty}>{item.qty}</Text>
-              <Text style={styles.itemPrice}>
+              <Text style={styles.itemQty} allowFontScaling={false}>
+                {item.qty}
+              </Text>
+              <Text style={styles.itemPrice} allowFontScaling={false}>
                 Ks{item.sub_total_amount.toLocaleString()}
               </Text>
             </View>
@@ -225,7 +255,10 @@ export default function OrderDetail() {
                             source={{ uri: ci.product.thumbnail }}
                             style={styles.comboItemImage}
                           />
-                          <Text style={styles.comboItemText}>
+                          <Text
+                            style={styles.comboItemText}
+                            allowFontScaling={false}
+                          >
                             {ci.product.name} × {ci.qty}
                           </Text>
                         </View>
@@ -240,18 +273,20 @@ export default function OrderDetail() {
         {/* Totals Breakdown */}
         <View style={styles.summary}>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>SUB TOTAL</Text>
-            <Text style={styles.summaryValue}>
+            <Text style={styles.summaryLabel} allowFontScaling={false}>
+              SUB TOTAL
+            </Text>
+            <Text style={styles.summaryValue} allowFontScaling={false}>
               Ks {od?.total_amount.toLocaleString()}
             </Text>
           </View>
           {/* <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>TAX</Text>
-            <Text style={styles.summaryValue}>Ks{od?.tax_amount || 0}</Text>
+            <Text style={styles.summaryLabel} allowFontScaling={false}>TAX</Text>
+            <Text style={styles.summaryValue} allowFontScaling={false}>Ks{od?.tax_amount || 0}</Text>
           </View>
           <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>SHIPPING COST</Text>
-            <Text style={styles.summaryValue}>Ks{od?.shipping_cost || 0}</Text>
+            <Text style={styles.summaryLabel} allowFontScaling={false}>SHIPPING COST</Text>
+            <Text style={styles.summaryValue} allowFontScaling={false}>Ks{od?.shipping_cost || 0}</Text>
           </View> */}
 
           {od?.status?.toLowerCase() === "confirmed" && (
@@ -262,7 +297,9 @@ export default function OrderDetail() {
                 end={{ x: 1, y: 0 }}
                 style={styles.newAddress}
               >
-                <Text style={styles.chatText}>Pay For Order</Text>
+                <Text style={styles.chatText} allowFontScaling={false}>
+                  Pay For Order
+                </Text>
               </LinearGradient>
             </Link>
           )}
@@ -312,6 +349,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#888",
     textAlign: "center",
+    fontFamily: "Saira-Medium",
   },
 
   card: {
@@ -410,7 +448,7 @@ const styles = StyleSheet.create({
   },
   summaryValue: {
     fontSize: 15,
-    fontWeight: "700",
+    fontWeight: "600",
     fontFamily: "Saira-Bold",
   },
 
@@ -431,7 +469,7 @@ const styles = StyleSheet.create({
   },
   comboItemText: {
     fontSize: 12,
-    fontFamily: "Saira-Regular",
+    fontFamily: "Saira-Medium",
     color: "#333",
   },
   newAddress: {

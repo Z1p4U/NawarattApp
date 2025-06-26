@@ -49,7 +49,9 @@ export default function Favorites() {
             end={{ x: 1, y: 0 }}
             style={styles.banner}
           >
-            <Text style={styles.headText}>Favorites</Text>
+            <Text style={styles.headText} allowFontScaling={false}>
+              Favorites
+            </Text>
           </LinearGradient>
         </View>
       )}
@@ -58,7 +60,7 @@ export default function Favorites() {
         if (!isAuthenticated) {
           return (
             <View style={styles.bodyCentered}>
-              <Text style={styles.messageText}>
+              <Text style={styles.messageText} allowFontScaling={false}>
                 Please
                 <Link href="/login" style={styles.linkText}>
                   {" "}
@@ -71,7 +73,9 @@ export default function Favorites() {
         }
         return (
           <View style={styles.bodyCentered}>
-            <Text style={styles.messageText}>Your wishlist is empty.</Text>
+            <Text style={styles.messageText} allowFontScaling={false}>
+              Your wishlist is empty.
+            </Text>
           </View>
         );
       }}
