@@ -64,27 +64,33 @@ const HeadSection = ({ data }: any) => {
             <Path stroke="#fff" d="M0.5 2.18557e-8L0.499997 71" />
           </Svg>
 
-          <View style={styles.barBlock}>
+          <TouchableOpacity
+            onPress={() => router.replace("/orderHistory")}
+            style={styles.barBlock}
+          >
             <Text style={styles.barNumber} allowFontScaling={false}>
               {data?.data?.order_stats?.total}
             </Text>
             <Text style={styles.barText} allowFontScaling={false}>
               Order in Total
             </Text>
-          </View>
+          </TouchableOpacity>
 
           <Svg width={1} height={71} viewBox="0 0 1 71" fill="none">
             <Path stroke="#fff" d="M0.5 2.18557e-8L0.499997 71" />
           </Svg>
 
-          <View style={styles.barBlock}>
+          <TouchableOpacity
+            onPress={() => router.replace("/favorites")}
+            style={styles.barBlock}
+          >
             <Text style={styles.barNumber} allowFontScaling={false}>
               {totalWishlist}
             </Text>
             <Text style={styles.barText} allowFontScaling={false}>
               Wishlist
             </Text>
-          </View>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.sideBtn}>
@@ -103,6 +109,7 @@ const HeadSection = ({ data }: any) => {
               </G>
             </Svg>
           </TouchableOpacity>
+
           <TouchableOpacity
             onPress={() => router.replace("/editAccount")}
             style={styles.notificationButton}

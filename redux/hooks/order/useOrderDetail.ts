@@ -1,21 +1,21 @@
 import { useCallback, useEffect, useState } from "react";
 import { RootState, AppDispatch } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
-import { loadOrderDetail } from "@/redux/services/order/orderSlice";
+import {
+  clearOrderDetail,
+  loadOrderDetail,
+} from "@/redux/services/order/orderSlice";
 import { OrderDetailResponse } from "@/constants/config";
 
 const useOrderDetail = (id: any) => {
   const dispatch = useDispatch<AppDispatch>();
   const orderResponse = useSelector((state: RootState) => state.order);
   const orderDetail = orderResponse?.orderDetail;
-  const [loading, setLoading] = useState(true);
+  const status = orderResponse?.status;
 
   useEffect(() => {
-    const fetchOrderDetail = async () => {
-      dispatch(loadOrderDetail(id));
-      setLoading(false);
-    };
-    fetchOrderDetail();
+    dispatch(clearOrderDetail());
+    dispatch(loadOrderDetail(id));
   }, [dispatch, id]);
 
   const handleLoadOrderDetail =
@@ -30,7 +30,7 @@ const useOrderDetail = (id: any) => {
   return {
     handleLoadOrderDetail,
     orderDetail,
-    loading,
+    loading: status === "loading",
   };
 };
 

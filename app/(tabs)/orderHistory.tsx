@@ -14,6 +14,7 @@ import AddressLoader from "@/components/ui/AddressLoader";
 import useOrder from "@/redux/hooks/order/useOrder";
 import { Link } from "expo-router";
 import useOrderAction from "@/redux/hooks/order/useOrderAction";
+import GoBack from "@/components/ui/GoBack";
 
 export default function OrderHistory() {
   const router = useRouter();
@@ -68,6 +69,8 @@ export default function OrderHistory() {
             Order History
           </Text>
         </LinearGradient>
+
+        <GoBack to={"/account"} />
 
         <View style={styles.orderSection}>
           {orderLoading ? (
@@ -135,7 +138,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 30,
     minHeight: 70,
     padding: 15,
-    marginBottom: 20,
+    marginBottom: 10,
     justifyContent: "flex-end",
   },
   headText: {
@@ -150,6 +153,7 @@ const styles = StyleSheet.create({
   orderSection: {
     gap: 10,
     marginHorizontal: 15,
+    marginTop: 20,
   },
   orderCard: {
     backgroundColor: "#F8F8F8",

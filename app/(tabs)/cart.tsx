@@ -14,35 +14,15 @@ import HeadLine from "@/components/ui/HeadLine";
 import QuantityControl from "@/components/ui/QuantityControl";
 import { useFocusEffect, useRouter } from "expo-router";
 import AddressLoader from "@/components/ui/AddressLoader";
-
-// Define the shape of your product data
-interface ProductData {
-  id: string;
-  name: string;
-  description: string;
-  price: string; // price as string from API; convert to number when needed
-  category: string; // assuming category is a string for simplicity
-  images: string[]; // array of image URLs
-  thumbnail: string; // thumbnail image URL
-}
-
-// Define the shape of a cart item
-interface CartItem {
-  productId: string; // unique cart item id (should be unique even for same product)
-  pdData: ProductData;
-  count: number;
-  total: number;
-}
+import { CartItem } from "@/constants/config";
 
 export default function Cart() {
   const [data, setData] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
 
-  // Retrieve cart items from AsyncStorage
   const getCartItems = async () => {
     setLoading(true);
-
     try {
       const storedData = await AsyncStorage.getItem("cart");
       if (storedData) {
@@ -58,14 +38,12 @@ export default function Cart() {
     }
   };
 
-  // Load cart items whenever the screen is focused
   useFocusEffect(
     useCallback(() => {
       getCartItems();
     }, [])
   );
 
-  // Update quantity for a specific cart item using its unique id
   const updateQuantity = async (cartItemId: string, newCount: number) => {
     try {
       const updatedCart = data.map((item) => {
@@ -96,24 +74,21 @@ export default function Cart() {
     }
   };
 
-  // Clear the entire cart
   const clearCart = async () => {
     try {
       await AsyncStorage.removeItem("cart");
-      // await AsyncStorage.clear();
       setData([]);
     } catch (error) {
       console.error("Error clearing cart:", error);
     }
   };
 
-  // Calculate total price for all cart items
   const calculateTotal = () => {
     return data.reduce((acc, item) => acc + item.total, 0);
   };
 
   const handleCheckout = () => {
-    router.push("/checkout"); // Adjust this if needed
+    router.push("/checkout");
   };
 
   return (
@@ -220,7 +195,10 @@ export default function Cart() {
             Total - {calculateTotal()?.toLocaleString()} Ks
           </Text>
         </View>
-        <TouchableOpacity disabled={loading} onPress={handleCheckout}>
+        <TouchableOpacity
+          disabled={loading || data?.length === 0}
+          onPress={handleCheckout}
+        >
           <LinearGradient
             colors={["#54CAFF", "#275AE8"]}
             start={{ x: 0, y: 0 }}

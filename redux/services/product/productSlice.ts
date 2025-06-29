@@ -1,4 +1,3 @@
-// redux/services/product/productSlice.ts
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
   fetchAllProducts,
@@ -14,9 +13,12 @@ import {
 
 interface ProductState {
   products: AllProductResponse["data"];
+  brandProducts: SpecialCategoryProductResponse["data"];
   specialCategoriesProducts: SpecialCategoryProductResponse["data"];
   productDetail: ProductDetailResponse["data"] | null;
+  relatedProduct: ProductDetailResponse["related_products"] | null;
   totalProduct: number;
+  totalBrandProducts: number;
   totalSpecialCategoriesProducts: number;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
@@ -24,10 +26,13 @@ interface ProductState {
 
 const initialState: ProductState = {
   products: [],
+  brandProducts: [],
   specialCategoriesProducts: [],
   totalProduct: 0,
+  totalBrandProducts: 0,
   totalSpecialCategoriesProducts: 0,
   productDetail: null,
+  relatedProduct: null,
   status: "idle",
   error: null,
 };
@@ -35,13 +40,25 @@ const initialState: ProductState = {
 /** Thunk: fetch all (regular) products **/
 export const handleFetchAllProductList = createAsyncThunk<
   AllProductResponse,
-  { name: string | null; pagination: PaginationPayload; brand_id?: number },
+  { pagination: PaginationPayload; name: string | null },
+  { rejectValue: string }
+>("products/fetchAll", async ({ pagination, name }, { rejectWithValue }) => {
+  try {
+    return await fetchAllProducts(pagination, null, name);
+  } catch (err: any) {
+    return rejectWithValue(err.response?.data || err.message);
+  }
+});
+
+export const handleFetchAllBrandProducts = createAsyncThunk<
+  AllProductResponse,
+  { pagination: PaginationPayload; brand_id: string | null },
   { rejectValue: string }
 >(
-  "products/fetchAll",
-  async ({ name, pagination, brand_id }, { rejectWithValue }) => {
+  "products/fetchBrandProducts",
+  async ({ pagination, brand_id }, { rejectWithValue }) => {
     try {
-      return await fetchAllProducts(name, pagination, brand_id);
+      return await fetchAllProducts(pagination, brand_id);
     } catch (err: any) {
       return rejectWithValue(err.response?.data || err.message);
     }
@@ -54,7 +71,7 @@ export const handleFetchAllSpecialCategoryProducts = createAsyncThunk<
   { id: string; pagination: PaginationPayload },
   { rejectValue: string }
 >(
-  "products/fetchSpecialCategories",
+  "products/fetchSpecialCategoriesProducts",
   async ({ id, pagination }, { rejectWithValue }) => {
     try {
       return await fetchAllSpecialCategoryProducts(id, pagination);
@@ -83,10 +100,25 @@ const productSlice = createSlice({
   reducers: {
     clearProductState(state) {
       state.products = [];
-      state.specialCategoriesProducts = [];
-      state.productDetail = null;
       state.totalProduct = 0;
+      state.status = "idle";
+      state.error = null;
+    },
+    clearCategoryProductState(state) {
+      state.specialCategoriesProducts = [];
       state.totalSpecialCategoriesProducts = 0;
+      state.status = "idle";
+      state.error = null;
+    },
+    clearBrandProductState(state) {
+      state.brandProducts = [];
+      state.totalBrandProducts = 0;
+      state.status = "idle";
+      state.error = null;
+    },
+    clearProductDetailState(state) {
+      state.productDetail = null;
+      state.relatedProduct = null;
       state.status = "idle";
       state.error = null;
     },
@@ -98,9 +130,6 @@ const productSlice = createSlice({
         state.status = "loading";
       })
       .addCase(handleFetchAllProductList.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.error = null;
-
         const { pagination } = action.meta.arg as {
           pagination: PaginationPayload;
         };
@@ -111,36 +140,48 @@ const productSlice = createSlice({
             : [...(state.products ?? []), ...(action.payload.data ?? [])];
 
         state.totalProduct = action.payload.meta.total;
+
+        state.status = "succeeded";
+        state.error = null;
       })
       .addCase(handleFetchAllProductList.rejected, (state, { payload }) => {
         state.status = "failed";
         state.error = payload ?? "Failed to fetch products";
       });
 
-    // — Product detail —
+    // — Brand Product List —
     builder
-      .addCase(handleFetchProductDetail.pending, (state) => {
+      .addCase(handleFetchAllBrandProducts.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(handleFetchProductDetail.fulfilled, (state, { payload }) => {
+      .addCase(handleFetchAllBrandProducts.fulfilled, (state, action) => {
+        const { pagination } = action.meta.arg as {
+          pagination: PaginationPayload;
+        };
+
+        state.brandProducts =
+          pagination.page === 1
+            ? action.payload.data || []
+            : [...(state.brandProducts ?? []), ...(action.payload.data ?? [])];
+
+        state.totalBrandProducts = action.payload.meta.total;
+
         state.status = "succeeded";
-        state.productDetail = payload.data;
         state.error = null;
       })
-      .addCase(handleFetchProductDetail.rejected, (state, { payload }) => {
+      .addCase(handleFetchAllBrandProducts.rejected, (state, { payload }) => {
         state.status = "failed";
-        state.error = payload ?? "Failed to fetch product detail";
-      })
+        state.error = payload ?? "Failed to fetch products";
+      });
 
+    // — Special Category Product List —
+    builder
       .addCase(handleFetchAllSpecialCategoryProducts.pending, (state) => {
         state.status = "loading";
       })
       .addCase(
         handleFetchAllSpecialCategoryProducts.fulfilled,
         (state, action) => {
-          state.status = "succeeded";
-          state.error = null;
-
           const { pagination } = action.meta.arg as {
             pagination: PaginationPayload;
           };
@@ -154,6 +195,9 @@ const productSlice = createSlice({
                 ];
 
           state.totalSpecialCategoriesProducts = action.payload.meta.total;
+
+          state.status = "succeeded";
+          state.error = null;
         }
       )
       .addCase(
@@ -163,8 +207,29 @@ const productSlice = createSlice({
           state.error = payload ?? "Failed to fetch special-category products";
         }
       );
+
+    // — Product detail —
+    builder
+      .addCase(handleFetchProductDetail.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(handleFetchProductDetail.fulfilled, (state, { payload }) => {
+        state.productDetail = payload.data;
+        state.relatedProduct = payload.related_products;
+        state.status = "succeeded";
+        state.error = null;
+      })
+      .addCase(handleFetchProductDetail.rejected, (state, { payload }) => {
+        state.status = "failed";
+        state.error = payload ?? "Failed to fetch product detail";
+      });
   },
 });
 
-export const { clearProductState } = productSlice.actions;
+export const {
+  clearProductState,
+  clearBrandProductState,
+  clearCategoryProductState,
+  clearProductDetailState,
+} = productSlice.actions;
 export default productSlice.reducer;

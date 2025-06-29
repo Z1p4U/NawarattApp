@@ -23,7 +23,6 @@ import DiscoverCarousel from "@/components/Home/DiscoverCarousel";
 import useSpecialCategory from "@/redux/hooks/category/useSpecialCategory";
 
 export default function HomeScreen() {
-  const router = useRouter();
   const { profileDetail } = useUser();
   const { isAuthenticated } = useAuth();
   const { specialCategories, loading } = useSpecialCategory();
@@ -118,30 +117,34 @@ export default function HomeScreen() {
         </View>
         {/* Discover Section End */}
 
-        {specialCategories?.map((spc, index) => {
-          return (
-            <View key={spc?.id} style={styles.productSliderSection}>
-              <View style={styles.productSliderHead}>
-                <Text style={styles.productSliderName} allowFontScaling={false}>
-                  {spc.name}
-                </Text>
-                <Link
-                  href={`/productListByCategory?id=${spc?.id}&name=${spc?.name}`}
-                >
+        {specialCategories &&
+          specialCategories?.map((spc) => {
+            return (
+              <View key={spc?.id} style={styles.productSliderSection}>
+                <View style={styles.productSliderHead}>
                   <Text
-                    style={styles.productSliderSeeAll}
+                    style={styles.productSliderName}
                     allowFontScaling={false}
                   >
-                    See All
+                    {spc.name}
                   </Text>
-                </Link>
+                  <Link
+                    href={`/productListByCategory?id=${spc?.id}&name=${spc?.name}`}
+                  >
+                    <Text
+                      style={styles.productSliderSeeAll}
+                      allowFontScaling={false}
+                    >
+                      See All
+                    </Text>
+                  </Link>
+                </View>
+                <View style={styles.productSliderCarousel}>
+                  <ProductSlider products={spc?.products} loading={loading} />
+                </View>
               </View>
-              <View style={styles.productSliderCarousel}>
-                <ProductSlider products={spc?.products} loading={loading} />
-              </View>
-            </View>
-          );
-        })}
+            );
+          })}
 
         {/* Top Brands Section Start */}
         <View style={styles.productSliderSection}>

@@ -1,9 +1,10 @@
-import React, { useRef } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
   FlatList,
   Platform,
+  RefreshControl,
   StyleSheet,
   Text,
   View,
@@ -15,50 +16,64 @@ import ProductCard from "@/components/ui/ProductCard";
 import useAuth from "@/redux/hooks/auth/useAuth";
 import useWishlist from "@/redux/hooks/wishlist/useWishlist";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const CARD_WIDTH = (SCREEN_WIDTH - 15 * 2 - 10) / 2;
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export default function Favorites() {
-  const { wishlists, loading, loadMoreWishlists } = useWishlist();
-  const { isAuthenticated } = useAuth();
+  const [refreshing, setRefreshing] = useState(false);
+
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const { wishlists, loading, loadMore, reset, hasMore } = useWishlist();
+  const { isAuthenticated } = useAuth();
 
   const onEndReached = () => {
-    if ((wishlists?.length ?? 0) < 20) return;
     if (!debounceRef.current) {
       debounceRef.current = setTimeout(() => {
-        loadMoreWishlists();
+        loadMore();
         debounceRef.current = null;
       }, 500);
     }
   };
 
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+
+    reset();
+
+    setTimeout(() => setRefreshing(false), 800);
+  }, []);
+
   return (
-    <FlatList
-      data={wishlists}
-      keyExtractor={(item) => item.id.toString()}
-      numColumns={2}
-      showsVerticalScrollIndicator={false}
-      // HEADER: HeadLine + Banner
-      ListHeaderComponent={() => (
-        <View style={styles.headerWrapper}>
-          <HeadLine />
+    <>
+      <HeadLine />
+      <FlatList
+        data={wishlists}
+        keyExtractor={(item) => item.id.toString()}
+        numColumns={2}
+        showsVerticalScrollIndicator={false}
+        ListHeaderComponent={() => (
           <LinearGradient
             colors={["#53CAFE", "#2555E7"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={styles.banner}
           >
-            <Text style={styles.headText} allowFontScaling={false}>
+            <Text
+              style={styles.headText}
+              allowFontScaling={false}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
               Favorites
             </Text>
           </LinearGradient>
-        </View>
-      )}
-      // EMPTY: not logged in or empty wishlist
-      ListEmptyComponent={() => {
-        if (!isAuthenticated) {
-          return (
+        )}
+        renderItem={({ item }) => (
+          <View style={styles.item}>
+            <ProductCard product={item.product} />
+          </View>
+        )}
+        ListEmptyComponent={() =>
+          !isAuthenticated ? (
             <View style={styles.bodyCentered}>
               <Text style={styles.messageText} allowFontScaling={false}>
                 Please
@@ -69,48 +84,48 @@ export default function Favorites() {
                 to view your favorites.
               </Text>
             </View>
-          );
+          ) : loading ? (
+            <View style={styles.bodyCentered}>
+              <ActivityIndicator size="large" color="#0000ff" />
+            </View>
+          ) : (
+            <View style={styles.bodyCentered}>
+              <Text style={styles.messageText} allowFontScaling={false}>
+                Your wishlist is empty.
+              </Text>
+            </View>
+          )
         }
-        return (
-          <View style={styles.bodyCentered}>
-            <Text style={styles.messageText} allowFontScaling={false}>
-              Your wishlist is empty.
-            </Text>
-          </View>
-        );
-      }}
-      // ITEM RENDERER
-      renderItem={({ item }) => (
-        <View style={styles.item}>
-          <ProductCard product={item.product} />
-        </View>
-      )}
-      columnWrapperStyle={styles.row}
-      contentContainerStyle={styles.container}
-      // INFINITE SCROLL
-      onEndReached={onEndReached}
-      onEndReachedThreshold={0.2}
-      // FOOTER: loading spinner
-      ListFooterComponent={
-        loading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#0000ff" />
-          </View>
-        ) : null
-      }
-    />
+        style={styles.flatList}
+        columnWrapperStyle={styles.row}
+        contentContainerStyle={styles.container}
+        onEndReached={onEndReached}
+        onEndReachedThreshold={0.2}
+        ListFooterComponent={
+          hasMore ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#0000ff" />
+            </View>
+          ) : null
+        }
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      />
+    </>
   );
 }
 
+const CARD_WIDTH = (SCREEN_WIDTH - 20 * 2 - 10) / 2;
+
 const styles = StyleSheet.create({
-  container: {
+  flatList: {
+    flex: 1,
     backgroundColor: "#fff",
+  },
+  container: {
     paddingBottom: Platform.select({ ios: 50, android: 10 }),
     paddingHorizontal: 15,
-    minHeight: "100%",
-  },
-  headerWrapper: {
-    marginHorizontal: -15, // cancel the container's horizontal padding
   },
   banner: {
     borderBottomLeftRadius: 30,
@@ -119,6 +134,7 @@ const styles = StyleSheet.create({
     padding: 15,
     justifyContent: "flex-end",
     marginBottom: 20,
+    marginHorizontal: -15,
   },
   headText: {
     marginTop: 10,
@@ -140,9 +156,10 @@ const styles = StyleSheet.create({
   },
   bodyCentered: {
     flex: 1,
-    minHeight: 200,
+    minHeight: (3 * SCREEN_HEIGHT) / 5,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#fff",
   },
   messageText: {
     fontSize: 18,
@@ -150,6 +167,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     textAlign: "center",
     paddingHorizontal: 20,
+    fontFamily: "Saira-Medium",
   },
   linkText: {
     color: "#52C5FE",

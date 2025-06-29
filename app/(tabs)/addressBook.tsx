@@ -13,6 +13,7 @@ import useAddress from "@/redux/hooks/address/useAddress";
 import useAuth from "@/redux/hooks/auth/useAuth";
 import AddressLoader from "@/components/ui/AddressLoader";
 import Svg, { Path } from "react-native-svg";
+import GoBack from "@/components/ui/GoBack";
 
 export default function AddressBook() {
   const router = useRouter();
@@ -44,6 +45,8 @@ export default function AddressBook() {
             Address Book
           </Text>
         </LinearGradient>
+
+        <GoBack to={"/account"} />
 
         <View style={styles?.addressSection}>
           <TouchableOpacity
@@ -143,7 +146,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 30,
     minHeight: 70,
     padding: 15,
-    marginBottom: 20,
+    marginBottom: 10,
     flexDirection: "column",
     justifyContent: "flex-end",
   },
@@ -160,6 +163,7 @@ const styles = StyleSheet.create({
   addressSection: {
     gap: 10,
     marginHorizontal: 15,
+    marginTop: 10,
   },
   addressCard: {
     backgroundColor: "#F8F8F8",

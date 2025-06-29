@@ -16,6 +16,7 @@ import useAuth from "@/redux/hooks/auth/useAuth";
 import useOrderDetail from "@/redux/hooks/order/useOrderDetail";
 import { useSearchParams } from "expo-router/build/hooks";
 import Svg, { Circle, Path } from "react-native-svg";
+import GoBack from "@/components/ui/GoBack";
 
 export default function OrderDetail() {
   const searchParams = useSearchParams();
@@ -101,6 +102,8 @@ export default function OrderDetail() {
             Order Detail
           </Text>
         </LinearGradient>
+
+        <GoBack to={"/orderHistory"} />
 
         {/* Timeline */}
         <View style={styles.timeline}>
@@ -314,15 +317,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#fff",
   },
-  container: { flex: 1, backgroundColor: "#fff" },
-  scrollContent: { paddingBottom: 120 },
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  scrollContent: {
+    paddingBottom: 120,
+  },
   banner: {
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     minHeight: 70,
     padding: 15,
-    marginBottom: 20,
+    marginBottom: 10,
     justifyContent: "flex-end",
   },
   headText: {
@@ -338,6 +347,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingHorizontal: 20,
+    marginTop: 20,
     marginBottom: 20,
   },
   stepContainer: {
@@ -389,7 +399,7 @@ const styles = StyleSheet.create({
 
   sectionTitle: {
     color: "#2555E7",
-    marginHorizontal: 15,
+    marginHorizontal: 20,
     marginBottom: 10,
     fontSize: 16,
     fontWeight: "500",
@@ -397,7 +407,7 @@ const styles = StyleSheet.create({
   },
 
   orderEach: {
-    marginHorizontal: 15,
+    marginHorizontal: 20,
   },
   comboContainer: {
     paddingHorizontal: 10,
@@ -429,7 +439,7 @@ const styles = StyleSheet.create({
   },
 
   summary: {
-    marginHorizontal: 15,
+    marginHorizontal: 20,
     marginTop: 20,
     borderTopWidth: 1,
     borderColor: "#eee",

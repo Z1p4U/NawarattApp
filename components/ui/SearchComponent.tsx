@@ -7,7 +7,7 @@ import {
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
-export default function SearchComponent({ onchange }: any) {
+export default function SearchComponent({ searched, onchange }: any) {
   return (
     <>
       <View style={styles.searchBar}>
@@ -23,6 +23,7 @@ export default function SearchComponent({ onchange }: any) {
           placeholder="Search for Products"
           placeholderTextColor="#888"
           onChangeText={onchange}
+          value={searched}
         />
         <TouchableOpacity style={{ display: "none" }}>
           <Svg width={24} height={24} viewBox="0 0 28 24" fill="none">

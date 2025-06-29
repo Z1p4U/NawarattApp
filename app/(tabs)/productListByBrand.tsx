@@ -1,124 +1,175 @@
 import HeadLine from "@/components/ui/HeadLine";
 import {
   ActivityIndicator,
+  Dimensions,
+  FlatList,
   Platform,
-  ScrollView,
+  RefreshControl,
   StyleSheet,
   Text,
   View,
 } from "react-native";
-import SearchComponent from "@/components/ui/SearchComponent";
 import ProductCard from "@/components/ui/ProductCard";
 import Svg, { Path } from "react-native-svg";
 import { LinearGradient } from "expo-linear-gradient";
-import useProduct from "@/redux/hooks/product/useProduct";
 import { useSearchParams } from "expo-router/build/hooks";
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
+import useBrandProducts from "@/redux/hooks/product/useBrandProducts";
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export default function ProductListByBrand() {
-  const [search, setSearch] = useState<string | null>(null);
+  const brandId = useSearchParams().get("id") ?? "";
+  const brandName = useSearchParams().get("name") ?? "Anonymous Brand";
 
-  const searchParams = useSearchParams();
-  const brandId = Number(searchParams.get("id")) || 0;
-  const brandName = String(searchParams.get("name")) || "Anonymous Brand";
-
-  const { products, loading, loadMore } = useProduct(search, brandId);
+  const [refreshing, setRefreshing] = useState(false);
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const { brandProducts, loading, loadMore, reset, hasMore } =
+    useBrandProducts(brandId);
 
-  const handleScroll = ({ nativeEvent }: any) => {
-    if ((products?.length ?? 0) < 20) return;
-    const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
-    if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 20) {
-      if (!debounceRef.current) {
-        debounceRef.current = setTimeout(() => {
-          loadMore();
-          debounceRef.current = null;
-        }, 500);
-      }
+  const onEndReached = () => {
+    if (!debounceRef.current) {
+      debounceRef.current = setTimeout(() => {
+        loadMore();
+        debounceRef.current = null;
+      }, 500);
     }
   };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+
+    reset();
+
+    setTimeout(() => setRefreshing(false), 800);
+  }, []);
 
   return (
     <>
       <HeadLine />
-      <ScrollView style={styles.container} onScroll={handleScroll}>
-        <LinearGradient
-          colors={["#53CAFE", "#2555E7"]}
-          start={{ x: 0.0, y: 0.0 }}
-          end={{ x: 1.0, y: 0.0 }}
-          style={styles.banner}
-        >
-          <SearchComponent onchange={setSearch} />
-        </LinearGradient>
-
-        <View style={styles.menu}>
-          <Text style={styles.menuText} allowFontScaling={false}>
-            Showing {brandName} Products{" "}
-          </Text>
-          <View style={{ display: "none" }}>
-            <Text style={styles.menuText} allowFontScaling={false}>
-              Sort
-            </Text>
-            <Svg width={12} height={14} viewBox="0 0 12 14" fill="none">
-              <Path
-                d="M3.333 12.333V5.667m0 6.666l-2-2m2 2l2-2m3.334-8.666v6.666m0-6.666l2 2m-2-2l-2 2"
-                stroke="#000"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </Svg>
-          </View>
-        </View>
-
-        <View style={styles.row}>
-          {products?.map((product) => (
-            <View key={product?.id} style={styles.item}>
-              <ProductCard product={product} />
+      <FlatList
+        data={brandProducts}
+        keyExtractor={(item) => item.id.toString()}
+        numColumns={2}
+        showsVerticalScrollIndicator={false}
+        ListHeaderComponent={() => (
+          <>
+            <LinearGradient
+              colors={["#53CAFE", "#2555E7"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.banner}
+            >
+              <Text
+                style={styles.headText}
+                allowFontScaling={false}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {brandName}
+              </Text>
+            </LinearGradient>
+            <View style={styles.menu}>
+              <Text
+                style={styles.menuText}
+                allowFontScaling={false}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                Showing : {brandName} Products{" "}
+              </Text>
+              <View style={{ display: "none" }}>
+                <Text style={styles.menuText} allowFontScaling={false}>
+                  Sort
+                </Text>
+                <Svg width={12} height={14} viewBox="0 0 12 14" fill="none">
+                  <Path
+                    d="M3.333 12.333V5.667m0 6.666l-2-2m2 2l2-2m3.334-8.666v6.666m0-6.666l2 2m-2-2l-2 2"
+                    stroke="#000"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </Svg>
+              </View>
             </View>
-          ))}
-        </View>
-
-        {loading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator
-              animating={true}
-              size="large"
-              color="#0000ff"
-              style={styles.loadingProcess}
-            />
-          </View>
-        ) : (
-          <></>
+          </>
         )}
-      </ScrollView>
+        renderItem={({ item }) => (
+          <View style={styles.item}>
+            <ProductCard product={item} />
+          </View>
+        )}
+        ListEmptyComponent={() =>
+          loading ? (
+            <View style={styles.bodyCentered}>
+              <ActivityIndicator size="large" color="#0000ff" />
+            </View>
+          ) : (
+            <View style={styles.bodyCentered}>
+              <Text style={styles.messageText} allowFontScaling={false}>
+                Your {brandName} product list is empty.
+              </Text>
+            </View>
+          )
+        }
+        style={styles.flatList}
+        columnWrapperStyle={styles.row}
+        contentContainerStyle={styles.container}
+        onEndReached={onEndReached}
+        onEndReachedThreshold={0.2}
+        ListFooterComponent={
+          hasMore ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#0000ff" />
+            </View>
+          ) : null
+        }
+        // Pull-to-refresh props:
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      />
     </>
   );
 }
 
+const CARD_WIDTH = (SCREEN_WIDTH - 20 * 2 - 10) / 2;
+
 const styles = StyleSheet.create({
-  container: {
+  flatList: {
+    flex: 1,
     backgroundColor: "#fff",
+  },
+  container: {
     paddingBottom: Platform.select({ ios: 50, android: 10 }),
+    paddingHorizontal: 15,
   },
   banner: {
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
-    minHeight: 100,
+    minHeight: 70,
     padding: 15,
-    marginBottom: 20,
-    display: "flex",
-    flexDirection: "column",
     justifyContent: "flex-end",
+    marginBottom: 20,
+    marginHorizontal: -15,
+  },
+  headText: {
+    marginTop: 10,
+    fontSize: 22,
+    fontWeight: "500",
+    color: "#ffffff",
+    textAlign: "center",
+    fontFamily: "Saira-Medium",
   },
   menu: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginHorizontal: 20,
     gap: 10,
+    marginBottom: 20,
   },
   menuText: {
     fontSize: 14,
@@ -127,27 +178,28 @@ const styles = StyleSheet.create({
     fontFamily: "Saira-Medium",
   },
   row: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginHorizontal: 15,
-    justifyContent: "flex-start",
-    marginTop: 20,
-    marginBottom: 30,
-    rowGap: 20,
-    columnGap: 15,
+    justifyContent: "space-between",
+    marginBottom: 20,
   },
   item: {
-    width: "47%",
+    width: CARD_WIDTH,
   },
   loadingContainer: {
+    paddingVertical: 30,
+  },
+  bodyCentered: {
+    flex: 1,
+    minHeight: (3 * SCREEN_HEIGHT) / 5,
     justifyContent: "center",
     alignItems: "center",
-    height: 200,
+    backgroundColor: "#fff",
   },
-  loadingProcess: {
-    marginBottom: Platform.select({
-      ios: 100,
-      android: 0, // Adjust this value if needed for Android
-    }),
+  messageText: {
+    fontSize: 18,
+    color: "#333",
+    fontWeight: "500",
+    textAlign: "center",
+    paddingHorizontal: 20,
+    fontFamily: "Saira-Medium",
   },
 });

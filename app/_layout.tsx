@@ -45,9 +45,6 @@ setBackgroundMessageHandler(messaging, async (remoteMessage) => {
   const data = (remoteMessage.data ?? {}) as Record<string, string>;
   const title = data.title;
   const body = data.description;
-  console.log("BG handler got data:", data);
-  console.log("BG title:", title);
-  console.log("BG body:", body);
 
   await Notifications.scheduleNotificationAsync({
     content: { title, body, data, sound: "default" },
@@ -59,7 +56,6 @@ export default function RootLayout() {
   usePushTokenSync();
 
   SplashScreen.preventAutoHideAsync();
-  const colorScheme = useColorScheme();
 
   useEffect(() => {
     (async () => {
@@ -142,14 +138,16 @@ export default function RootLayout() {
         end={{ x: 1, y: 0 }}
       >
         <ThemeProvider
-          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+          value={DarkTheme}
+          // value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
         >
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" />
           </Stack>
-          <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+          <StatusBar style={"light"} />
+          {/* <StatusBar style={colorScheme === "dark" ? "light" : "dark"} /> */}
         </ThemeProvider>
       </LinearGradient>
     </Provider>

@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
-import { handleFetchAllWishList } from "@/redux/services/wishlist/wishlistSlice";
+import {
+  clearWishlistState,
+  handleFetchAllWishList,
+} from "@/redux/services/wishlist/wishlistSlice";
 
 const useWishlist = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -14,16 +17,21 @@ const useWishlist = () => {
     dispatch(handleFetchAllWishList({ pagination }));
   }, [dispatch, pagination]);
 
-  const loading = status === "loading";
-
-  const loadMoreWishlists = () => {
-    if (!loading) {
+  const loadMore = useCallback(() => {
+    if (status != "loading") {
       setPagination((prev) => ({
         ...prev,
         page: prev.page + 1,
       }));
     }
-  };
+  }, [status, wishlists.length, total]);
+
+  const reset = useCallback(() => {
+    dispatch(clearWishlistState());
+    setPagination({ page: 1, size: 20 });
+  }, []);
+
+  const hasMore = wishlists.length < total;
 
   const isInWishlist = useCallback(
     (productId: number): boolean =>
@@ -35,12 +43,12 @@ const useWishlist = () => {
 
   return {
     wishlists,
-    loading,
-    pagination,
+    loading: status === "loading",
     total,
+    hasMore,
     isInWishlist,
-    setPagination,
-    loadMoreWishlists,
+    loadMore,
+    reset,
   };
 };
 

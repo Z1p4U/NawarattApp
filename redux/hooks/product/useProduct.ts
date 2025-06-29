@@ -1,42 +1,53 @@
 import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { handleFetchAllProductList } from "@/redux/services/product/productSlice";
+import {
+  clearProductState,
+  handleFetchAllProductList,
+} from "@/redux/services/product/productSlice";
 import { RootState, AppDispatch } from "@/redux/store";
-import type { PaginationPayload } from "@/constants/config";
 
-export default function useProduct(
-  name: string | null,
-  brandId: number | null
-) {
+export default function useProduct(name: string | null) {
   const dispatch = useDispatch<AppDispatch>();
-  const { products, status } = useSelector((s: RootState) => s.product);
-  const [pagination, setPagination] = useState({ page: 1, size: 20 });
+  const { products, status, totalProduct } = useSelector(
+    (s: RootState) => s.product
+  );
+  const [pagination, setPagination] = useState({ page: 1, size: 10 });
+
+  // useEffect(() => {
+  //   dispatch(clearProductState());
+  //   setPagination({ page: 1, size: 20 });
+  // }, [dispatch]);
 
   useEffect(() => {
-    console.log(pagination);
     dispatch(
       handleFetchAllProductList({
         name,
-        brand_id: brandId != null && brandId > 0 ? brandId : undefined,
         pagination,
       })
     );
-  }, [dispatch, name, brandId, pagination]);
+  }, [dispatch, name, pagination]);
 
   const loadMore = useCallback(() => {
-    console.log("first");
     if (status != "loading") {
-      console.log("sec");
       setPagination((prev) => ({
         ...prev,
         page: prev.page + 1,
       }));
     }
-  }, [status]);
+  }, [status, products.length, totalProduct]);
+
+  const reset = useCallback(() => {
+    dispatch(clearProductState());
+    setPagination({ page: 1, size: 20 });
+  }, []);
+
+  const hasMore = products.length < totalProduct;
 
   return {
     products,
     loading: status === "loading",
+    hasMore,
     loadMore,
+    reset,
   };
 }

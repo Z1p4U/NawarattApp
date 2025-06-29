@@ -8,7 +8,6 @@ import {
   fetchAllWishlists,
   fetchToggleWishlist,
 } from "@/redux/api/wishlist/wishlistApi";
-import { act } from "react";
 
 /** --------------- State Interfaces --------------- **/
 interface WishlistState {
@@ -64,9 +63,10 @@ const wishlistSlice = createSlice({
   initialState,
   reducers: {
     clearWishlistState(state) {
+      state.wishlists = [];
+      state.total = 0;
       state.status = "idle";
       state.error = null;
-      state.wishlists = [];
     },
   },
   extraReducers: (builder) => {
@@ -76,9 +76,6 @@ const wishlistSlice = createSlice({
         state.status = "loading";
       })
       .addCase(handleFetchAllWishList.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.error = null;
-
         const { pagination } = action.meta.arg as {
           pagination: PaginationPayload;
         };
@@ -89,6 +86,9 @@ const wishlistSlice = createSlice({
             : [...(state.wishlists ?? []), ...(action.payload.data ?? [])];
 
         state.total = action.payload.meta.total;
+
+        state.status = "succeeded";
+        state.error = null;
       })
       .addCase(handleFetchAllWishList.rejected, (state, action) => {
         state.status = "failed";

@@ -14,12 +14,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import HeadLine from "@/components/ui/HeadLine";
 import Svg, { Path } from "react-native-svg";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import useAddress from "@/redux/hooks/address/useAddress";
 import { Address, OrderOption, OrderPayload } from "@/constants/config";
 import useAuth from "@/redux/hooks/auth/useAuth";
 import AddressLoader from "@/components/ui/AddressLoader";
 import useOrderAction from "@/redux/hooks/order/useOrderAction";
+import GoBack from "@/components/ui/GoBack";
 
 interface CartItem {
   productId: string;
@@ -36,12 +37,11 @@ export default function Checkout() {
   const { addresses, loading: addressLoading } = useAddress();
   const { isAuthenticated, loading } = useAuth();
   const { createOrder } = useOrderAction();
+
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [agreed, setAgreed] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState(false);
-
-  // console.log(cart);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -49,17 +49,43 @@ export default function Checkout() {
     }
   }, [loading, isAuthenticated, router]);
 
-  useEffect(() => {
-    AsyncStorage.getItem("cart").then((data) => {
-      setCart(data ? JSON.parse(data) : []);
-    });
+  const getCartItems = async () => {
+    try {
+      const storedData = await AsyncStorage.getItem("cart");
+      if (storedData) {
+        const parsedData: CartItem[] = JSON.parse(storedData);
+        setCart(parsedData);
+      } else {
+        setCart([]);
+      }
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+    }
+  };
 
+  useFocusEffect(
+    useCallback(() => {
+      getCartItems();
+    }, [])
+  );
+
+  useEffect(() => {
     if (addresses) {
       setSelectedAddress(
         (prev) => addresses?.find((a) => a?.is_default) ?? addresses[0] ?? null
       );
     }
   }, []);
+
+  // 2) Whenever `addresses` changes, pick the default (or first) one
+  // useEffect(() => {
+  //   if (addresses?.length) {
+  //     const defaultAddr = addresses.find((a) => a.is_default);
+  //     setSelectedAddress(defaultAddr ?? addresses[0]);
+  //   } else {
+  //     setSelectedAddress(null);
+  //   }
+  // }, [addresses]);
 
   const totalAmount = cart?.reduce((sum, item) => sum + item.total, 0);
 
@@ -118,6 +144,8 @@ export default function Checkout() {
             Checkout
           </Text>
         </LinearGradient>
+
+        <GoBack to={"/cart"} />
 
         <View style={{ paddingHorizontal: 15 }}>
           {/* Selected Address */}
@@ -349,7 +377,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 30,
     minHeight: 70,
     padding: 15,
-    marginBottom: 20,
+    marginBottom: 10,
     flexDirection: "column",
     justifyContent: "flex-end",
   },
@@ -361,7 +389,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontFamily: "Saira-Medium",
   },
+
   deliAddress: {
+    marginTop: 20,
     fontSize: 18,
     fontWeight: "500",
     color: "#000",

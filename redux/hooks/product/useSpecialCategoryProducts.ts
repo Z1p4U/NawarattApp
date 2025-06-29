@@ -1,32 +1,44 @@
 import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { handleFetchAllSpecialCategoryProducts } from "@/redux/services/product/productSlice";
+import {
+  clearCategoryProductState,
+  handleFetchAllSpecialCategoryProducts,
+} from "@/redux/services/product/productSlice";
 import { RootState, AppDispatch } from "@/redux/store";
 
 export default function useSpecialCategoryProducts(id: string) {
   const dispatch = useDispatch<AppDispatch>();
   const { specialCategoriesProducts, status, totalSpecialCategoriesProducts } =
     useSelector((s: RootState) => s.product);
+  const [pagination, setPagination] = useState({ page: 1, size: 20 });
 
-  const [page, setPage] = useState(1);
-  const size = 20;
-
-  // Initial & page changes
+  // ① Whenever the category id changes, clear out the old list and reset page
   useEffect(() => {
-    dispatch(
-      handleFetchAllSpecialCategoryProducts({ id, pagination: { page, size } })
-    );
-  }, [dispatch, id, page]);
+    dispatch(clearCategoryProductState());
+    setPagination({ page: 1, size: 20 });
+  }, [dispatch, id]);
+
+  useEffect(() => {
+    dispatch(handleFetchAllSpecialCategoryProducts({ id, pagination }));
+  }, [dispatch, id, pagination]);
 
   const loadMore = useCallback(() => {
-    if (status !== "loading") {
-      setPage((p) => p + 1);
+    if (status != "loading") {
+      setPagination((prev) => ({
+        ...prev,
+        page: prev.page + 1,
+      }));
     }
-  }, [status]);
+  }, [
+    status,
+    specialCategoriesProducts.length,
+    totalSpecialCategoriesProducts,
+  ]);
 
   const reset = useCallback(() => {
-    setPage(1);
-  }, [dispatch]);
+    dispatch(clearCategoryProductState());
+    setPagination({ page: 1, size: 20 });
+  }, []);
 
   const hasMore =
     specialCategoriesProducts.length < totalSpecialCategoriesProducts;
@@ -37,6 +49,5 @@ export default function useSpecialCategoryProducts(id: string) {
     loadMore,
     reset,
     hasMore,
-    page,
   };
 }

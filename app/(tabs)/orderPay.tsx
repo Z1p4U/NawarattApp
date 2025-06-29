@@ -18,6 +18,7 @@ import { useSearchParams } from "expo-router/build/hooks";
 import useOrderAction from "@/redux/hooks/order/useOrderAction";
 import useOrderDetail from "@/redux/hooks/order/useOrderDetail";
 import HeadLine from "@/components/ui/HeadLine";
+import GoBack from "@/components/ui/GoBack";
 
 interface SlipImage {
   image: string;
@@ -118,6 +119,8 @@ export default function orderPay() {
           </Text>
         </LinearGradient>
 
+        <GoBack to={"/orderHistory"} />
+
         {detailLoading || !orderDetail ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#0000ff" />
@@ -183,14 +186,19 @@ export default function orderPay() {
 }
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: "#fff", flex: 1 },
-  scrollContent: { paddingBottom: Platform.select({ ios: 50, android: 10 }) },
+  container: {
+    backgroundColor: "#fff",
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: Platform.select({ ios: 50, android: 10 }),
+  },
   banner: {
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     minHeight: 70,
     padding: 15,
-    marginBottom: 20,
+    marginBottom: 10,
     justifyContent: "flex-end",
   },
   headText: {
@@ -206,6 +214,7 @@ const styles = StyleSheet.create({
     paddingTop: 50,
   },
   form: {
+    marginTop: 20,
     paddingHorizontal: 20,
     gap: 15,
   },

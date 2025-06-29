@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
 import { handleFetchAllCountries } from "@/redux/services/location/locationSlice";
+import { CountryResponse } from "@/constants/config";
 
 const useCountries = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { countries } = useSelector((state: RootState) => state.location);
-  const [pagination, setPagination] = useState({ page: 1, size: 9 });
+  const [pagination, setPagination] = useState({ page: 1, size: 100 });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {

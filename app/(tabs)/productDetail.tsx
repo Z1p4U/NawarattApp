@@ -35,7 +35,11 @@ export default function ProductDetail() {
   const productId = Number(searchParams.get("id")) || 0;
   const router = useRouter();
 
-  const { productDetail, loading: detailLoading } = useProductDetail(productId);
+  const {
+    productDetail,
+    relatedProducts,
+    loading: detailLoading,
+  } = useProductDetail(productId);
   const { toggleWishlist } = useWishlistProcess();
   const { isInWishlist } = useWishlist();
   const { isAuthenticated } = useAuth();
@@ -291,6 +295,38 @@ export default function ProductDetail() {
               </View>
             )}
 
+          {(relatedProducts ?? []).length > 0 && (
+            <View style={styles.comboContainer}>
+              <Text style={styles.comboTitle} allowFontScaling={false}>
+                Related Products
+              </Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {relatedProducts?.map((product) =>
+                  product ? (
+                    <View key={product.id} style={styles.comboItemRow}>
+                      <ImageBackground
+                        source={require("@/assets/images/placeholder.png")}
+                        style={styles.comboItemImage}
+                        imageStyle={styles.imageStyle}
+                      >
+                        <Image
+                          source={{ uri: product?.thumbnail }}
+                          style={[styles.comboItemImage, styles.imageStyle]}
+                        />
+                      </ImageBackground>
+                      <Text
+                        style={styles.comboItemText}
+                        allowFontScaling={false}
+                      >
+                        {product?.name}
+                      </Text>
+                    </View>
+                  ) : null
+                )}
+              </ScrollView>
+            </View>
+          )}
+
           <ExpandableDescription description={productDetail?.description} />
 
           <View style={styles.rowBetween}>
@@ -393,8 +429,16 @@ const styles = StyleSheet.create({
     fontFamily: "Saira-Regular",
     marginLeft: 15,
   },
-  shopImg: { width: 50, height: 50, borderRadius: 10 },
-  totalText: { fontSize: 16, color: "#00000080", fontFamily: "Saira-Medium" },
+  shopImg: {
+    width: 50,
+    height: 50,
+    borderRadius: 10,
+  },
+  totalText: {
+    fontSize: 16,
+    color: "#00000080",
+    fontFamily: "Saira-Medium",
+  },
   favButton: {
     width: 35,
     height: 35,
@@ -420,13 +464,15 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     fontFamily: "Saira-Medium",
   },
-  comboContainer: { gap: 15 },
+  comboContainer: {
+    gap: 15,
+  },
   comboTitle: {
     fontSize: 16,
     fontWeight: "500",
     fontFamily: "Saira-Bold",
     color: "#3173ED",
-    marginVertical: 10,
+    marginTop: 10,
   },
   comboItemRow: {
     flexDirection: "row",

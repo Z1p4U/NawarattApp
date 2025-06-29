@@ -6,34 +6,25 @@ import {
   Platform,
   RefreshControl,
   StyleSheet,
+  Text,
   View,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useFocusEffect } from "expo-router";
 import HeadLine from "@/components/ui/HeadLine";
 import SearchComponent from "@/components/ui/SearchComponent";
 import ProductCard from "@/components/ui/ProductCard";
 import useProduct from "@/redux/hooks/product/useProduct";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export default function Catalog() {
   const [search, setSearch] = useState<string | null>(null);
-  const [brandFilter, setBrandFilter] = useState<number | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
-  const { products, loading, loadMore } = useProduct(search, brandFilter);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      setSearch(null);
-      setBrandFilter(null);
-    }, [])
-  );
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const { products, loading, loadMore, reset, hasMore } = useProduct(search);
 
   const onEndReached = () => {
-    if ((products?.length ?? 0) < 20) return;
     if (!debounceRef.current) {
       debounceRef.current = setTimeout(() => {
         loadMore();
@@ -44,32 +35,30 @@ export default function Catalog() {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    // bump key so FlatList fully remounts and useProduct re-fetches first page
-    setRefreshKey((k) => k + 1);
-    // give it a moment for the remount+fetch to start
+
+    setSearch("");
+    reset();
+
     setTimeout(() => setRefreshing(false), 800);
   }, []);
 
   return (
     <>
+      <HeadLine />
       <FlatList
-        key={refreshKey} // <-- force remount on refresh
         data={products}
         keyExtractor={(item) => item.id.toString()}
         showsVerticalScrollIndicator={false}
         numColumns={2}
         ListHeaderComponent={
           <>
-            <View style={{ marginHorizontal: -15 }}>
-              <HeadLine />
-            </View>
             <LinearGradient
               colors={["#53CAFE", "#2555E7"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.banner}
             >
-              <SearchComponent onchange={setSearch} />
+              <SearchComponent searched={search} onchange={setSearch} />
             </LinearGradient>
           </>
         }
@@ -78,13 +67,26 @@ export default function Catalog() {
             <ProductCard product={item} />
           </View>
         )}
+        ListEmptyComponent={() =>
+          loading ? (
+            <View style={styles.bodyCentered}>
+              <ActivityIndicator size="large" color="#0000ff" />
+            </View>
+          ) : (
+            <View style={styles.bodyCentered}>
+              <Text style={styles.messageText} allowFontScaling={false}>
+                Your product list is empty.
+              </Text>
+            </View>
+          )
+        }
         style={styles.flatList}
         columnWrapperStyle={styles.row}
-        contentContainerStyle={styles.container} // overall padding
+        contentContainerStyle={styles.container}
         onEndReached={onEndReached}
         onEndReachedThreshold={0.2}
         ListFooterComponent={
-          loading ? (
+          hasMore ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color="#0000ff" />
             </View>
@@ -115,8 +117,8 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 30,
     minHeight: 100,
     padding: 15,
-    marginBottom: 20,
     justifyContent: "flex-end",
+    marginBottom: 20,
     marginHorizontal: -15,
   },
   row: {
@@ -128,5 +130,20 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     paddingVertical: 30,
+  },
+  bodyCentered: {
+    flex: 1,
+    minHeight: (3 * SCREEN_HEIGHT) / 5,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
+  messageText: {
+    fontSize: 18,
+    color: "#333",
+    fontWeight: "500",
+    textAlign: "center",
+    paddingHorizontal: 20,
+    fontFamily: "Saira-Medium",
   },
 });

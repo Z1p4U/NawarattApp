@@ -17,12 +17,14 @@ import useStates from "@/redux/hooks/location/useStates";
 import useCities from "@/redux/hooks/location/useCities";
 import useAddressAction from "@/redux/hooks/address/useAddressAction";
 import { Picker } from "@react-native-picker/picker";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
+import GoBack from "@/components/ui/GoBack";
 
 export default function AddressCreate() {
   const router = useRouter();
+
   const { createAddress, status } = useAddressAction();
-  const { countries } = useCountries();
+  const { countries, loading: countryLoading } = useCountries();
 
   const [formData, setFormData] = useState<AddressPayload>({
     country_id: null,
@@ -34,8 +36,10 @@ export default function AddressCreate() {
     additional_info: "",
   });
 
-  const { states } = useStates({ countryId: formData?.country_id });
-  const { cities } = useCities({
+  const { states, loading: stateLoading } = useStates({
+    countryId: formData?.country_id,
+  });
+  const { cities, loading: cityLoading } = useCities({
     countryId: formData?.country_id,
     stateId: formData?.state_id,
   });
@@ -44,6 +48,13 @@ export default function AddressCreate() {
     <K extends keyof AddressPayload>(key: K, value: AddressPayload[K]) => {
       setFormData((f) => ({ ...f, [key]: value }));
     },
+    []
+  );
+
+  const getSetter = useCallback(
+    <K extends keyof AddressPayload>(key: K) =>
+      (value: AddressPayload[K]) =>
+        setFormData((f) => ({ ...f, [key]: value })),
     []
   );
 
@@ -56,6 +67,18 @@ export default function AddressCreate() {
       Alert.alert("Error", "Failed to create address. Please try again.");
     }
   }, [createAddress, formData]);
+
+  useEffect(() => {
+    setFormData((f) => ({ ...f, state_id: null, city_id: null }));
+  }, [formData.country_id]);
+
+  const isFormValid = Boolean(
+    formData.country_id &&
+      formData.state_id &&
+      formData.city_id &&
+      formData.address.trim() &&
+      formData.phone_no.trim()
+  );
 
   return (
     <>
@@ -75,6 +98,8 @@ export default function AddressCreate() {
           </Text>
         </LinearGradient>
 
+        <GoBack to={"/addressBook"} />
+
         <View style={styles.inputContainer}>
           {/* Country */}
           <Text style={styles.label} allowFontScaling={false}>
@@ -83,7 +108,8 @@ export default function AddressCreate() {
           <View style={styles.pickerWrapper}>
             <Picker
               selectedValue={formData.country_id}
-              onValueChange={(v) => handleChange("country_id", v)}
+              // onValueChange={(v) => handleChange("country_id", v)}
+              onValueChange={getSetter("country_id")}
             >
               <Picker.Item label="Select country…" value={null} />
               {countries?.map((c, index) => (
@@ -100,7 +126,8 @@ export default function AddressCreate() {
             <Picker
               enabled={formData.country_id !== null}
               selectedValue={formData.state_id}
-              onValueChange={(v) => handleChange("state_id", v)}
+              // onValueChange={(v) => handleChange("state_id", v)}
+              onValueChange={getSetter("state_id")}
             >
               <Picker.Item label="Select state…" value={null} />
               {states?.map((s, index) => (
@@ -117,7 +144,8 @@ export default function AddressCreate() {
             <Picker
               enabled={formData.state_id !== null}
               selectedValue={formData.city_id}
-              onValueChange={(v) => handleChange("city_id", v)}
+              // onValueChange={(v) => handleChange("city_id", v)}
+              onValueChange={getSetter("city_id")}
             >
               <Picker.Item label="Select city…" value={null} />
               {cities?.map((c, index) => (
@@ -163,7 +191,7 @@ export default function AddressCreate() {
           {/* Submit */}
           <TouchableOpacity
             onPress={handleSubmit}
-            disabled={status === "loading"}
+            disabled={!isFormValid || status === "loading"}
           >
             <LinearGradient
               colors={["#54CAFF", "#275AE8"]}
@@ -181,14 +209,19 @@ export default function AddressCreate() {
 }
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: "#fff", flex: 1 },
-  scrollContent: { paddingBottom: Platform.select({ ios: 50, android: 10 }) },
+  container: {
+    backgroundColor: "#fff",
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: Platform.select({ ios: 50, android: 10 }),
+  },
   banner: {
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     minHeight: 70,
     padding: 15,
-    marginBottom: 20,
+    marginBottom: 10,
     justifyContent: "flex-end",
   },
   headText: {
@@ -198,8 +231,17 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-  inputContainer: { paddingHorizontal: 15, gap: 15, marginBottom: 30 },
-  label: { fontSize: 14, fontWeight: "500", color: "#333" },
+  inputContainer: {
+    paddingHorizontal: 15,
+    gap: 15,
+    marginTop: 20,
+    marginBottom: 30,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#333",
+  },
   pickerWrapper: {
     borderRadius: 10,
     backgroundColor: "#F2F3F4",
@@ -224,5 +266,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 15,
   },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "500" },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "500",
+  },
 });

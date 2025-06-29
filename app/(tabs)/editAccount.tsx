@@ -15,6 +15,7 @@ import useUser from "@/redux/hooks/user/useUser";
 import { PinPayload, ProfilePayload } from "@/constants/config";
 import useAuth from "@/redux/hooks/auth/useAuth";
 import { router } from "expo-router";
+import GoBack from "@/components/ui/GoBack";
 
 export default function EditAccount() {
   const { profileDetail, updateProfile } = useUser();
@@ -111,6 +112,8 @@ export default function EditAccount() {
             Edit Account
           </Text>
         </LinearGradient>
+
+        <GoBack to={"/account"} />
 
         <View style={styles.inputContainer}>
           <TextInput
@@ -280,7 +283,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 30,
     minHeight: 70,
     padding: 15,
-    marginBottom: 20,
+    marginBottom: 10,
     flexDirection: "column",
     justifyContent: "flex-end",
   },
@@ -296,6 +299,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     gap: 15,
     marginHorizontal: 15,
+    marginTop: 20,
     marginBottom: 30,
   },
   input: {

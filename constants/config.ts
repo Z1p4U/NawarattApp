@@ -422,3 +422,22 @@ export interface OrderPayPayload {
 }
 
 // Order
+
+// Cart (local not form API)
+export interface ProductData {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  category: string;
+  images: string[];
+  thumbnail: string;
+}
+
+export interface CartItem {
+  productId: string;
+  pdData: ProductData;
+  count: number;
+  total: number;
+}
+// Cart
