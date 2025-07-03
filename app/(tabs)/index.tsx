@@ -10,9 +10,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient"; // For Expo projects
 import Svg, { ClipPath, Defs, G, Path, Rect } from "react-native-svg";
-import ImageCarousel, {
-  ImageCarouselItem,
-} from "@/components/Home/ImageCarousel";
+import ImageCarousel from "@/components/Home/ImageCarousel";
 import ProductSlider from "@/components/ui/ProductSlider";
 import BrandList from "@/components/Home/BrandList";
 import HeadLine from "@/components/ui/HeadLine";
@@ -27,24 +25,30 @@ export default function HomeScreen() {
   const { isAuthenticated } = useAuth();
   const { specialCategories, loading } = useSpecialCategory();
 
-  const carouselData: ImageCarouselItem[] = [
-    {
-      id: "1",
-      image: require("@/assets/images/banner1.png"),
-      bgContain: true,
-    },
-    {
-      id: "2",
-      image: require("@/assets/images/banner2.png"),
-      bgContain: false,
-    },
-    {
-      id: "3",
-      image:
-        "https://st4.depositphotos.com/41530418/41785/i/450/depositphotos_417851512-stock-photo-medical-banner-group-medicine-pills.jpg",
-      bgContain: true,
-    },
-  ];
+  // interface ImageCarouselItem {
+  //   id: string;
+  //   image: string;
+  //   bgContain: boolean;
+  // }
+
+  // const carouselData: ImageCarouselItem[] = [
+  //   {
+  //     id: "1",
+  //     image: require("@/assets/images/banner1.png"),
+  //     bgContain: true,
+  //   },
+  //   {
+  //     id: "2",
+  //     image: require("@/assets/images/banner2.png"),
+  //     bgContain: false,
+  //   },
+  //   {
+  //     id: "3",
+  //     image:
+  //       "https://st4.depositphotos.com/41530418/41785/i/450/depositphotos_417851512-stock-photo-medical-banner-group-medicine-pills.jpg",
+  //     bgContain: true,
+  //   },
+  // ];
 
   return (
     <>
@@ -98,7 +102,7 @@ export default function HomeScreen() {
         {/* Head Section End */}
 
         {/* Use the ImageCarousel component */}
-        <ImageCarousel data={carouselData} />
+        <ImageCarousel />
         {/* Use the ImageCarousel component */}
 
         {/* Discover Section Start */}

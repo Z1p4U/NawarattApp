@@ -16,7 +16,7 @@ interface ProductState {
   brandProducts: SpecialCategoryProductResponse["data"];
   specialCategoriesProducts: SpecialCategoryProductResponse["data"];
   productDetail: ProductDetailResponse["data"] | null;
-  relatedProduct: ProductDetailResponse["related_products"] | null;
+  relatedProduct: ProductDetailResponse["related_product"] | null;
   totalProduct: number;
   totalBrandProducts: number;
   totalSpecialCategoriesProducts: number;
@@ -215,7 +215,7 @@ const productSlice = createSlice({
       })
       .addCase(handleFetchProductDetail.fulfilled, (state, { payload }) => {
         state.productDetail = payload.data;
-        state.relatedProduct = payload.related_products;
+        state.relatedProduct = payload.related_product;
         state.status = "succeeded";
         state.error = null;
       })

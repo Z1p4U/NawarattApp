@@ -26,9 +26,7 @@ const DiscoverCarousel = () => {
             end={{ x: 1, y: 0 }}
             style={styles.tag}
           >
-            <Text style={styles.tagText} allowFontScaling={false}>
-              {category?.name}
-            </Text>
+            <Text style={styles.tagText}>{category?.name}</Text>
           </LinearGradient>
         </Link>
       ))}

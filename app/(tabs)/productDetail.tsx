@@ -268,7 +268,7 @@ export default function ProductDetail() {
                 <Text style={styles.comboTitle} allowFontScaling={false}>
                   Combo Items
                 </Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <View style={styles.comboRelatedContainer}>
                   {productDetail?.combo_items?.map((ci) =>
                     ci.product ? (
                       <View key={ci.id} style={styles.comboItemRow}>
@@ -291,7 +291,7 @@ export default function ProductDetail() {
                       </View>
                     ) : null
                   )}
-                </ScrollView>
+                </View>
               </View>
             )}
 
@@ -300,7 +300,7 @@ export default function ProductDetail() {
               <Text style={styles.comboTitle} allowFontScaling={false}>
                 Related Products
               </Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <View style={styles.comboRelatedContainer}>
                 {relatedProducts?.map((product) =>
                   product ? (
                     <View key={product.id} style={styles.comboItemRow}>
@@ -323,7 +323,7 @@ export default function ProductDetail() {
                     </View>
                   ) : null
                 )}
-              </ScrollView>
+              </View>
             </View>
           )}
 
@@ -473,6 +473,11 @@ const styles = StyleSheet.create({
     fontFamily: "Saira-Bold",
     color: "#3173ED",
     marginTop: 10,
+  },
+  comboRelatedContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 5,
   },
   comboItemRow: {
     flexDirection: "row",

@@ -1,30 +1,58 @@
+import { Campaign } from "@/constants/config";
+import useCampaign from "@/redux/hooks/campaign/useCampaign";
+import { Link } from "expo-router";
 import React from "react";
-import { View, Image, StyleSheet, Dimensions } from "react-native";
+import {
+  View,
+  Image,
+  StyleSheet,
+  Dimensions,
+  ImageBackground,
+  ImageErrorEventData,
+  NativeSyntheticEvent,
+} from "react-native";
 import Carousel from "react-native-reanimated-carousel";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-export interface ImageCarouselItem {
-  id: string;
-  image: string;
-  bgContain: boolean;
-}
+type Placeholder = number;
+const placeholderImage: Placeholder = require("../../assets/images/banner-placeholder.png");
 
-interface ImageCarouselProps {
-  data: ImageCarouselItem[];
-}
+const ImageCarousel: React.FC = () => {
+  const { campaigns } = useCampaign();
 
-const ImageCarousel: React.FC<ImageCarouselProps> = ({ data }) => {
-  const renderItem = ({ item }: { item: ImageCarouselItem }) => {
+  const renderItem = ({ item }: { item: Campaign }) => {
+    const thumbnailSource =
+      typeof item.image === "string" ? { uri: item.image } : placeholderImage;
+
+    const handleImgError = (e: NativeSyntheticEvent<ImageErrorEventData>) => {
+      // console.warn(
+      //   `Failed to load image for product ${item.id}:`,
+      //   e.nativeEvent.error
+      // );
+    };
+
     return (
-      <Image
-        source={
-          typeof item?.image === "string" ? { uri: item?.image } : item.image
-        }
-        style={styles.carouselImage}
-      />
+      <Link href={`/productDetail?id=${item.id}`} style={styles.link}>
+        <ImageBackground
+          source={placeholderImage}
+          style={styles.imageBg}
+          imageStyle={styles.imageStyle}
+        >
+          <Image
+            source={thumbnailSource}
+            style={[styles.imageOverlay, styles.imageStyle]}
+            onError={handleImgError}
+          />
+        </ImageBackground>
+      </Link>
     );
   };
+
+  // <Image
+  //   source={typeof item?.image === "string" ? { uri: item?.image } : item.image}
+  //   style={styles.carouselImage}
+  // />;
 
   return (
     <View style={styles.carouselContainer}>
@@ -32,7 +60,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ data }) => {
         loop
         width={SCREEN_WIDTH}
         height={SCREEN_HEIGHT * 0.25}
-        data={data}
+        data={campaigns}
         renderItem={renderItem}
         autoPlay={true}
         autoPlayInterval={5000}
@@ -55,9 +83,24 @@ const styles = StyleSheet.create({
     boxShadow: "0px 4px 4px 0px #00000026",
     zIndex: 10000,
   },
-  carouselImage: {
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
+  link: {
+    width: SCREEN_WIDTH * 0.9,
+    height: SCREEN_HEIGHT * 0.25,
+  },
+  imageBg: {
+    width: SCREEN_WIDTH * 0.9,
+    height: SCREEN_HEIGHT * 0.25,
+  },
+  imageOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: SCREEN_WIDTH * 0.9,
+    height: SCREEN_HEIGHT * 0.25,
+  },
+  imageStyle: {
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#0000001A",
   },
 });

@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "@/redux/services/auth/authSlice";
 import productReducer from "@/redux/services/product/productSlice";
+import campaignReducer from "@/redux/services/campaign/campaignSlice";
 import brandReducer from "@/redux/services/brand/brandSlice";
 import categoryReducer from "@/redux/services/category/categorySlice";
 import userReducer from "@/redux/services/user/userSlice";
@@ -13,6 +14,7 @@ const store = configureStore({
   reducer: {
     auth: authReducer,
     product: productReducer,
+    campaign: campaignReducer,
     brand: brandReducer,
     category: categoryReducer,
     user: userReducer,

@@ -178,6 +178,29 @@ export interface ProfileUpdateResponse {
 
 // User Profile
 
+// Campaign
+export interface Campaign {
+  id: number;
+  title: string;
+  body: string;
+  type: string;
+  image: string;
+  start_date: string;
+  end_date: string;
+  status: "active" | "inactive" | string;
+  is_notified: number;
+  deleted_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+export interface AllCampaignResponse {
+  data: Campaign[];
+  links: Record<string, unknown>;
+  meta: Record<string, number>;
+}
+
+// Campaign
+
 // Brand
 export interface Brand {
   id: number;
@@ -189,7 +212,7 @@ export interface Brand {
 export interface AllBrandResponse {
   data: Brand[];
   links: Record<string, unknown>;
-  meta: Record<string, unknown>;
+  meta: Record<string, number>;
 }
 // Brand
 
@@ -302,7 +325,7 @@ export interface SpecialCategoryProductResponse {
 
 export interface ProductDetailResponse {
   data: Product;
-  related_products: Product[];
+  related_product: Product[];
 }
 
 // Product
