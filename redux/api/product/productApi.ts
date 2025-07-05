@@ -45,6 +45,24 @@ const fetchAllSpecialCategoryProducts = async (
   }
 };
 
+const fetchAllCampaignProducts = async (
+  id: string,
+  pagination: PaginationPayload
+): Promise<AllProductResponse> => {
+  try {
+    const params = { ...(pagination || {}) };
+
+    const response = await axiosInstance.get<AllProductResponse>(
+      `${environment.API_URL}/discountables/${id}/products`,
+      { params }
+    );
+    return response?.data;
+  } catch (error) {
+    console.error("Failed to fetch campaign products:", error);
+    throw error;
+  }
+};
+
 const fetchProductDetail = async (
   id: number
 ): Promise<ProductDetailResponse> => {
@@ -62,5 +80,6 @@ const fetchProductDetail = async (
 export {
   fetchAllProducts,
   fetchAllSpecialCategoryProducts,
+  fetchAllCampaignProducts,
   fetchProductDetail,
 };

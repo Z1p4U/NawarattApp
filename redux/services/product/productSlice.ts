@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
+  fetchAllCampaignProducts,
   fetchAllProducts,
   fetchAllSpecialCategoryProducts,
   fetchProductDetail,
@@ -13,13 +14,15 @@ import {
 
 interface ProductState {
   products: AllProductResponse["data"];
-  brandProducts: SpecialCategoryProductResponse["data"];
+  brandProducts: AllProductResponse["data"];
   specialCategoriesProducts: SpecialCategoryProductResponse["data"];
+  campaignProducts: AllProductResponse["data"];
   productDetail: ProductDetailResponse["data"] | null;
   relatedProduct: ProductDetailResponse["related_product"] | null;
   totalProduct: number;
   totalBrandProducts: number;
   totalSpecialCategoriesProducts: number;
+  totalCampaignProducts: number;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
@@ -28,9 +31,11 @@ const initialState: ProductState = {
   products: [],
   brandProducts: [],
   specialCategoriesProducts: [],
+  campaignProducts: [],
   totalProduct: 0,
   totalBrandProducts: 0,
   totalSpecialCategoriesProducts: 0,
+  totalCampaignProducts: 0,
   productDetail: null,
   relatedProduct: null,
   status: "idle",
@@ -81,6 +86,21 @@ export const handleFetchAllSpecialCategoryProducts = createAsyncThunk<
   }
 );
 
+export const handleFetchAllCampaignProducts = createAsyncThunk<
+  AllProductResponse,
+  { id: string; pagination: PaginationPayload },
+  { rejectValue: string }
+>(
+  "products/fetchCampaignProducts",
+  async ({ id, pagination }, { rejectWithValue }) => {
+    try {
+      return await fetchAllCampaignProducts(id, pagination);
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
+
 /** Thunk: fetch one product’s detail **/
 export const handleFetchProductDetail = createAsyncThunk<
   ProductDetailResponse,
@@ -113,6 +133,12 @@ const productSlice = createSlice({
     clearBrandProductState(state) {
       state.brandProducts = [];
       state.totalBrandProducts = 0;
+      state.status = "idle";
+      state.error = null;
+    },
+    clearCampaignProductState(state) {
+      state.campaignProducts = [];
+      state.totalCampaignProducts = 0;
       state.status = "idle";
       state.error = null;
     },
@@ -208,6 +234,37 @@ const productSlice = createSlice({
         }
       );
 
+    // — Campaign Product List —
+    builder
+      .addCase(handleFetchAllCampaignProducts.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(handleFetchAllCampaignProducts.fulfilled, (state, action) => {
+        const { pagination } = action.meta.arg as {
+          pagination: PaginationPayload;
+        };
+
+        state.campaignProducts =
+          pagination.page === 1
+            ? action.payload.data || []
+            : [
+                ...(state.campaignProducts ?? []),
+                ...(action.payload.data ?? []),
+              ];
+
+        state.totalCampaignProducts = action.payload.meta.total;
+
+        state.status = "succeeded";
+        state.error = null;
+      })
+      .addCase(
+        handleFetchAllCampaignProducts.rejected,
+        (state, { payload }) => {
+          state.status = "failed";
+          state.error = payload ?? "Failed to fetch campaign products";
+        }
+      );
+
     // — Product detail —
     builder
       .addCase(handleFetchProductDetail.pending, (state) => {
@@ -231,5 +288,6 @@ export const {
   clearBrandProductState,
   clearCategoryProductState,
   clearProductDetailState,
+  clearCampaignProductState,
 } = productSlice.actions;
 export default productSlice.reducer;

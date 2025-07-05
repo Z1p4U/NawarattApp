@@ -174,6 +174,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="productListByCampaign"
+        options={{
+          href: null, // This hides the tab from the tab bar
+        }}
+      />
+      <Tabs.Screen
         name="productListByBrand"
         options={{
           href: null, // This hides the tab from the tab bar

@@ -33,7 +33,10 @@ const ImageCarousel: React.FC = () => {
     };
 
     return (
-      <Link href={`/productDetail?id=${item.id}`} style={styles.link}>
+      <Link
+        href={`/productListByCampaign?id=${item.id}&name=${item?.title}`}
+        style={styles.link}
+      >
         <ImageBackground
           source={placeholderImage}
           style={styles.imageBg}

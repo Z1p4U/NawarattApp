@@ -165,6 +165,8 @@ export default function ProductDetail() {
     </ImageBackground>
   );
 
+  const hasDiscount = productDetail?.discount_price != null;
+
   if (detailLoading) {
     return (
       <>
@@ -210,9 +212,31 @@ export default function ProductDetail() {
             )}
           </View>
 
-          <Text style={styles.productPriceText} allowFontScaling={false}>
-            {productDetail?.price?.toLocaleString() ?? "N/A"} Ks
-          </Text>
+          <View style={styles.priceContainer}>
+            {hasDiscount && (
+              <Text
+                style={[styles.productPriceText, styles.originalPrice]}
+                allowFontScaling={false}
+              >
+                {Number(productDetail.price).toLocaleString()} Ks
+              </Text>
+            )}
+
+            <Text
+              style={[
+                styles.productPriceText,
+                hasDiscount && styles.discountPrice,
+              ]}
+              allowFontScaling={false}
+            >
+              {Number(
+                hasDiscount
+                  ? productDetail?.discount_price!
+                  : productDetail?.price
+              ).toLocaleString()}{" "}
+              Ks
+            </Text>
+          </View>
 
           <View style={styles.row}>
             {productDetail?.category && (
@@ -411,8 +435,29 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 30,
     gap: 10,
   },
-  productNameText: { fontSize: 16, color: "#000", fontFamily: "Saira-Regular" },
-  productPriceText: { fontSize: 24, color: "#000", fontFamily: "Saira-Medium" },
+  productNameText: {
+    fontSize: 16,
+    color: "#000",
+    fontFamily: "Saira-Regular",
+  },
+  priceContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  productPriceText: {
+    fontSize: 24,
+    fontFamily: "Saira-Medium",
+  },
+  originalPrice: {
+    textDecorationLine: "line-through",
+    color: "#888888",
+    fontSize: 14,
+    marginRight: 6,
+  },
+  discountPrice: {
+    color: "#D32F2F",
+    fontSize: 24,
+  },
   productCategoryText: {
     fontSize: 14,
     color: "#000",
