@@ -70,7 +70,7 @@ export default function ProductListByCategory() {
           </LinearGradient>
         )}
         renderItem={({ item }) => (
-          <View style={styles.item}>
+          <View key={item.id} style={styles.item}>
             <ProductCard product={item} />
           </View>
         )}
@@ -89,7 +89,7 @@ export default function ProductListByCategory() {
         }
         style={styles.flatList}
         columnWrapperStyle={styles.row}
-        contentContainerStyle={styles.container}
+        contentContainerStyle={{ flexGrow: 1, ...styles.container }}
         onEndReached={onEndReached}
         onEndReachedThreshold={0.2}
         ListFooterComponent={
@@ -108,7 +108,7 @@ export default function ProductListByCategory() {
   );
 }
 
-const CARD_WIDTH = (SCREEN_WIDTH - 20 * 2 - 10) / 2;
+const CARD_WIDTH = (SCREEN_WIDTH - 15 * 2 - 10) / 2;
 
 const styles = StyleSheet.create({
   flatList: {
@@ -148,10 +148,10 @@ const styles = StyleSheet.create({
   },
   bodyCentered: {
     flex: 1,
-    minHeight: (3 * SCREEN_HEIGHT) / 5,
+    // minHeight: (3 * SCREEN_HEIGHT) / 5,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
+    // backgroundColor: "#fff",
   },
   messageText: {
     fontSize: 18,

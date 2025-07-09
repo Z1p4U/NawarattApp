@@ -5,10 +5,11 @@ import useUser from "@/redux/hooks/user/useUser";
 import RouteGuard from "@/utils/RouteGuard";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Modal,
   Platform,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -19,11 +20,11 @@ import {
 import Svg, { Path } from "react-native-svg";
 
 export default function Account() {
-  const { profileDetail } = useUser();
+  const { profileDetail, handleLoadOrderProfile } = useUser();
   const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
-
   const [modalVisible, setModalVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -31,12 +32,28 @@ export default function Account() {
     }
   }, [loading, isAuthenticated, router]);
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await handleLoadOrderProfile();
+    } catch (e) {
+      console.error("Failed to fetch:", e);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [handleLoadOrderProfile]);
+
   return (
     <>
       <RouteGuard>
         <HeadLine />
         <SafeAreaView style={{ flex: 1 }}>
-          <ScrollView style={styles.container}>
+          <ScrollView
+            style={styles.container}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+          >
             {/* Head Section Start */}
             <HeadSection data={profileDetail} />
             {/* Head Section End */}
@@ -50,7 +67,7 @@ export default function Account() {
               <View style={styles.iconList}>
                 <TouchableOpacity
                   style={styles.iconBlock}
-                  onPress={() => router.push("/orderHistory")}
+                  onPress={() => router.push("/orderHistory?status=submitted")}
                 >
                   <View style={styles.icon}>
                     <Svg width={22} height={27} viewBox="0 0 25 27" fill="none">
@@ -75,7 +92,7 @@ export default function Account() {
 
                 <TouchableOpacity
                   style={styles.iconBlock}
-                  onPress={() => router.push("/orderHistory")}
+                  onPress={() => router.push("/orderHistory?status=confirmed")}
                 >
                   <View style={styles.icon}>
                     <Svg width={22} height={30} viewBox="0 0 27 30" fill="none">
@@ -100,7 +117,7 @@ export default function Account() {
 
                 <TouchableOpacity
                   style={styles.iconBlock}
-                  onPress={() => router.push("/orderHistory")}
+                  onPress={() => router.push("/orderHistory?status=delivered")}
                 >
                   <View style={styles.icon}>
                     <Svg width={22} height={25} viewBox="0 0 26 25" fill="none">
@@ -125,7 +142,7 @@ export default function Account() {
 
                 <TouchableOpacity
                   style={styles.iconBlock}
-                  onPress={() => router.push("/orderHistory")}
+                  onPress={() => router.push("/orderHistory?status=canceled")}
                 >
                   <View style={styles.icon}>
                     <Svg width={20} height={27} viewBox="0 0 24 27" fill="none">

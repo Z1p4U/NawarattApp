@@ -15,14 +15,16 @@ import {
 } from "@/constants/config";
 
 interface OrderState {
-  orders: AllOrderResponse["data"] | null;
+  orders: AllOrderResponse["data"] | [];
+  totalOrders: number;
   orderDetail: OrderDetailResponse["data"] | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
 
 const initialState: OrderState = {
-  orders: null,
+  orders: [],
+  totalOrders: 0,
   orderDetail: null,
   status: "idle",
   error: null,
@@ -31,11 +33,11 @@ const initialState: OrderState = {
 // Thunks
 export const loadOrders = createAsyncThunk<
   AllOrderResponse,
-  { pagination: PaginationPayload },
+  { pagination: PaginationPayload; orderStatus?: string },
   { rejectValue: string }
->("order/loadAll", async ({ pagination }, { rejectWithValue }) => {
+>("order/loadAll", async ({ pagination, orderStatus }, { rejectWithValue }) => {
   try {
-    return await fetchAllOrder(pagination);
+    return await fetchAllOrder(pagination, orderStatus);
   } catch (err: any) {
     return rejectWithValue(err.message);
   }
@@ -81,6 +83,12 @@ const orderSlice = createSlice({
   name: "order",
   initialState,
   reducers: {
+    clearOrderState(state) {
+      state.orders = [];
+      state.totalOrders = 0;
+      state.status = "idle";
+      state.error = null;
+    },
     clearOrderDetail(state) {
       state.orderDetail = null;
       state.status = "idle";
@@ -94,13 +102,21 @@ const orderSlice = createSlice({
         state.status = "loading";
         state.error = null;
       })
-      .addCase(
-        loadOrders.fulfilled,
-        (state, action: PayloadAction<AllOrderResponse>) => {
-          state.status = "succeeded";
-          state.orders = action.payload.data;
-        }
-      )
+      .addCase(loadOrders.fulfilled, (state, action) => {
+        const { pagination } = action.meta.arg as {
+          pagination: PaginationPayload;
+        };
+
+        state.orders =
+          pagination.page === 1
+            ? action.payload.data || []
+            : [...(state.orders ?? []), ...(action.payload.data ?? [])];
+
+        state.totalOrders = action.payload.meta.total;
+
+        state.status = "succeeded";
+        state.error = null;
+      })
       .addCase(loadOrders.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload ?? action.error.message ?? null;
@@ -166,5 +182,5 @@ const orderSlice = createSlice({
   },
 });
 
-export const { clearOrderDetail } = orderSlice.actions;
+export const { clearOrderState, clearOrderDetail } = orderSlice.actions;
 export default orderSlice.reducer;

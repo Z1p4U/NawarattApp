@@ -5,6 +5,7 @@ import campaignReducer from "@/redux/services/campaign/campaignSlice";
 import brandReducer from "@/redux/services/brand/brandSlice";
 import categoryReducer from "@/redux/services/category/categorySlice";
 import userReducer from "@/redux/services/user/userSlice";
+import notificationReducer from "@/redux/services/notification/notificationSlice";
 import wishlistReducer from "@/redux/services/wishlist/wishlistSlice";
 import locationReducer from "@/redux/services/location/locationSlice";
 import addressReducer from "@/redux/services/address/addressSlice";
@@ -18,6 +19,7 @@ const store = configureStore({
     brand: brandReducer,
     category: categoryReducer,
     user: userReducer,
+    notification: notificationReducer,
     wishlist: wishlistReducer,
     location: locationReducer,
     address: addressReducer,

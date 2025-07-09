@@ -20,7 +20,6 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 export default function Catalog() {
   const [search, setSearch] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const { products, loading, loadMore, reset, hasMore } = useProduct(search);
 
@@ -35,12 +34,10 @@ export default function Catalog() {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-
     setSearch("");
     reset();
-
     setTimeout(() => setRefreshing(false), 800);
-  }, []);
+  }, [reset]);
 
   return (
     <>
@@ -63,7 +60,7 @@ export default function Catalog() {
           </>
         }
         renderItem={({ item }) => (
-          <View style={styles.item}>
+          <View key={item.id} style={styles.item}>
             <ProductCard product={item} />
           </View>
         )}
@@ -82,7 +79,7 @@ export default function Catalog() {
         }
         style={styles.flatList}
         columnWrapperStyle={styles.row}
-        contentContainerStyle={styles.container}
+        contentContainerStyle={{ flexGrow: 1, ...styles.container }}
         onEndReached={onEndReached}
         onEndReachedThreshold={0.2}
         ListFooterComponent={
@@ -92,7 +89,6 @@ export default function Catalog() {
             </View>
           ) : null
         }
-        // Pull-to-refresh props:
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -101,7 +97,7 @@ export default function Catalog() {
   );
 }
 
-const CARD_WIDTH = (SCREEN_WIDTH - 20 * 2 - 10) / 2;
+const CARD_WIDTH = (SCREEN_WIDTH - 15 * 2 - 10) / 2;
 
 const styles = StyleSheet.create({
   flatList: {
@@ -133,10 +129,8 @@ const styles = StyleSheet.create({
   },
   bodyCentered: {
     flex: 1,
-    minHeight: (3 * SCREEN_HEIGHT) / 5,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
   },
   messageText: {
     fontSize: 18,

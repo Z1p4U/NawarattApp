@@ -45,6 +45,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 1000,
     alignSelf: "flex-start",
+    width: "auto",
   },
   tagText: {
     color: "#fff",

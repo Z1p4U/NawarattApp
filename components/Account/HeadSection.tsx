@@ -94,7 +94,10 @@ const HeadSection = ({ data }: any) => {
         </View>
 
         <View style={styles.sideBtn}>
-          <TouchableOpacity style={styles.notificationButton}>
+          <TouchableOpacity
+            onPress={() => router.replace("/notifications")}
+            style={styles.notificationButton}
+          >
             <Svg width={30} height={30} viewBox="0 0 30 30" fill="none">
               <Defs>
                 <ClipPath id="clip0_68_292">

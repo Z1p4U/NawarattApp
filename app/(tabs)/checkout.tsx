@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   Platform,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
@@ -36,7 +37,7 @@ export default function Checkout() {
   const router = useRouter();
   const { addresses, loading: addressLoading } = useAddress();
   const { isAuthenticated, loading } = useAuth();
-  const { createOrder } = useOrderAction();
+  const { createOrder, loading: orderLoading } = useOrderAction();
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
@@ -112,6 +113,8 @@ export default function Checkout() {
         discountable_item_id: null,
       })),
     };
+
+    // console.log("payload :", payload);
 
     try {
       const result = await createOrder(payload);
@@ -267,7 +270,7 @@ export default function Checkout() {
         <TouchableOpacity
           onPress={handlePlaceOrder}
           style={styles.placeOrderBtn}
-          disabled={!agreed}
+          disabled={orderLoading || !agreed}
         >
           <LinearGradient
             colors={["#54CAFF", "#275AE8"]}
@@ -275,9 +278,13 @@ export default function Checkout() {
             end={{ x: 1, y: 0 }}
             style={styles.placeOrderBtn}
           >
-            <Text style={styles.placeOrderText} allowFontScaling={false}>
-              Place Order
-            </Text>
+            {orderLoading ? (
+              <ActivityIndicator size="large" color="#0000ff" />
+            ) : (
+              <Text style={styles.placeOrderText} allowFontScaling={false}>
+                Place Order
+              </Text>
+            )}
           </LinearGradient>
         </TouchableOpacity>
       </View>

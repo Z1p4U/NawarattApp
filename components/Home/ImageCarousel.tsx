@@ -16,11 +16,13 @@ import Carousel from "react-native-reanimated-carousel";
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 type Placeholder = number;
+interface ImageCarouselProps {
+  campaigns: Campaign[];
+}
+
 const placeholderImage: Placeholder = require("../../assets/images/banner-placeholder.png");
 
-const ImageCarousel: React.FC = () => {
-  const { campaigns } = useCampaign();
-
+const ImageCarousel: React.FC<ImageCarouselProps> = ({ campaigns }) => {
   const renderItem = ({ item }: { item: Campaign }) => {
     const thumbnailSource =
       typeof item.image === "string" ? { uri: item.image } : placeholderImage;

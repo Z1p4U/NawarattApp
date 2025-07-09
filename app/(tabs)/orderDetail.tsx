@@ -6,7 +6,6 @@ import {
   View,
   ActivityIndicator,
   Image,
-  TouchableOpacity,
   RefreshControl,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
@@ -163,13 +162,19 @@ export default function OrderDetail() {
                 <Text
                   style={[
                     styles.metaValue,
-                    od?.status === "delivered"
-                      ? styles.delivered
+                    od?.status === "submitted"
+                      ? styles.submitted
+                      : od?.status === "confirmed"
+                      ? styles.confirmed
+                      : od?.status === "payment_pending"
+                      ? styles.delivering
                       : od?.status === "delivering"
                       ? styles.delivering
-                      : fullyPaid
-                      ? styles.paid
-                      : styles.unpaid,
+                      : od?.status === "delivered"
+                      ? styles.delivered
+                      : od?.status === "canceled"
+                      ? styles.canceled
+                      : styles.defaultStatus,
                   ]}
                   allowFontScaling={false}
                 >
@@ -385,10 +390,30 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     fontFamily: "Saira-Medium",
   },
-  paid: { color: "#22C55E" },
-  unpaid: { color: "#EF4444" },
-  delivering: { color: "#FBBF24" },
-  delivered: { color: "#22C55E" },
+  paid: {
+    color: "#22C55E",
+  },
+  unpaid: {
+    color: "#EF4444",
+  },
+  submitted: {
+    color: "#D97706",
+  },
+  confirmed: {
+    color: "#10B981",
+  },
+  delivering: {
+    color: "#F97316",
+  },
+  delivered: {
+    color: "#0EA5E9",
+  },
+  canceled: {
+    color: "#DC2626",
+  },
+  defaultStatus: {
+    color: "#000000",
+  },
   totalAmount: {
     marginTop: 12,
     fontSize: 18,

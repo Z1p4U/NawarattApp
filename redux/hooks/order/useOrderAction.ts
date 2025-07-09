@@ -34,15 +34,6 @@ const useOrderAction = () => {
     [dispatch]
   );
 
-  const handleLoadOrder =
-    useCallback(async (): Promise<AllOrderResponse | void> => {
-      try {
-        await dispatch(loadOrders({ pagination: { page: 1, size: 12 } }));
-      } catch (err) {
-        console.error("Failed to load order:", err);
-      }
-    }, [dispatch]);
-
   const handlePayOrder = useCallback(
     async (
       id: number,
@@ -64,7 +55,7 @@ const useOrderAction = () => {
   return {
     status,
     error,
-    loadOrder: handleLoadOrder,
+    loading: status === "loading",
     createOrder: handleCreateOrder,
     payOrder: handlePayOrder,
   };
