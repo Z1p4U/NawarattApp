@@ -19,8 +19,6 @@ const useAuth = () => {
   );
   const [loading, setLoading] = useState<boolean>(true);
 
-  // console.log("isAuthenticated : ", isAuthenticated);
-
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {

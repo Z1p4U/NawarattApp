@@ -10,10 +10,11 @@ import {
 import environment from "@/constants/environment";
 
 const fetchAllOrder = async (
-  pagination: PaginationPayload
+  pagination: PaginationPayload,
+  orderStatus?: string
 ): Promise<AllOrderResponse> => {
   try {
-    const params = { ...(pagination || {}) };
+    const params = { ...(pagination || {}), status: orderStatus };
 
     const response = await axiosInstance.get<AllOrderResponse>(
       `${environment.API_URL}/orders`,

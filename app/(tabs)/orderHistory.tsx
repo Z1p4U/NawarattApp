@@ -1,33 +1,42 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
+  ActivityIndicator,
+  FlatList,
   RefreshControl,
-  ScrollView,
   StyleSheet,
   Text,
   View,
+  Platform,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import HeadLine from "@/components/ui/HeadLine";
-import { useRouter } from "expo-router";
-import useAuth from "@/redux/hooks/auth/useAuth";
-import AddressLoader from "@/components/ui/AddressLoader";
-import useOrder from "@/redux/hooks/order/useOrder";
-import { Link } from "expo-router";
-import useOrderAction from "@/redux/hooks/order/useOrderAction";
 import GoBack from "@/components/ui/GoBack";
+import { useRouter, Link } from "expo-router";
+import useAuth from "@/redux/hooks/auth/useAuth";
+import useOrder from "@/redux/hooks/order/useOrder";
+import { useSearchParams } from "expo-router/build/hooks";
 
 export default function OrderHistory() {
   const router = useRouter();
-  const { orders, loading: orderLoading } = useOrder();
-  const { loadOrder } = useOrderAction();
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const searchParams = useSearchParams();
+  const orderStatus = searchParams.get("status") || "";
+
+  const {
+    orders,
+    loading: orderLoading,
+    loadMore,
+    hasMore,
+    reset,
+  } = useOrder({ orderStatus });
   const [refreshing, setRefreshing] = useState(false);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
+    if (!authLoading && !isAuthenticated) {
       router.replace("/login");
     }
-  }, [loading, isAuthenticated, router]);
+  }, [authLoading, isAuthenticated, router]);
 
   const formatDate = (iso: string) => {
     const d = new Date(iso);
@@ -36,102 +45,133 @@ export default function OrderHistory() {
     ).padStart(2, "0")}-${d.getFullYear()}`;
   };
 
-  const onRefresh = useCallback(async () => {
+  // Pull-to-refresh
+  const onRefresh = useCallback(() => {
     setRefreshing(true);
-    try {
-      await loadOrder();
-    } catch (e) {
-      console.error("Failed to fetch:", e);
-    } finally {
-      setRefreshing(false); // hide the spinner
+    reset();
+    setTimeout(() => setRefreshing(false), 800);
+  }, [reset]);
+
+  // Infinite scroll
+  const onEndReached = () => {
+    if (hasMore && !orderLoading && !debounceRef.current) {
+      debounceRef.current = setTimeout(() => {
+        loadMore();
+        debounceRef.current = null;
+      }, 500);
     }
-  }, []);
+  };
+
+  const renderItem = ({ item }: { item: any }) => (
+    <Link
+      key={item?.id}
+      href={`/orderDetail?id=${item.id}`}
+      style={styles.cardLink}
+    >
+      <View style={styles.orderCard}>
+        <View style={styles.orderInfo}>
+          <Text style={styles.orderCode}>{item.order_code}</Text>
+          <Text style={styles.orderDate}>{formatDate(item.date)}</Text>
+          <Text style={styles.orderMeta}>
+            Total Products –{" "}
+            <Text style={styles.metaValue}>{item.total_qty}</Text>
+          </Text>
+          <Text style={styles.orderMeta}>
+            Status –{" "}
+            <Text
+              style={[
+                styles.metaValue,
+                item.status === "submitted"
+                  ? styles.submitted
+                  : item.status === "confirmed"
+                  ? styles.confirmed
+                  : item.status === "payment_pending"
+                  ? styles.delivering
+                  : item.status === "delivering"
+                  ? styles.delivering
+                  : item.status === "delivered"
+                  ? styles.delivered
+                  : item.status === "canceled"
+                  ? styles.canceled
+                  : styles.defaultStatus,
+              ]}
+            >
+              {item.status}
+            </Text>
+          </Text>
+        </View>
+        <Text style={styles.orderAmount}>
+          Ks {item.total_amount.toLocaleString()}
+        </Text>
+      </View>
+    </Link>
+  );
 
   return (
     <>
       <HeadLine />
 
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.scrollContent}
+      <FlatList
+        data={orders}
+        keyExtractor={(o) => o.id.toString()}
+        renderItem={renderItem}
+        ListHeaderComponent={
+          <>
+            <LinearGradient
+              colors={["#53CAFE", "#2555E7"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.banner}
+            >
+              <Text style={styles.headText}>{orderStatus} Order History</Text>
+            </LinearGradient>
+
+            <GoBack to="/account" />
+          </>
+        }
+        ListEmptyComponent={
+          orderLoading ? (
+            <View style={styles.centered}>
+              <ActivityIndicator size="large" color="#0000ff" />
+            </View>
+          ) : (
+            <View style={styles.centered}>
+              <Text style={styles.messageText}>No orders found.</Text>
+            </View>
+          )
+        }
+        ListFooterComponent={
+          hasMore ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#0000ff" />
+            </View>
+          ) : null
+        }
+        onEndReached={onEndReached}
+        onEndReachedThreshold={0.2}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
-      >
-        {/* Banner */}
-        <LinearGradient
-          colors={["#53CAFE", "#2555E7"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.banner}
-        >
-          <Text style={styles.headText} allowFontScaling={false}>
-            Order History
-          </Text>
-        </LinearGradient>
-
-        <GoBack to={"/account"} />
-
-        <View style={styles.orderSection}>
-          {orderLoading ? (
-            <AddressLoader count={6} />
-          ) : (
-            orders?.map((o) => (
-              <Link key={o?.id} href={`/orderDetail?id=${o?.id}`}>
-                <View key={o.id} style={styles.orderCard}>
-                  <View style={styles.orderInfo}>
-                    <Text style={styles.orderCode} allowFontScaling={false}>
-                      {o.order_code}
-                    </Text>
-                    <Text style={styles.orderDate} allowFontScaling={false}>
-                      {formatDate(o.date)}
-                    </Text>
-                    <Text style={styles.orderMeta} allowFontScaling={false}>
-                      Total Products -{" "}
-                      <Text style={styles.metaValue} allowFontScaling={false}>
-                        {o.total_qty}
-                      </Text>
-                    </Text>
-                    <Text style={styles.orderMeta} allowFontScaling={false}>
-                      Payment Status -{" "}
-                      <Text
-                        style={[
-                          styles.metaValue,
-                          o.status?.toLowerCase() === "submitted"
-                            ? styles.submitted
-                            : o.status?.toLowerCase() === "delivered"
-                            ? styles.delivered
-                            : o.status?.toLowerCase() === "canceled"
-                            ? styles.canceled
-                            : styles.defaultStatus,
-                        ]}
-                        allowFontScaling={false}
-                      >
-                        {o.status}
-                      </Text>
-                    </Text>
-                  </View>
-
-                  <Text style={styles.orderAmount} allowFontScaling={false}>
-                    Ks {o.total_amount.toLocaleString()}
-                  </Text>
-                </View>
-              </Link>
-            ))
-          )}
-        </View>
-      </ScrollView>
+        contentContainerStyle={
+          orders.length === 0 ? styles.flatListEmpty : styles.flatList
+        }
+      />
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  flatList: {
+    paddingHorizontal: 15,
+    paddingBottom: 120,
     backgroundColor: "#fff",
   },
-  scrollContent: {
+  flatListEmpty: {
+    flex: 1,
+    paddingHorizontal: 15,
     paddingBottom: 120,
+    justifyContent: "center",
+    backgroundColor: "#fff",
   },
   banner: {
     borderBottomLeftRadius: 30,
@@ -140,6 +180,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 10,
     justifyContent: "flex-end",
+    marginHorizontal: -15,
   },
   headText: {
     marginTop: 10,
@@ -148,12 +189,27 @@ const styles = StyleSheet.create({
     color: "#fff",
     textAlign: "center",
     fontFamily: "Saira-Medium",
+    textTransform: "capitalize",
   },
-
-  orderSection: {
-    gap: 10,
-    marginHorizontal: 15,
-    marginTop: 20,
+  centered: {
+    flex: 1,
+    height: 500,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  messageText: {
+    fontSize: 18,
+    color: "#333",
+    fontWeight: "500",
+    fontFamily: "Saira-Medium",
+    textAlign: "center",
+    paddingHorizontal: 20,
+  },
+  loadingContainer: {
+    paddingVertical: 30,
+  },
+  cardLink: {
+    marginTop: 10,
   },
   orderCard: {
     backgroundColor: "#F8F8F8",
@@ -167,8 +223,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+    marginBottom: 10,
   },
-
   orderInfo: {
     flex: 1,
     gap: 4,
@@ -176,41 +232,35 @@ const styles = StyleSheet.create({
   orderCode: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#000",
     fontFamily: "Saira-Medium",
+    color: "#000",
   },
   orderDate: {
     fontSize: 14,
-    color: "#555",
     fontFamily: "Saira-Regular",
+    color: "#555",
     marginBottom: 6,
   },
   orderMeta: {
     fontSize: 13,
-    color: "#333",
     fontFamily: "Saira-Regular",
+    color: "#333",
   },
   metaValue: {
     fontWeight: "600",
     fontFamily: "Saira-Bold",
   },
-  submitted: {
-    color: "#FBBF24",
-  },
-  delivered: {
-    color: "#22C55E",
-  },
-  canceled: {
-    color: "#EF4444",
-  },
-  defaultStatus: {
-    color: "#000000",
-  },
+  submitted: { color: "#D97706" },
+  confirmed: { color: "#10B981" },
+  delivering: { color: "#F97316" },
+  delivered: { color: "#0EA5E9" },
+  canceled: { color: "#DC2626" },
+  defaultStatus: { color: "#000000" },
   orderAmount: {
     fontSize: 16,
-    color: "#000",
     fontWeight: "600",
     fontFamily: "Saira-Bold",
+    color: "#000",
     marginLeft: 10,
   },
 });

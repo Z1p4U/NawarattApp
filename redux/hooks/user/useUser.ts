@@ -5,7 +5,7 @@ import {
   handleFetchProfile,
   handleFetchUpdateProfile,
 } from "@/redux/services/user/userSlice";
-import { ProfilePayload } from "@/constants/config";
+import { ProfilePayload, ProfileResponse } from "@/constants/config";
 
 const useUser = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -16,13 +16,10 @@ const useUser = () => {
   useEffect(() => {
     const fetchProfileDetail = async () => {
       setLoading(true);
-
       const res = await dispatch(handleFetchProfile());
       setLoading(false);
-
       return res;
     };
-
     fetchProfileDetail();
   }, [dispatch]);
 
@@ -42,10 +39,20 @@ const useUser = () => {
     [dispatch]
   );
 
+  const handleLoadOrderProfile =
+    useCallback(async (): Promise<ProfileResponse | void> => {
+      try {
+        await dispatch(handleFetchProfile());
+      } catch (err) {
+        console.error("Failed to load order:", err);
+      }
+    }, [dispatch]);
+
   return {
     profileDetail,
     loading,
     updateProfile,
+    handleLoadOrderProfile,
   };
 };
 

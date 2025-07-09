@@ -410,9 +410,9 @@ export interface PaymentSlip {
 }
 
 export interface AllOrderResponse {
-  data: Order[] | null;
+  data: Order[];
   links: Record<string, unknown>;
-  meta: Record<string, unknown>;
+  meta: Record<string, number>;
 }
 export interface OrderDetailResponse {
   data: Order;
@@ -464,3 +464,29 @@ export interface CartItem {
   total: number;
 }
 // Cart
+
+// Notification
+
+export interface Notification {
+  id: string;
+  type: string;
+  data: {
+    type: string;
+    order_id?: number;
+    discountable_id?: number;
+    alert_notification_id?: number;
+    title: string;
+    description: string;
+  };
+  read_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AllNotificationResponse {
+  data: Notification[];
+  links: Record<string, unknown>;
+  meta: Record<string, number>;
+}
+
+// Notification

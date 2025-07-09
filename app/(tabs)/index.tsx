@@ -14,16 +14,18 @@ import ImageCarousel from "@/components/Home/ImageCarousel";
 import ProductSlider from "@/components/ui/ProductSlider";
 import BrandList from "@/components/Home/BrandList";
 import HeadLine from "@/components/ui/HeadLine";
-import { Link, useRouter } from "expo-router";
+import { Link, router, useRouter } from "expo-router";
 import useUser from "@/redux/hooks/user/useUser";
 import useAuth from "@/redux/hooks/auth/useAuth";
 import DiscoverCarousel from "@/components/Home/DiscoverCarousel";
 import useSpecialCategory from "@/redux/hooks/category/useSpecialCategory";
+import useCampaign from "@/redux/hooks/campaign/useCampaign";
 
 export default function HomeScreen() {
-  const { profileDetail } = useUser();
   const { isAuthenticated } = useAuth();
+  const { profileDetail } = useUser();
   const { specialCategories, loading } = useSpecialCategory();
+  const { campaigns } = useCampaign();
 
   // interface ImageCarouselItem {
   //   id: string;
@@ -82,7 +84,10 @@ export default function HomeScreen() {
                 </Link>
               )}
             </View>
-            <TouchableOpacity style={styles.notificationButton}>
+            <TouchableOpacity
+              onPress={() => router.replace("/notifications")}
+              style={styles.notificationButton}
+            >
               <Svg width={30} height={30} viewBox="0 0 30 30" fill="none">
                 <Defs>
                   <ClipPath id="clip0_68_292">
@@ -102,7 +107,7 @@ export default function HomeScreen() {
         {/* Head Section End */}
 
         {/* Use the ImageCarousel component */}
-        <ImageCarousel />
+        <ImageCarousel campaigns={campaigns} />
         {/* Use the ImageCarousel component */}
 
         {/* Discover Section Start */}

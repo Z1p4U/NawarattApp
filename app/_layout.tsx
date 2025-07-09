@@ -1,19 +1,13 @@
 import "react-native-gesture-handler";
-import { AppRegistry, Platform, Alert } from "react-native";
+import { AppRegistry, Platform } from "react-native";
 import React, { useEffect } from "react";
-
 import * as Notifications from "expo-notifications";
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
+import { DarkTheme, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import { Provider } from "react-redux";
 import store from "@/redux/store";
 import { LinearGradient } from "expo-linear-gradient";
@@ -27,11 +21,13 @@ import {
   setBackgroundMessageHandler,
 } from "@react-native-firebase/messaging";
 
-// 0️⃣ Grab your default Firebase App & Messaging instance
+///////////////////////////////////////////////////////////////////////////////
+// 0️⃣ FCM setup
 const app = getApp();
 const messaging = getMessaging(app);
 
-// Tell Expo how to display notifications
+///////////////////////////////////////////////////////////////////////////////
+// 1️⃣ Configure Expo Notifications display
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -40,11 +36,12 @@ Notifications.setNotificationHandler({
   }),
 });
 
-// Background handler (outside React) for messages when app is backgrounded/killed
+///////////////////////////////////////////////////////////////////////////////
+// 2️⃣ Background handler — always schedule a local notification
 setBackgroundMessageHandler(messaging, async (remoteMessage) => {
   const data = (remoteMessage.data ?? {}) as Record<string, string>;
-  const title = data.title;
-  const body = data.description;
+  const title = remoteMessage.notification?.title ?? data.title ?? "";
+  const body = remoteMessage.notification?.body ?? data.description ?? "";
 
   await Notifications.scheduleNotificationAsync({
     content: { title, body, data, sound: "default" },
@@ -53,13 +50,18 @@ setBackgroundMessageHandler(messaging, async (remoteMessage) => {
 });
 
 export default function RootLayout() {
-  usePushTokenSync();
+  const router = useRouter();
 
+  // sync token & IMEI
+  usePushTokenSync();
   SplashScreen.preventAutoHideAsync();
 
   useEffect(() => {
+    // Auth interceptor
+    registerAuthInterceptor(() => store.dispatch(logout()));
+
+    // Android notification channel
     (async () => {
-      // 1️⃣ Android channel
       if (Platform.OS === "android") {
         await Notifications.setNotificationChannelAsync("default", {
           name: "Default",
@@ -67,53 +69,48 @@ export default function RootLayout() {
           sound: "default",
         });
       }
-
-      // 2️⃣ Foreground messages
-      const unsubscribeOnMessage = onMessage(
-        messaging,
-        async (remoteMessage) => {
-          const data = (remoteMessage.data ?? {}) as Record<string, string>;
-          const title = remoteMessage.notification?.title ?? data.title;
-          const body = remoteMessage.notification?.body ?? data.description;
-
-          await Notifications.scheduleNotificationAsync({
-            content: { title, body, data, sound: "default" },
-            trigger: null,
-          });
-        }
-      );
-
-      // 3️⃣ Notification taps
-      const subscription =
-        Notifications.addNotificationResponseReceivedListener(
-          ({ notification }) => {
-            const tappedData = notification.request.content.data as Record<
-              string,
-              string
-            >;
-            console.log("Notification tapped:", tappedData);
-          }
-        );
-
-      return () => {
-        unsubscribeOnMessage();
-        subscription.remove();
-      };
     })();
-  }, []);
 
-  useEffect(() => {
-    registerAuthInterceptor(() => {
-      store.dispatch(logout());
+    // Foreground handler — always schedule
+    const unsubOnMessage = onMessage(messaging, async (remoteMessage) => {
+      const data = (remoteMessage.data ?? {}) as Record<string, string>;
+      const title = remoteMessage.notification?.title ?? data.title ?? "";
+      const body = remoteMessage.notification?.body ?? data.description ?? "";
+
+      await Notifications.scheduleNotificationAsync({
+        content: { title, body, data, sound: "default" },
+        trigger: null,
+      });
     });
-  }, []);
 
-  useEffect(() => {
-    registerAuthInterceptor(() => {
-      store.dispatch(logout());
-    });
-  }, []);
+    // Tap handler — routing
+    const tapSub = Notifications.addNotificationResponseReceivedListener(
+      ({ notification }) => {
+        const data = notification.request.content.data as Record<
+          string,
+          string
+        >;
+        // console.log("Notification tapped:", JSON.stringify(data));
 
+        if (data.type === "order" && data.order_id) {
+          router.push(`/orderDetail?id=${data.order_id}`);
+        } else if (data.type === "promotion" && data.discountable_id) {
+          router.push(
+            `/productListByCampaign?id=${data.discountable_id}&name=${data.title}`
+          );
+        } else {
+          router.push(`/`);
+        }
+      }
+    );
+
+    return () => {
+      unsubOnMessage();
+      tapSub.remove();
+    };
+  }, [router]);
+
+  // Load fonts
   const [loaded] = useFonts({
     "Saira-Bold": require("../assets/fonts/Saira-Bold.ttf"),
     "Saira-Medium": require("../assets/fonts/Saira-Medium.ttf"),
@@ -121,10 +118,9 @@ export default function RootLayout() {
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
+  // Hide splash
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
+    if (loaded) SplashScreen.hideAsync();
   }, [loaded]);
 
   if (!loaded) return null;
@@ -137,17 +133,13 @@ export default function RootLayout() {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
       >
-        <ThemeProvider
-          value={DarkTheme}
-          // value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-        >
+        <ThemeProvider value={DarkTheme}>
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" />
           </Stack>
-          <StatusBar style={"light"} />
-          {/* <StatusBar style={colorScheme === "dark" ? "light" : "dark"} /> */}
+          <StatusBar style="light" />
         </ThemeProvider>
       </LinearGradient>
     </Provider>
