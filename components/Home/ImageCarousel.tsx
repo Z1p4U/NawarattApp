@@ -27,16 +27,16 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ campaigns }) => {
     const thumbnailSource =
       typeof item.image === "string" ? { uri: item.image } : placeholderImage;
 
-    const handleImgError = (e: NativeSyntheticEvent<ImageErrorEventData>) => {
-      // console.warn(
-      //   `Failed to load image for product ${item.id}:`,
-      //   e.nativeEvent.error
-      // );
-    };
+    // const handleImgError = (e: NativeSyntheticEvent<ImageErrorEventData>) => {
+    //   console.warn(
+    //     `Failed to load image for product ${item.id}:`,
+    //     e.nativeEvent.error
+    //   );
+    // };
 
     return (
       <Link
-        href={`/productListByCampaign?id=${item.id}&name=${item?.title}`}
+        href={`/productListByCampaign?id=${item.id}&name=${item?.title}&image=${item?.image}&expire=${item?.end_date}`}
         style={styles.link}
       >
         <ImageBackground
@@ -47,7 +47,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ campaigns }) => {
           <Image
             source={thumbnailSource}
             style={[styles.imageOverlay, styles.imageStyle]}
-            onError={handleImgError}
+            // onError={handleImgError}
           />
         </ImageBackground>
       </Link>

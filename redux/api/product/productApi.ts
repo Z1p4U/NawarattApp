@@ -9,11 +9,23 @@ import environment from "@/constants/environment";
 
 const fetchAllProducts = async (
   pagination: PaginationPayload,
+  category_id?: string | null,
   brand_id?: string | null,
-  name?: string | null
+  min_price?: number | null,
+  max_price?: number | null,
+  name?: string
 ): Promise<AllProductResponse> => {
   try {
-    const params = { brand_id, name, ...(pagination || {}) };
+    const params = {
+      category_id,
+      brand_id,
+      min_price,
+      max_price,
+      name,
+      ...(pagination || {}),
+    };
+
+    console.log(params);
 
     const response = await axiosInstance.get<AllProductResponse>(
       `${environment.API_URL}/products`,

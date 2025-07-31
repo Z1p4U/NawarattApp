@@ -19,6 +19,7 @@ import useOrderAction from "@/redux/hooks/order/useOrderAction";
 import useOrderDetail from "@/redux/hooks/order/useOrderDetail";
 import HeadLine from "@/components/ui/HeadLine";
 import GoBack from "@/components/ui/GoBack";
+import AlertBox from "@/components/ui/AlertBox";
 
 interface SlipImage {
   image: string;
@@ -39,16 +40,21 @@ export default function orderPay() {
   const [imageBase64, setImageBase64] = useState<string>("");
   const [imageLoading, setImageLoading] = useState<boolean>(false);
   const [caption, setCaption] = useState<string>("");
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertModalVisible, setAlertModalVisible] = useState(false);
+  const [resendModalVisible, setResendModalVisible] = useState(false);
 
   useEffect(() => {
     (async () => {
       const { status } =
         await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert(
-          "Permission required",
-          "We need camera roll permissions to select a slip image."
-        );
+        // Alert.alert(
+        //   "Permission required",
+        //   "We need camera roll permissions to select a slip image."
+        // );
+        setAlertMessage("We need permissions to select a slip image.");
+        setResendModalVisible(true);
       }
     })();
   }, []);
@@ -67,10 +73,14 @@ export default function orderPay() {
       if (asset.base64) {
         setImageBase64(asset.base64);
       } else {
-        Alert.alert(
-          "Error",
+        // Alert.alert(
+        //   "Error",
+        //   "Couldn't read image data. Please try a different image."
+        // );
+        setAlertMessage(
           "Couldn't read image data. Please try a different image."
         );
+        setResendModalVisible(true);
       }
     }
     setImageLoading(false);
@@ -79,7 +89,9 @@ export default function orderPay() {
   const handleSubmit = useCallback(async () => {
     if (!orderDetail) return;
     if (!imageBase64) {
-      Alert.alert("Validation", "Please select a slip image.");
+      // Alert.alert("Validation", "Please select a slip image.");
+      setAlertMessage("Please select a slip image.");
+      setResendModalVisible(true);
       return;
     }
 
@@ -93,13 +105,27 @@ export default function orderPay() {
     try {
       const res = await payOrder(orderId, payload);
       // console.log(res);
-      Alert.alert("Success", "Order payment processed successfully!");
-      router.push("/orderHistory");
+      // Alert.alert("Success", "Order payment processed successfully!");
+      setAlertMessage(res?.message || "Order payment proceed successfully!");
+      setAlertModalVisible(true);
     } catch (err) {
       console.error(err);
-      Alert.alert("Error", "Failed to process payment. Please try again.");
+      // Alert.alert("Error", "Failed to process payment. Please try again.");
+      setAlertMessage("Failed to process payment. Please try again.");
+      setResendModalVisible(true);
     }
   }, [payOrder, orderDetail, orderId, imageBase64, caption, router]);
+
+  const onClose = async () => {
+    router.push("/orderHistory");
+    setAlertModalVisible(false);
+    setAlertMessage("");
+  };
+
+  const onResendClose = async () => {
+    setResendModalVisible(false);
+    setAlertMessage("");
+  };
 
   return (
     <>
@@ -123,7 +149,7 @@ export default function orderPay() {
 
         {detailLoading || !orderDetail ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#0000ff" />
+            <ActivityIndicator size="large" color="#2555E7" />
           </View>
         ) : (
           <View style={styles.form}>
@@ -143,7 +169,7 @@ export default function orderPay() {
               disabled={imageLoading}
             >
               {imageLoading ? (
-                <ActivityIndicator size="large" color="#0000ff" />
+                <ActivityIndicator size="large" color="#2555E7" />
               ) : imageBase64 ? (
                 <Image
                   source={{ uri: `data:image/jpeg;base64,${imageBase64}` }}
@@ -180,6 +206,18 @@ export default function orderPay() {
             </TouchableOpacity>
           </View>
         )}
+
+        <AlertBox
+          visible={alertModalVisible}
+          message={alertMessage}
+          onClose={onClose}
+        />
+
+        <AlertBox
+          visible={resendModalVisible}
+          message={alertMessage}
+          onClose={onResendClose}
+        />
       </ScrollView>
     </>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Link } from "expo-router";
 import {
   View,
@@ -14,39 +14,42 @@ import Svg, { Defs, LinearGradient, Path, Stop } from "react-native-svg";
 import { CardProps } from "@/constants/config";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const CARD_WIDTH = SCREEN_WIDTH * 0.45;
+const FALLBACK_WIDTH = SCREEN_WIDTH * 0.45;
 
-type Placeholder = number;
-const placeholderImage: Placeholder = require("../../assets/images/placeholder.png");
+const placeholderImage = require("../../assets/images/placeholder.png");
 
-const ProductCard: React.FC<{ product: CardProps }> = ({ product }) => {
+const ProductCard: React.FC<{ product: CardProps; width?: number }> = ({
+  product,
+  width,
+}) => {
   const [addedInWishlist, setAddedInWishlist] = useState(false);
 
-  // if product.thumbnail is a valid string URI, use it; otherwise show placeholder
   const thumbnailSource =
     typeof product.thumbnail === "string" && product.thumbnail.length > 0
       ? { uri: product.thumbnail }
       : placeholderImage;
 
-  const handleImgError = (e: NativeSyntheticEvent<ImageErrorEventData>) => {
-    // console.warn(
-    //   `Failed to load image for product ${product.id}:`,
-    //   e.nativeEvent.error
-    // );
-  };
-
-  // placeholder toggle function for wishlist
-  const toggleWishlist = (id: string | number) => {
-    // Implement your wishlist logic here
-    setAddedInWishlist((prev) => !prev);
-  };
+  // const handleImgError = (e: NativeSyntheticEvent<ImageErrorEventData>) => {
+  //   console.warn(
+  //     `Failed to load image for product ${product.id}:`,
+  //     e.nativeEvent.error
+  //   );
+  // };
 
   const hasDiscount = product.discount_price != null;
 
+  // final card width
+  const cardWidth = width ?? FALLBACK_WIDTH;
+
+  // style for the outer container
+  const containerStyle = useMemo(() => ({ width: cardWidth }), [cardWidth]);
+
   return (
-    <View style={styles.productCard}>
-      <View style={styles.imageWrapper}>
-        {/* Wishlist Button */}
+    <View style={containerStyle}>
+      <View
+        style={[styles.imageWrapper, { width: cardWidth, height: cardWidth }]}
+      >
+        {/* Wish‑list toggle (uncomment if needed) */}
         {/*
         {isAuthenticated && (
           <TouchableOpacity
@@ -87,7 +90,7 @@ const ProductCard: React.FC<{ product: CardProps }> = ({ product }) => {
             <Image
               source={thumbnailSource}
               style={[styles.imageOverlay, styles.imageStyle]}
-              onError={handleImgError}
+              // onError={handleImgError}
             />
           </ImageBackground>
         </Link>
@@ -111,7 +114,6 @@ const ProductCard: React.FC<{ product: CardProps }> = ({ product }) => {
               {Number(product.price).toLocaleString()} Ks
             </Text>
           )}
-
           <Text
             style={[
               styles.productCardPrice,
@@ -133,13 +135,7 @@ const ProductCard: React.FC<{ product: CardProps }> = ({ product }) => {
 export default ProductCard;
 
 const styles = StyleSheet.create({
-  productCard: {
-    width: CARD_WIDTH,
-    // margin: (SCREEN_WIDTH - CARD_WIDTH * 2) / 4, // center two cards per row
-  },
   imageWrapper: {
-    width: CARD_WIDTH,
-    height: CARD_WIDTH,
     alignItems: "center",
     justifyContent: "center",
   },

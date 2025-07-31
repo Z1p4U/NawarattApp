@@ -22,12 +22,14 @@ import useAuth from "@/redux/hooks/auth/useAuth";
 import AddressLoader from "@/components/ui/AddressLoader";
 import useOrderAction from "@/redux/hooks/order/useOrderAction";
 import GoBack from "@/components/ui/GoBack";
+import AlertBox from "@/components/ui/AlertBox";
 
 interface CartItem {
   productId: string;
   pdData: {
     name: string;
     price: string;
+    discountable_item_id: number | null;
   };
   count: number;
   total: number;
@@ -43,6 +45,7 @@ export default function Checkout() {
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [agreed, setAgreed] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [alertModalVisible, setAlertModalVisible] = useState(false);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -73,7 +76,12 @@ export default function Checkout() {
   useEffect(() => {
     if (addresses) {
       setSelectedAddress(
-        (prev) => addresses?.find((a) => a?.is_default) ?? addresses[0] ?? null
+        (prev) =>
+          addresses?.find(
+            (a) => a?.is_default === true || a?.is_default == 1
+          ) ??
+          addresses[0] ??
+          null
       );
     }
   }, []);
@@ -102,6 +110,7 @@ export default function Checkout() {
     }
 
     // <— annotate the payload so TS knows it must be OrderPayload
+
     const payload: OrderPayload = {
       address_book_id: selectedAddress.id,
       remark: "remark",
@@ -110,23 +119,26 @@ export default function Checkout() {
         qty: item.count,
         unit_price: Number(item.pdData.price),
         option: "phone" as OrderOption,
-        discountable_item_id: null,
+        discountable_item_id: item?.pdData?.discountable_item_id,
       })),
     };
-
-    // console.log("payload :", payload);
 
     try {
       const result = await createOrder(payload);
       // console.log("Order placed!", result);
-      Alert.alert("Success", "Order placed!");
-      await AsyncStorage.removeItem("cart");
-      router.push("/");
+      setAlertModalVisible(true);
     } catch (err) {
       console.error("Order failed:", err);
       alert("Failed to place order. Please try again.");
     }
   }, [cart, selectedAddress, router]);
+
+  const onClose = async () => {
+    await AsyncStorage.removeItem("cart");
+    setAgreed(false);
+    router.push("/catalog");
+    setAlertModalVisible(false);
+  };
 
   return (
     <>
@@ -187,7 +199,10 @@ export default function Checkout() {
                 <>
                   <Text style={styles.addressCardHead} allowFontScaling={false}>
                     Address {selectedAddress.id}
-                    {selectedAddress.is_default ? " (Default)" : ""}
+                    {(selectedAddress.is_default === true ||
+                      selectedAddress.is_default === 1 ||
+                      selectedAddress.is_default === "1") &&
+                      "(Default)"}
                   </Text>
                   <Text style={styles.addressCardText} allowFontScaling={false}>
                     {selectedAddress.address}, {selectedAddress.city.name_en},{" "}
@@ -279,7 +294,7 @@ export default function Checkout() {
             style={styles.placeOrderBtn}
           >
             {orderLoading ? (
-              <ActivityIndicator size="large" color="#0000ff" />
+              <ActivityIndicator size="large" color="#2555E7" />
             ) : (
               <Text style={styles.placeOrderText} allowFontScaling={false}>
                 Place Order
@@ -349,7 +364,10 @@ export default function Checkout() {
                       allowFontScaling={false}
                     >
                       Address {addr.id}
-                      {addr.is_default ? " (Default)" : ""}
+                      {(addr.is_default === true ||
+                        addr.is_default === 1 ||
+                        addr.is_default === "1") &&
+                        "(Default)"}
                     </Text>
                     <Text
                       style={styles.addressCardText}
@@ -365,6 +383,12 @@ export default function Checkout() {
           </ScrollView>
         </SafeAreaView>
       </Modal>
+
+      <AlertBox
+        visible={alertModalVisible}
+        message="Order Placed!"
+        onClose={onClose}
+      />
     </>
   );
 }

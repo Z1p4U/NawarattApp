@@ -28,6 +28,7 @@ import useAuth from "@/redux/hooks/auth/useAuth";
 import useProductDetail from "@/redux/hooks/product/useProductDetail";
 import useWishlist from "@/redux/hooks/wishlist/useWishlist";
 import useWishlistProcess from "@/redux/hooks/wishlist/useWishlistProcess";
+import AlertBox from "@/components/ui/AlertBox";
 
 export default function ProductDetail() {
   const { width } = Dimensions.get("window");
@@ -44,6 +45,8 @@ export default function ProductDetail() {
   const { isInWishlist } = useWishlist();
   const { isAuthenticated } = useAuth();
 
+  console.log(productDetail);
+
   const [modalVisible, setModalVisible] = useState(false);
   const [alreadyInCart, setAlreadyInCart] = useState(false);
   const [payload, setPayload] = useState({
@@ -54,10 +57,14 @@ export default function ProductDetail() {
     pdData: {
       name: productDetail?.name,
       price: productDetail?.price,
+      discount_price: productDetail?.discount_price,
       category: productDetail?.category?.name,
       thumbnail: productDetail?.thumbnail,
+      discountable_item_id: productDetail?.discount?.id,
     },
   });
+  const [alertMessage, setAlertMessage] = useState("");
+  const [resendModalVisible, setResendModalVisible] = useState(false);
 
   useEffect(() => {
     if (!productDetail) return;
@@ -68,9 +75,11 @@ export default function ProductDetail() {
       option: "Order မှဖယ်ရှားပေးပါ",
       pdData: {
         name: productDetail?.name,
-        price: Number(productDetail?.price),
+        price: productDetail?.price,
+        discount_price: productDetail?.discount_price,
         category: productDetail?.category?.name,
         thumbnail: productDetail?.thumbnail,
+        discountable_item_id: productDetail?.discount?.id,
       },
     });
   }, [productDetail, productId]);
@@ -85,16 +94,19 @@ export default function ProductDetail() {
   }, [productId]);
 
   const addedInWishlist = isInWishlist(productId);
+  const hasDiscount = productDetail?.discount_price != null;
 
   // enforce limited_qty_per_customer here
   const updateQuantity = (requestedCount: number) => {
     const max = productDetail?.limited_qty_per_customer ?? Infinity;
     let newCount = requestedCount;
     if (newCount > max) {
-      Alert.alert(
-        "Quantity Limit",
-        `You can only order up to ${max} of this item.`
-      );
+      // Alert.alert(
+      //   "Quantity Limit",
+      //   `You can only order up to ${max} of this item.`
+      // );
+      setAlertMessage(`You can only order up to ${max} of this item.`);
+      setResendModalVisible(true);
       newCount = max;
     }
     setPayload((prev) => ({
@@ -111,7 +123,9 @@ export default function ProductDetail() {
 
       const incomingCount = payload.count;
       const incomingOption = payload.option;
-      const price = Number(productDetail?.price || 0);
+      const price = Number(
+        hasDiscount ? productDetail?.discount_price! : productDetail?.price
+      );
 
       const idx = cart.findIndex((item) => item.productId === productId);
       if (idx !== -1) {
@@ -150,7 +164,7 @@ export default function ProductDetail() {
 
   const imageData: { uri: string }[] = productDetail?.images?.length
     ? productDetail.images.map((img: any) => ({ uri: img.url }))
-    : [{ uri: "" }];
+    : [{ uri: productDetail?.thumbnail }];
 
   const renderItem = ({ item }: { item: { uri: string } }) => (
     <ImageBackground
@@ -165,14 +179,17 @@ export default function ProductDetail() {
     </ImageBackground>
   );
 
-  const hasDiscount = productDetail?.discount_price != null;
+  const onResendClose = async () => {
+    setResendModalVisible(false);
+    setAlertMessage("");
+  };
 
   if (detailLoading) {
     return (
       <>
         <HeadLine />
         <View style={styles.loaderContainer}>
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" color="#2555E7" />
         </View>
       </>
     );
@@ -327,7 +344,13 @@ export default function ProductDetail() {
               <View style={styles.comboRelatedContainer}>
                 {relatedProducts?.map((product) =>
                   product ? (
-                    <View key={product.id} style={styles.comboItemRow}>
+                    <TouchableOpacity
+                      onPress={() =>
+                        router.push(`/productDetail?id=${product.id}`)
+                      }
+                      key={product.id}
+                      style={styles.comboItemRow}
+                    >
                       <ImageBackground
                         source={require("@/assets/images/placeholder.png")}
                         style={styles.comboItemImage}
@@ -344,7 +367,7 @@ export default function ProductDetail() {
                       >
                         {product?.name}
                       </Text>
-                    </View>
+                    </TouchableOpacity>
                   ) : null
                 )}
               </View>
@@ -358,7 +381,12 @@ export default function ProductDetail() {
             <Text style={styles.totalText} allowFontScaling={false}>
               Total:{" "}
               {(
-                payload.count * Number(productDetail?.price || 0)
+                payload.count *
+                Number(
+                  hasDiscount
+                    ? productDetail?.discount_price!
+                    : productDetail?.price || 0
+                )
               ).toLocaleString()}{" "}
               Ks
             </Text>
@@ -388,6 +416,12 @@ export default function ProductDetail() {
             onSelect={(option) => setPayload((prev) => ({ ...prev, option }))}
             onConfirm={handleConfirm}
             onClose={() => setModalVisible(false)}
+          />
+
+          <AlertBox
+            visible={resendModalVisible}
+            message={alertMessage}
+            onClose={onResendClose}
           />
         </SafeAreaView>
       </ScrollView>

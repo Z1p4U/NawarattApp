@@ -13,7 +13,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#000",
+        tabBarActiveTintColor: "#53CAFE",
         tabBarInactiveTintColor: "#CFCFCF",
         headerShown: false,
         tabBarButton: HapticTab,
@@ -241,6 +241,20 @@ export default function TabLayout() {
 
       <Tabs.Screen
         name="orderPay"
+        options={{
+          href: null, // This hides the tab from the tab bar
+        }}
+      />
+
+      <Tabs.Screen
+        name="chatList"
+        options={{
+          href: null, // This hides the tab from the tab bar
+        }}
+      />
+
+      <Tabs.Screen
+        name="chatDetail"
         options={{
           href: null, // This hides the tab from the tab bar
         }}

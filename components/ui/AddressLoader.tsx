@@ -59,6 +59,7 @@ const CARD_WIDTH = SCREEN_WIDTH - 40;
 const styles = StyleSheet.create({
   container: {
     paddingVertical: 16,
+    marginHorizontal: 15,
   },
   skeletonCard: {
     backgroundColor: "#ECECEC",

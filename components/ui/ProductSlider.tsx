@@ -10,6 +10,7 @@ interface ProductSliderProps {
 }
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const CARD_WIDTH = SCREEN_WIDTH * 0.3;
 
 const ProductSlider: React.FC<ProductSliderProps> = ({ products, loading }) => {
   if (loading || !products || products?.length === 0) {
@@ -29,7 +30,7 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ products, loading }) => {
     >
       {products?.map((product, index) => (
         <View key={index} style={styles.cardContainer}>
-          <ProductCard product={product} />
+          <ProductCard product={product} width={SCREEN_WIDTH * 0.35} />
         </View>
       ))}
     </ScrollView>
@@ -37,8 +38,6 @@ const ProductSlider: React.FC<ProductSliderProps> = ({ products, loading }) => {
 };
 
 export default ProductSlider;
-
-const CARD_WIDTH = SCREEN_WIDTH * 0.4;
 
 const styles = StyleSheet.create({
   row: {

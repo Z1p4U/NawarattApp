@@ -1,13 +1,18 @@
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { useEffect, useState } from "react";
+import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
-export default function SearchComponent({ searched, onchange }: any) {
+export default function SearchComponent({
+  searched,
+  onchange,
+  filterClicked,
+}: any) {
+  const [text, setText] = useState(searched ?? "");
+
+  useEffect(() => {
+    setText(searched ?? "");
+  }, [searched]);
+
   return (
     <>
       <View style={styles.searchBar}>
@@ -20,12 +25,14 @@ export default function SearchComponent({ searched, onchange }: any) {
         </Svg>
         <TextInput
           style={styles.input}
+          value={text}
           placeholder="Search for Products"
+          onChangeText={setText}
+          onSubmitEditing={() => onchange(text)}
           placeholderTextColor="#888"
-          onChangeText={onchange}
-          value={searched}
+          submitBehavior="blurAndSubmit"
         />
-        <TouchableOpacity style={{ display: "none" }}>
+        <TouchableOpacity onPress={() => filterClicked()}>
           <Svg width={24} height={24} viewBox="0 0 28 24" fill="none">
             <Path
               d="M4.083 12V.667m19.834 22.666v-4.25m-19.834 4.25v-5.666m19.834-4.25V.667M14 4.917V.667m0 22.666v-12.75M4.083 17.667a2.833 2.833 0 100-5.667 2.833 2.833 0 000 5.667zM14 10.583a2.833 2.833 0 100-5.666 2.833 2.833 0 000 5.666zM23.917 19.083a2.833 2.833 0 100-5.666 2.833 2.833 0 000 5.666z"

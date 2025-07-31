@@ -55,13 +55,8 @@ export interface Address {
   city: City;
   address: string;
   phone_no: string;
-  is_default: boolean;
+  is_default: boolean | any;
   additional_info: string;
-}
-export interface AllAddressResponse {
-  data: Address[];
-  links: Record<string, unknown>;
-  meta: Record<string, unknown>;
 }
 export interface AddressDetailResponse {
   data: Address;
@@ -74,6 +69,12 @@ export interface AddressPayload {
   phone_no: string;
   is_default: boolean;
   additional_info: string;
+}
+
+export interface AllAddressResponse {
+  data: Address[];
+  links: Record<string, unknown>;
+  meta: Record<string, number>;
 }
 
 // Address
@@ -285,6 +286,7 @@ export interface Product {
   attributes?: Record<string, unknown> | null;
   discount_type?: string | null;
   discount_unit?: number | null;
+  discount?: any;
 
   // combo-only
   combo_items?: ComboItem[];
@@ -490,3 +492,53 @@ export interface AllNotificationResponse {
 }
 
 // Notification
+
+// Chat Message
+export interface ChatMessage {
+  id: number;
+  sender: {
+    id: number;
+    name: string;
+  };
+  message: string;
+  attachments: any[];
+  message_type: "text" | "image" | "file" | string;
+  reply_to: ChatMessage | null;
+  created_at: string;
+  updated_at: string;
+}
+export interface ChatMessagePayload {
+  reply_to: number | null;
+  message: string;
+  attachments: any[]; // image , file
+}
+export interface AllChatMessageResponse {
+  data: ChatMessage[];
+  links: Record<string, unknown>;
+  meta: Record<string, number>;
+}
+
+// Chat Message
+
+// Chat
+export interface Chat {
+  id: number;
+  user: UserData;
+  status: string;
+  last_message: ChatMessage | string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChatDetailResponse {
+  data: Chat;
+}
+export interface ChatPayload {}
+
+export interface AllChatResponse {
+  data: Chat[];
+  links: Record<string, unknown>;
+  meta: Record<string, number>;
+}
+
+// Chat

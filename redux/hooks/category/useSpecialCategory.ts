@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
 import { handleFetchAllSpecialCategoryList } from "@/redux/services/category/categorySlice";
+import { AllSpecialCategoryResponse } from "@/constants/config";
 
 const useSpecialCategory = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -25,11 +26,23 @@ const useSpecialCategory = () => {
     fetchAllSpecialCategories();
   }, [dispatch, pagination]);
 
+  const handleLoadSpecialCategory =
+    useCallback(async (): Promise<AllSpecialCategoryResponse | void> => {
+      try {
+        await dispatch(
+          handleFetchAllSpecialCategoryList({ pagination, is_highlight })
+        );
+      } catch (err) {
+        console.error("Failed to load Special Categories:", err);
+      }
+    }, [dispatch]);
+
   return {
     specialCategories,
     loading,
     pagination,
     setPagination,
+    handleLoadSpecialCategory,
   };
 };
 

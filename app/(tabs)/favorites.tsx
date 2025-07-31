@@ -86,7 +86,7 @@ export default function Favorites() {
             </View>
           ) : loading ? (
             <View style={styles.bodyCentered}>
-              <ActivityIndicator size="large" color="#0000ff" />
+              <ActivityIndicator size="large" color="#2555E7" />
             </View>
           ) : (
             <View style={styles.bodyCentered}>
@@ -104,7 +104,7 @@ export default function Favorites() {
         ListFooterComponent={
           hasMore ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#0000ff" />
+              <ActivityIndicator size="large" color="#2555E7" />
             </View>
           ) : null
         }

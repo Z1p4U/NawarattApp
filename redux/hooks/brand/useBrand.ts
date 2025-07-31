@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
 import { handleFetchAllBrandList } from "@/redux/services/brand/brandSlice";
+import { AllBrandResponse } from "@/constants/config";
 
 const useBrand = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -17,9 +18,17 @@ const useBrand = () => {
       await dispatch(handleFetchAllBrandList({ pagination, is_highlight }));
       setLoading(false);
     };
-
     fetchAllBrands();
   }, [dispatch, pagination]);
+
+  const handleLoadBrandList =
+    useCallback(async (): Promise<AllBrandResponse | void> => {
+      try {
+        await dispatch(handleFetchAllBrandList({ pagination, is_highlight }));
+      } catch (err) {
+        console.error("Failed to load Brand:", err);
+      }
+    }, [dispatch]);
 
   return {
     brands,
@@ -28,6 +37,7 @@ const useBrand = () => {
     is_highlight,
     setPagination,
     setIsHighlight,
+    handleLoadBrandList,
   };
 };
 

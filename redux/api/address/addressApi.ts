@@ -45,6 +45,8 @@ const fetchCreateAddress = async (
   payload: AddressPayload
 ): Promise<MessageResponse> => {
   try {
+    console.log(payload);
+
     const response = await axiosInstance.post<MessageResponse>(
       `${environment.API_URL}/address-books`,
       payload

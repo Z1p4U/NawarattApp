@@ -63,7 +63,7 @@ export default function Notifications() {
             router.push(`/orderDetail?id=${data.order_id}`);
           } else if (data.type === "promotion" && data.discountable_id) {
             router.push(
-              `/productListByCampaign?id=${data.discountable_id}&name=${data.title}`
+              `/productListByCampaign?id=${data.discountable_id}&name=${data.title}&image=${data?.image}&expire=${data?.end_date}`
             );
           } else {
             router.push("/");
@@ -99,7 +99,7 @@ export default function Notifications() {
     if (notificationLoading) {
       return (
         <View style={styles.bodyCentered}>
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator size="large" color="#2555E7" />
         </View>
       );
     }
@@ -115,8 +115,8 @@ export default function Notifications() {
   return (
     <>
       <HeadLine />
-
       <FlatList
+        style={styles.flatList} // <— add this
         data={notifications}
         keyExtractor={(_, idx) => idx.toString()}
         renderItem={renderItem}
@@ -140,7 +140,7 @@ export default function Notifications() {
         ListFooterComponent={
           hasMore ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#0000ff" />
+              <ActivityIndicator size="large" color="#2555E7" />
             </View>
           ) : null
         }
@@ -159,8 +159,11 @@ export default function Notifications() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  flatList: {
+    flex: 1, // <— ensure FlatList itself grows
     backgroundColor: "#fff",
+  },
+  container: {
     paddingBottom: 120,
   },
   containerEmpty: {
@@ -174,6 +177,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 10,
     justifyContent: "flex-end",
+    marginHorizontal: -15,
   },
   headText: {
     marginTop: 10,

@@ -1,24 +1,35 @@
 import React from "react";
-import { ScrollView, TouchableOpacity, Text, StyleSheet } from "react-native";
+import { FlatList, View, Text, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import useCategory from "@/redux/hooks/category/useCategory";
 import PillLoader from "../ui/PillLoader";
 import { Link } from "expo-router";
+import { Category } from "@/constants/config";
 
-const DiscoverCarousel = () => {
-  const { categories, loading } = useCategory();
+interface DiscoverCarouselProps {
+  categories: Category[] | null;
+  loading: boolean;
+}
 
+const DiscoverCarousel: React.FC<DiscoverCarouselProps> = ({
+  categories,
+  loading,
+}) => {
   if (loading) {
     return <PillLoader />;
   }
 
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-      {categories?.map((category) => (
+    <FlatList
+      horizontal
+      data={categories}
+      keyExtractor={(item) => item.id.toString()}
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.listContent}
+      ItemSeparatorComponent={() => <View style={styles.separator} />}
+      renderItem={({ item }) => (
         <Link
-          key={category?.id}
           style={styles.tagContainer}
-          href={`/productListByCategory?id=${category?.id}&name=${category?.name}`}
+          href={`/productListByCategory?id=${item.id}&name=${item.name}`}
         >
           <LinearGradient
             colors={["#54CAFF", "#275AE8"]}
@@ -26,26 +37,29 @@ const DiscoverCarousel = () => {
             end={{ x: 1, y: 0 }}
             style={styles.tag}
           >
-            <Text style={styles.tagText}>{category?.name}</Text>
+            <Text style={styles.tagText}>{item.name}</Text>
           </LinearGradient>
         </Link>
-      ))}
-    </ScrollView>
+      )}
+    />
   );
 };
 
 export default DiscoverCarousel;
 
 const styles = StyleSheet.create({
-  tagContainer: {
-    marginRight: 15,
+  listContent: {
+    paddingLeft: 10,
   },
+  separator: {
+    width: 15,
+  },
+  tagContainer: {},
   tag: {
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 1000,
     alignSelf: "flex-start",
-    width: "auto",
   },
   tagText: {
     color: "#fff",

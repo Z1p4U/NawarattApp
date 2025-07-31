@@ -5,6 +5,7 @@ import {
   FlatList,
   Platform,
   RefreshControl,
+  SafeAreaView,
   StyleSheet,
   Text,
   View,
@@ -14,14 +15,37 @@ import HeadLine from "@/components/ui/HeadLine";
 import SearchComponent from "@/components/ui/SearchComponent";
 import ProductCard from "@/components/ui/ProductCard";
 import useProduct from "@/redux/hooks/product/useProduct";
+import FilterModal, { FilterSheetRef } from "@/components/Catalog/FilterModal";
+import useCategory from "@/redux/hooks/category/useCategory";
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const CARD_WIDTH = (SCREEN_WIDTH - 15 * 2 - 10) / 2;
 
 export default function Catalog() {
-  const [search, setSearch] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
-  const { products, loading, loadMore, reset, hasMore } = useProduct(search);
+  const filterRef = useRef<FilterSheetRef>(null);
+
+  const {
+    products,
+    loading,
+    hasMore,
+    name,
+    catId,
+    brandId,
+    minPrice,
+    maxPrice,
+    loadMore,
+    reset,
+    setName,
+    handleSearch,
+    handleFilterSubmit,
+  } = useProduct();
+  const { categories } = useCategory();
+
+  const onFilterPress = useCallback(() => {
+    filterRef.current?.open();
+  }, []);
 
   const onEndReached = () => {
     if (!debounceRef.current) {
@@ -34,7 +58,7 @@ export default function Catalog() {
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    setSearch("");
+    setName("");
     reset();
     setTimeout(() => setRefreshing(false), 800);
   }, [reset]);
@@ -42,6 +66,7 @@ export default function Catalog() {
   return (
     <>
       <HeadLine />
+
       <FlatList
         data={products}
         keyExtractor={(item) => item.id.toString()}
@@ -55,7 +80,11 @@ export default function Catalog() {
               end={{ x: 1, y: 0 }}
               style={styles.banner}
             >
-              <SearchComponent searched={search} onchange={setSearch} />
+              <SearchComponent
+                searched={name}
+                onchange={handleSearch}
+                filterClicked={onFilterPress}
+              />
             </LinearGradient>
           </>
         }
@@ -67,11 +96,11 @@ export default function Catalog() {
         ListEmptyComponent={() =>
           loading ? (
             <View style={styles.bodyCentered}>
-              <ActivityIndicator size="large" color="#0000ff" />
+              <ActivityIndicator size="large" color="#2555E7" />
             </View>
           ) : (
             <View style={styles.bodyCentered}>
-              <Text style={styles.messageText} allowFontScaling={false}>
+              <Text style={styles.messageText}>
                 Your product list is empty.
               </Text>
             </View>
@@ -85,7 +114,7 @@ export default function Catalog() {
         ListFooterComponent={
           hasMore ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#0000ff" />
+              <ActivityIndicator size="large" color="#2555E7" />
             </View>
           ) : null
         }
@@ -93,11 +122,24 @@ export default function Catalog() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       />
+
+      <SafeAreaView>
+        <FilterModal
+          ref={filterRef}
+          categories={categories}
+          brands={null}
+          initialCatId={catId}
+          initialBrandId={brandId}
+          initialMinPrice={minPrice}
+          initialMaxPrice={maxPrice}
+          onApply={(c, b, min, max) => {
+            handleFilterSubmit(c, b, min, max);
+          }}
+        />
+      </SafeAreaView>
     </>
   );
 }
-
-const CARD_WIDTH = (SCREEN_WIDTH - 15 * 2 - 10) / 2;
 
 const styles = StyleSheet.create({
   flatList: {
@@ -105,7 +147,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   container: {
-    paddingBottom: Platform.select({ ios: 50, android: 10 }),
+    paddingBottom: Platform.select({
+      ios: 50,
+      android: 10,
+    }),
     paddingHorizontal: 15,
   },
   banner: {

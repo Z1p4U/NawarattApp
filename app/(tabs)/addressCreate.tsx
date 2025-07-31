@@ -8,6 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  SafeAreaView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import HeadLine from "@/components/ui/HeadLine";
@@ -17,8 +18,9 @@ import useStates from "@/redux/hooks/location/useStates";
 import useCities from "@/redux/hooks/location/useCities";
 import useAddressAction from "@/redux/hooks/address/useAddressAction";
 import { Picker } from "@react-native-picker/picker";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import GoBack from "@/components/ui/GoBack";
+import AlertBox from "@/components/ui/AlertBox";
 
 export default function AddressCreate() {
   const router = useRouter();
@@ -35,6 +37,9 @@ export default function AddressCreate() {
     is_default: true,
     additional_info: "",
   });
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertModalVisible, setAlertModalVisible] = useState(false);
+  const [resendModalVisible, setResendModalVisible] = useState(false);
 
   const { states, loading: stateLoading } = useStates({
     countryId: formData?.country_id,
@@ -60,11 +65,24 @@ export default function AddressCreate() {
 
   const handleSubmit = useCallback(async () => {
     try {
-      await createAddress(formData);
-      Alert.alert("Success", "Address created successfully!");
-      router.push("/account");
+      const res = await createAddress(formData);
+
+      setFormData({
+        country_id: null,
+        state_id: null,
+        city_id: null,
+        address: "",
+        phone_no: "",
+        is_default: true,
+        additional_info: "",
+      });
+
+      setAlertMessage(res?.message || "Address created successfully!");
+      setAlertModalVisible(true);
     } catch {
-      Alert.alert("Error", "Failed to create address. Please try again.");
+      // Alert.alert("Error", "Failed to create address. Please try again.");
+      setAlertMessage("Failed to create address. Please try again.");
+      setResendModalVisible(true);
     }
   }, [createAddress, formData]);
 
@@ -80,130 +98,152 @@ export default function AddressCreate() {
       formData.phone_no.trim()
   );
 
+  const onClose = () => {
+    router.push("/addressBook");
+    setAlertModalVisible(false);
+    setAlertMessage("");
+  };
+
+  const onResendClose = () => {
+    setResendModalVisible(false);
+    setAlertMessage("");
+  };
+
   return (
     <>
       <HeadLine />
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <LinearGradient
-          colors={["#53CAFE", "#2555E7"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.banner}
+      <SafeAreaView style={{ flex: 1 }}>
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.scrollContent}
         >
-          <Text style={styles.headText} allowFontScaling={false}>
-            Create Address
-          </Text>
-        </LinearGradient>
-
-        <GoBack to={"/addressBook"} />
-
-        <View style={styles.inputContainer}>
-          {/* Country */}
-          <Text style={styles.label} allowFontScaling={false}>
-            Country
-          </Text>
-          <View style={styles.pickerWrapper}>
-            <Picker
-              selectedValue={formData.country_id}
-              // onValueChange={(v) => handleChange("country_id", v)}
-              onValueChange={getSetter("country_id")}
-            >
-              <Picker.Item label="Select country…" value={null} />
-              {countries?.map((c, index) => (
-                <Picker.Item key={index} label={c.name_en} value={c.id} />
-              ))}
-            </Picker>
-          </View>
-
-          {/* State */}
-          <Text style={styles.label} allowFontScaling={false}>
-            State
-          </Text>
-          <View style={styles.pickerWrapper}>
-            <Picker
-              enabled={formData.country_id !== null}
-              selectedValue={formData.state_id}
-              // onValueChange={(v) => handleChange("state_id", v)}
-              onValueChange={getSetter("state_id")}
-            >
-              <Picker.Item label="Select state…" value={null} />
-              {states?.map((s, index) => (
-                <Picker.Item key={index} label={s.name_en} value={s.id} />
-              ))}
-            </Picker>
-          </View>
-
-          {/* City */}
-          <Text style={styles.label} allowFontScaling={false}>
-            City
-          </Text>
-          <View style={styles.pickerWrapper}>
-            <Picker
-              enabled={formData.state_id !== null}
-              selectedValue={formData.city_id}
-              // onValueChange={(v) => handleChange("city_id", v)}
-              onValueChange={getSetter("city_id")}
-            >
-              <Picker.Item label="Select city…" value={null} />
-              {cities?.map((c, index) => (
-                <Picker.Item key={index} label={c.name_en} value={c.id} />
-              ))}
-            </Picker>
-          </View>
-
-          {/* Street Address */}
-          <Text style={styles.label} allowFontScaling={false}>
-            Street Address
-          </Text>
-          <TextInput
-            style={styles.input}
-            placeholder="123 Main St., Apt 4B"
-            value={formData.address}
-            onChangeText={(t) => handleChange("address", t)}
-          />
-
-          {/* Phone */}
-          <Text style={styles.label} allowFontScaling={false}>
-            Phone No.
-          </Text>
-          <TextInput
-            style={styles.input}
-            placeholder="+1 (555) 123-4567"
-            keyboardType="phone-pad"
-            value={formData.phone_no}
-            onChangeText={(t) => handleChange("phone_no", t)}
-          />
-
-          {/* Additional Info */}
-          <Text style={styles.label}>Additional Info</Text>
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            placeholder="Leave at front desk, buzzer #5…"
-            multiline
-            numberOfLines={3}
-            value={formData.additional_info}
-            onChangeText={(t) => handleChange("additional_info", t)}
-          />
-
-          {/* Submit */}
-          <TouchableOpacity
-            onPress={handleSubmit}
-            disabled={!isFormValid || status === "loading"}
+          <LinearGradient
+            colors={["#53CAFE", "#2555E7"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.banner}
           >
-            <LinearGradient
-              colors={["#54CAFF", "#275AE8"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.button}
+            <Text style={styles.headText} allowFontScaling={false}>
+              Create Address
+            </Text>
+          </LinearGradient>
+          <GoBack to={"/addressBook"} />
+          <View style={styles.inputContainer}>
+            {/* Country */}
+            <Text style={styles.label} allowFontScaling={false}>
+              Country
+            </Text>
+            <View style={styles.pickerWrapper}>
+              <Picker
+                selectedValue={formData.country_id}
+                // onValueChange={(v) => handleChange("country_id", v)}
+                onValueChange={getSetter("country_id")}
+              >
+                <Picker.Item label="Select country…" value={null} />
+                {countries?.map((c, index) => (
+                  <Picker.Item key={index} label={c.name_en} value={c.id} />
+                ))}
+              </Picker>
+            </View>
+
+            {/* State */}
+            <Text style={styles.label} allowFontScaling={false}>
+              State
+            </Text>
+            <View style={styles.pickerWrapper}>
+              <Picker
+                enabled={formData.country_id !== null}
+                selectedValue={formData.state_id}
+                // onValueChange={(v) => handleChange("state_id", v)}
+                onValueChange={getSetter("state_id")}
+              >
+                <Picker.Item label="Select state…" value={null} />
+                {states?.map((s, index) => (
+                  <Picker.Item key={index} label={s.name_en} value={s.id} />
+                ))}
+              </Picker>
+            </View>
+
+            {/* City */}
+            <Text style={styles.label} allowFontScaling={false}>
+              City
+            </Text>
+            <View style={styles.pickerWrapper}>
+              <Picker
+                enabled={formData.state_id !== null}
+                selectedValue={formData.city_id}
+                // onValueChange={(v) => handleChange("city_id", v)}
+                onValueChange={getSetter("city_id")}
+              >
+                <Picker.Item label="Select city…" value={null} />
+                {cities?.map((c, index) => (
+                  <Picker.Item key={index} label={c.name_en} value={c.id} />
+                ))}
+              </Picker>
+            </View>
+
+            {/* Street Address */}
+            <Text style={styles.label} allowFontScaling={false}>
+              Street Address
+            </Text>
+            <TextInput
+              style={styles.input}
+              placeholder="123 Main St., Apt 4B"
+              value={formData.address}
+              onChangeText={(t) => handleChange("address", t)}
+            />
+
+            {/* Phone */}
+            <Text style={styles.label} allowFontScaling={false}>
+              Phone No.
+            </Text>
+            <TextInput
+              style={styles.input}
+              placeholder="0912345678"
+              keyboardType="phone-pad"
+              value={formData.phone_no}
+              onChangeText={(t) => handleChange("phone_no", t)}
+            />
+
+            {/* Additional Info */}
+            <Text style={styles.label}>Additional Info</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Write an additional information ..."
+              multiline
+              numberOfLines={3}
+              value={formData.additional_info}
+              onChangeText={(t) => handleChange("additional_info", t)}
+            />
+
+            {/* Submit */}
+            <TouchableOpacity
+              onPress={handleSubmit}
+              disabled={!isFormValid || status === "loading"}
             >
-              <Text style={styles.buttonText}>Save Address</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+              <LinearGradient
+                colors={["#54CAFF", "#275AE8"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.button}
+              >
+                <Text style={styles.buttonText}>Save Address</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+          <AlertBox
+            visible={alertModalVisible}
+            message={alertMessage}
+            onClose={onClose}
+          />
+
+          <AlertBox
+            visible={resendModalVisible}
+            message={alertMessage}
+            onClose={onResendClose}
+          />
+        </ScrollView>
+      </SafeAreaView>
     </>
   );
 }

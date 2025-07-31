@@ -16,6 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 import useAuth from "@/redux/hooks/auth/useAuth"; // Import useAuth
 import Svg, { Path } from "react-native-svg";
 import GoBack from "@/components/ui/GoBack";
+import AlertBox from "@/components/ui/AlertBox";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -25,24 +26,50 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertModalVisible, setAlertModalVisible] = useState(false);
+  const [resendModalVisible, setResendModalVisible] = useState(false);
 
   const handleLogin = async () => {
     if (!credential || !password) {
-      Alert.alert("Error", "Please enter email and password.");
+      setAlertMessage("Please enter email and password.");
+      setResendModalVisible(true);
+      // Alert.alert("Error", "Please enter email and password.");
       return;
     }
 
     setLoading(true);
     try {
       const res = await login(credential, password);
-      Alert.alert("Success", res?.message);
-      router.push("/");
+      // Alert.alert("Success", res?.message);
+
+      setAlertMessage(res?.message);
+      setAlertModalVisible(true);
     } catch (error: any) {
       const errorMessage = error || "Something went wrong.";
-      Alert.alert("Login Failed", errorMessage);
+
+      setAlertMessage(errorMessage);
+      setResendModalVisible(true);
+      // Alert.alert("Login Failed", errorMessage);
     } finally {
       setLoading(false);
     }
+  };
+
+  const onForgetClick = async () => {
+    setAlertMessage("This feature will coming soon!");
+    setResendModalVisible(true);
+  };
+
+  const onClose = async () => {
+    router.push("/");
+    setAlertModalVisible(false);
+    setAlertMessage("");
+  };
+
+  const onResendClose = async () => {
+    setResendModalVisible(false);
+    setAlertMessage("");
   };
 
   return (
@@ -66,7 +93,7 @@ export default function LoginScreen() {
         <View style={styles.emailContainer}>
           <TextInput
             style={styles.input}
-            placeholder="EMAIL / PHONE NO"
+            placeholder="ENTER PHONE NUMBER"
             placeholderTextColor="#888"
             value={credential}
             onChangeText={setCredential}
@@ -78,7 +105,7 @@ export default function LoginScreen() {
         <View style={styles.passwordContainer}>
           <TextInput
             style={styles.passwordInput}
-            placeholder="PIN"
+            placeholder="ENTER PIN"
             placeholderTextColor="#888"
             value={password}
             onChangeText={setPassword}
@@ -97,7 +124,10 @@ export default function LoginScreen() {
         </View>
 
         {/* Forgot PIN */}
-        <TouchableOpacity style={styles.forgotPin}>
+        <TouchableOpacity
+          onPress={() => onForgetClick()}
+          style={styles.forgotPin}
+        >
           <Text style={styles.forgotPinText}>Forgot Pin?</Text>
         </TouchableOpacity>
 
@@ -117,7 +147,7 @@ export default function LoginScreen() {
         </View>
 
         {/* Register Link */}
-        <Text style={styles.registerText}>
+        {/* <Text style={styles.registerText}>
           If you don’t have an Account yet,{" "}
           <Text
             style={styles.registerLink}
@@ -125,10 +155,10 @@ export default function LoginScreen() {
           >
             Register Now!
           </Text>
-        </Text>
+        </Text> */}
 
         {/* Social Login */}
-        <View style={styles.row}>
+        {/* <View style={styles.row}>
           <Svg width={102} height={1} viewBox="0 0 102 1" fill="none">
             <Path stroke="#000" strokeOpacity={0.1} d="M0 0.5L102 0.5" />
           </Svg>
@@ -154,7 +184,19 @@ export default function LoginScreen() {
               style={styles.socialIcon}
             />
           </TouchableOpacity>
-        </View>
+        </View> */}
+
+        <AlertBox
+          visible={alertModalVisible}
+          message={alertMessage}
+          onClose={onClose}
+        />
+
+        <AlertBox
+          visible={resendModalVisible}
+          message={alertMessage}
+          onClose={onResendClose}
+        />
       </ScrollView>
     </View>
   );
@@ -204,6 +246,7 @@ const styles = StyleSheet.create({
   formContainer: {
     flex: 1,
     paddingHorizontal: 20,
+    marginTop: 20,
   },
   loginText: {
     fontSize: 22,

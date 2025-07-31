@@ -8,10 +8,22 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "assetBundlePatterns": ["assets/images/*"],
+    "splash": {
+      "video": "./assets/videos/splash.mp4",
+      "image": "./assets/images/placeholder.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "assets/images/*",
+      "assets/videos/*",
+      "assets/sounds/*"
+    ],
     "notification": {
       "icon": "./assets/images/placeholder.png",
-      "color": "#ffffff"
+      "color": "#ffffff",
+      "androidMode": "default",
+      "androidCollapsedTitle": "Nawaratt App"
     },
     "ios": {
       "supportsTablet": true,
@@ -25,7 +37,10 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.z1p4u.NawarattApp",
-      "permissions": ["INTERNET"]
+      "permissions": [
+        "INTERNET",
+        "INTERNET"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -40,8 +55,26 @@
       [
         "expo-build-properties",
         {
-          "android": { "useNextNotificationsApi": true },
-          "ios": { "deploymentTarget": "15.1" }
+          "android": {
+            "useNextNotificationsApi": true,
+            "extraResources": [
+              {
+                "source": "./assets/sounds/nawaratt.wav",
+                "target": "app/src/main/res/raw/nawaratt.wav"
+              },
+              {
+                "source": "./assets/sounds/custom.wav",
+                "target": "app/src/main/res/raw/custom.wav"
+              }
+            ]
+          },
+          "ios": {
+            "deploymentTarget": "15.1",
+            "assetPackPatterns": [
+              "assets/sounds/nawaratt.wav",
+              "assets/sounds/custom.wav"
+            ]
+          }
         }
       ],
       [
@@ -52,7 +85,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true
@@ -64,6 +98,12 @@
       "eas": {
         "projectId": "ab21b8ae-9f5d-4dd0-b775-d803f37953d5"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/ab21b8ae-9f5d-4dd0-b775-d803f37953d5"
     }
   }
 }

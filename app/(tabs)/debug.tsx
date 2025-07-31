@@ -1,62 +1,120 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, Alert, Button } from "react-native";
-import messaging from "@react-native-firebase/messaging";
+import { useState, useEffect } from "react";
+import { Text, View, Button, Platform } from "react-native";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
+import Constants from "expo-constants";
+
+// 0️⃣ Tell Expo how to display notifications
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 export default function App() {
-  const [fcmToken, setFcmToken] = useState<string | null>(null);
+  const [expoPushToken, setExpoPushToken] = useState("");
+  const [channels, setChannels] = useState<Notifications.NotificationChannel[]>(
+    []
+  );
+  const [notification, setNotification] =
+    useState<Notifications.Notification>();
 
   useEffect(() => {
-    (async () => {
-      // 1. Request notification permissions (iOS shows prompt; Android auto-grants)
-      const authStatus = await messaging().requestPermission();
-      if (
-        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-        authStatus === messaging.AuthorizationStatus.PROVISIONAL
-      ) {
-        // 2. Get the FCM registration token
-        const token = await messaging().getToken();
-        setFcmToken(token);
-        console.log("🔑 FCM Token:", token);
-        // TODO: send `token` to your Laravel backend
-      } else {
-        Alert.alert(
-          "Permission denied",
-          "Cannot get FCM token without permissions"
-        );
+    registerForPushNotificationsAsync().then(
+      (token) => token && setExpoPushToken(token)
+    );
+
+    if (Platform.OS === "android") {
+      // 1️⃣ Create a channel with your noti sound
+      Notifications.setNotificationChannelAsync("nawaratt", {
+        name: "Nawaratt",
+        importance: Notifications.AndroidImportance.MAX,
+        sound: "nawaratt", // must match your bundled file
+        vibrationPattern: [0], // no vibration
+      }).then(() => {
+        // then list channels so you can see it
+        Notifications.getNotificationChannelsAsync().then(setChannels);
+      });
+    }
+
+    // Listen for incoming notifications
+    const notificationListener = Notifications.addNotificationReceivedListener(
+      (n) => {
+        setNotification(n);
       }
-    })();
+    );
+    const responseListener =
+      Notifications.addNotificationResponseReceivedListener((r) => {
+        console.log("Tapped notification:", r);
+      });
 
-    // Optional: listen for incoming messages
-    const unsubscribe = messaging().onMessage(async (remoteMessage) => {
-      console.log("FCM Message:", remoteMessage);
-      Alert.alert(
-        remoteMessage.notification?.title ?? "",
-        remoteMessage.notification?.body ?? ""
-      );
-    });
-
-    return unsubscribe;
+    return () => {
+      notificationListener.remove();
+      responseListener.remove();
+    };
   }, []);
 
   return (
     <View
       style={{
         flex: 1,
-        justifyContent: "center",
         alignItems: "center",
+        justifyContent: "space-around",
         backgroundColor: "#fff",
       }}
     >
-      <Text>FCM registration token:</Text>
-      <Text selectable>{fcmToken ?? "Fetching..."}</Text>
+      <Text>Your expo push token: {expoPushToken}</Text>
+      <Text>Channels: {channels.map((c) => c.id).join(", ")}</Text>
+      <View>
+        <Text>Title: {notification?.request.content.title}</Text>
+        <Text>Body: {notification?.request.content.body}</Text>
+        <Text>Data: {JSON.stringify(notification?.request.content.data)}</Text>
+      </View>
       <Button
-        title="Refresh Token"
+        title="Press to schedule a notification"
         onPress={async () => {
-          const newToken = await messaging().getToken();
-          setFcmToken(newToken);
-          console.log("🔄 New FCM Token:", newToken);
+          // 2️⃣ Schedule on your channel
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              title: "You've got mail! 📬",
+              body: "This is the notification body",
+              data: { foo: "bar" },
+              sound: "nawaratt", // iOS, and fallback
+            },
+            trigger: { seconds: 0, channelId: "nawaratt" },
+          });
         }}
       />
     </View>
   );
+}
+
+async function registerForPushNotificationsAsync() {
+  let token;
+  if (Device.isDevice) {
+    const { status: existing } = await Notifications.getPermissionsAsync();
+    let finalStatus = existing;
+    if (existing !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== "granted") {
+      alert("Failed to get push token");
+      return;
+    }
+    try {
+      const projectId =
+        Constants.expoConfig?.extra?.eas?.projectId ??
+        Constants.easConfig?.projectId;
+      token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
+      console.log("Token:", token);
+    } catch (e) {
+      console.error(e);
+    }
+  } else {
+    alert("Must use physical device");
+  }
+  return token;
 }

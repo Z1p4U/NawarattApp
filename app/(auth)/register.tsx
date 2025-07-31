@@ -15,6 +15,7 @@ import { Ionicons } from "@expo/vector-icons";
 import useAuth from "@/redux/hooks/auth/useAuth";
 import Svg, { Path } from "react-native-svg";
 import GoBack from "@/components/ui/GoBack";
+import AlertBox from "@/components/ui/AlertBox";
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -29,6 +30,9 @@ export default function RegisterScreen() {
   const [retypePassword, setRetypePassword] = useState("");
   const [showRetypePassword, setShowRetypePassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertModalVisible, setAlertModalVisible] = useState(false);
+  const [resendModalVisible, setResendModalVisible] = useState(false);
 
   const handleRegister = async () => {
     if (
@@ -39,11 +43,15 @@ export default function RegisterScreen() {
       !password ||
       !retypePassword
     ) {
-      Alert.alert("Error", "Please fill all fields.");
+      // Alert.alert("Error", "Please fill all fields.");
+      setAlertMessage("Please fill all fields.");
+      setResendModalVisible(true);
       return;
     }
     if (password !== retypePassword) {
-      Alert.alert("Error", "Passwords do not match.");
+      // Alert.alert("Error", "Passwords do not match.");
+      setAlertMessage("Passwords do not match.");
+      setResendModalVisible(true);
       return;
     }
 
@@ -56,13 +64,27 @@ export default function RegisterScreen() {
         credential,
         password
       );
-      Alert.alert("Success", res?.message);
-      router.push({ pathname: "/otp", params: { phone: credential } });
+      // Alert.alert("Success", res?.message);
+      setAlertMessage(res?.message);
+      setAlertModalVisible(true);
     } catch (error: any) {
-      Alert.alert("Register Failed", error || "Something went wrong.");
+      // Alert.alert("Register Failed", error || "Something went wrong.");
+      setAlertMessage(error || "Register Failed.");
+      setResendModalVisible(true);
     } finally {
       setLoading(false);
     }
+  };
+
+  const onClose = async () => {
+    router.push({ pathname: "/otp", params: { phone: credential } });
+    setAlertModalVisible(false);
+    setAlertMessage("");
+  };
+
+  const onResendClose = async () => {
+    setResendModalVisible(false);
+    setAlertMessage("");
   };
 
   return (
@@ -85,7 +107,7 @@ export default function RegisterScreen() {
         {/* Email / Phone Input */}
         <TextInput
           style={styles.input}
-          placeholder="EMAIL / PHONE NO"
+          placeholder="PHONE NUMBER"
           placeholderTextColor="#888"
           value={credential}
           onChangeText={setCredential}
@@ -207,6 +229,18 @@ export default function RegisterScreen() {
             Login Here!
           </Text>
         </Text>
+
+        <AlertBox
+          visible={alertModalVisible}
+          message={alertMessage}
+          onClose={onClose}
+        />
+
+        <AlertBox
+          visible={resendModalVisible}
+          message={alertMessage}
+          onClose={onResendClose}
+        />
       </ScrollView>
     </View>
   );

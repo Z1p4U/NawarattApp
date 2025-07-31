@@ -1,27 +1,36 @@
 import React from "react";
-import useBrand from "@/redux/hooks/brand/useBrand";
 import { Link } from "expo-router";
 import {
-  View,
   Image,
   ImageBackground,
   StyleSheet,
   Dimensions,
+  FlatList,
 } from "react-native";
 import Loader from "../ui/Loader";
+import { Brand } from "@/constants/config";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
-// Adjust this percentage as desired:
 const CARD_SIZE = SCREEN_WIDTH * 0.28;
+interface BrandListProps {
+  brands: Brand[] | null;
+  loading: boolean;
+}
 
-const BrandList: React.FC = () => {
-  const { brands, loading } = useBrand();
+const BrandList: React.FC<BrandListProps> = ({ brands, loading }) => {
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
-    <View style={styles.brandContainer}>
-      {brands?.map((brand) => {
-        // If brand.image is a remote URL string, we use that.
-        // Otherwise, we fall back to the local placeholder right away.
+    <FlatList
+      data={brands || []}
+      keyExtractor={(brand) => brand.id.toString()}
+      numColumns={3}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.listContainer}
+      columnWrapperStyle={styles.row}
+      renderItem={({ item: brand }) => {
         const thumbnailSource = brand.image
           ? { uri: brand.image }
           : require("@/assets/images/placeholder.png");
@@ -33,12 +42,10 @@ const BrandList: React.FC = () => {
             style={styles.brandCard}
           >
             <ImageBackground
-              // Always display the placeholder behind
               source={require("@/assets/images/placeholder.png")}
               style={styles.imageBg}
               imageStyle={styles.imageStyle}
             >
-              {/* Overlay the remote (or local) thumbnail on top */}
               <Image
                 source={thumbnailSource}
                 style={[styles.imageOverlay, styles.imageStyle]}
@@ -46,39 +53,36 @@ const BrandList: React.FC = () => {
             </ImageBackground>
           </Link>
         );
-      })}
-    </View>
+      }}
+    />
   );
 };
 
 export default BrandList;
 
 const styles = StyleSheet.create({
-  brandContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+  listContainer: {
+    padding: 10,
+  },
+  row: {
     justifyContent: "center",
-    gap: 10, // React Native 0.70+ supports “gap” on View for row/column spacing
   },
   brandCard: {
     width: CARD_SIZE,
     height: CARD_SIZE,
-    marginBottom: 15,
+    margin: 5, // replaces gap + marginBottom
   },
-  // The ImageBackground container:
   imageBg: {
     width: "100%",
     height: "100%",
     justifyContent: "center",
     alignItems: "center",
   },
-  // Common rounded‐corner, border styling for both BG and overlay:
   imageStyle: {
     borderRadius: 20,
     borderWidth: 1,
     borderColor: "#0000001A",
   },
-  // The actual overlayed Image will sit absolutely to fill the same space:
   imageOverlay: {
     position: "absolute",
     top: 0,

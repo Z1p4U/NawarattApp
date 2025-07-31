@@ -2,11 +2,9 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
   ActivityIndicator,
   FlatList,
-  RefreshControl,
   StyleSheet,
   Text,
   View,
-  Platform,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import HeadLine from "@/components/ui/HeadLine";
@@ -29,6 +27,7 @@ export default function OrderHistory() {
     hasMore,
     reset,
   } = useOrder({ orderStatus });
+
   const [refreshing, setRefreshing] = useState(false);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -45,7 +44,7 @@ export default function OrderHistory() {
     ).padStart(2, "0")}-${d.getFullYear()}`;
   };
 
-  // Pull-to-refresh
+  // Pull-to-refresh using FlatList's built‑in props
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     reset();
@@ -64,7 +63,7 @@ export default function OrderHistory() {
 
   const renderItem = ({ item }: { item: any }) => (
     <Link
-      key={item?.id}
+      key={item.id}
       href={`/orderDetail?id=${item.id}`}
       style={styles.cardLink}
     >
@@ -112,9 +111,16 @@ export default function OrderHistory() {
       <HeadLine />
 
       <FlatList
+        style={styles.flatList}
         data={orders}
         keyExtractor={(o) => o.id.toString()}
         renderItem={renderItem}
+        // pull‑to‑refresh
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        // infinite scroll
+        onEndReached={onEndReached}
+        onEndReachedThreshold={0.2}
         ListHeaderComponent={
           <>
             <LinearGradient
@@ -132,7 +138,7 @@ export default function OrderHistory() {
         ListEmptyComponent={
           orderLoading ? (
             <View style={styles.centered}>
-              <ActivityIndicator size="large" color="#0000ff" />
+              <ActivityIndicator size="large" color="#2555E7" />
             </View>
           ) : (
             <View style={styles.centered}>
@@ -143,17 +149,12 @@ export default function OrderHistory() {
         ListFooterComponent={
           hasMore ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#0000ff" />
+              <ActivityIndicator size="large" color="#2555E7" />
             </View>
           ) : null
         }
-        onEndReached={onEndReached}
-        onEndReachedThreshold={0.2}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
         contentContainerStyle={
-          orders.length === 0 ? styles.flatListEmpty : styles.flatList
+          orders.length === 0 ? styles.flatListEmpty : styles.content
         }
       />
     </>
@@ -162,15 +163,18 @@ export default function OrderHistory() {
 
 const styles = StyleSheet.create({
   flatList: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  content: {
     paddingHorizontal: 15,
     paddingBottom: 120,
-    backgroundColor: "#fff",
   },
   flatListEmpty: {
     flex: 1,
+    justifyContent: "center",
     paddingHorizontal: 15,
     paddingBottom: 120,
-    justifyContent: "center",
     backgroundColor: "#fff",
   },
   banner: {

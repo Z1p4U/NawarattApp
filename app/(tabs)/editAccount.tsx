@@ -16,6 +16,7 @@ import { PinPayload, ProfilePayload } from "@/constants/config";
 import useAuth from "@/redux/hooks/auth/useAuth";
 import { router } from "expo-router";
 import GoBack from "@/components/ui/GoBack";
+import AlertBox from "@/components/ui/AlertBox";
 
 export default function EditAccount() {
   const { profileDetail, updateProfile } = useUser();
@@ -28,12 +29,14 @@ export default function EditAccount() {
     email: profileDetail?.data?.email || "",
     gender: profileDetail?.data?.user_data?.gender || "male",
   });
-
   const [pinData, setPinData] = useState<PinPayload>({
     oldPin: "",
     newPin: "",
     confirmPin: "",
   });
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertModalVisible, setAlertModalVisible] = useState(false);
+  const [resendModalVisible, setResendModalVisible] = useState(false);
 
   const handleChange = <K extends keyof ProfilePayload>(
     key: K,
@@ -54,21 +57,28 @@ export default function EditAccount() {
       const response = await updateProfile(formData);
 
       if (response) {
-        alert("Profile updated successfully!");
-        router.push("/account");
+        // alert("Profile updated successfully!");
+        setAlertMessage("Profile updated successfully!");
+        setAlertModalVisible(true);
       }
     } catch (error) {
-      alert("Failed to update profile. Please try again.");
+      // alert("Failed to update profile. Please try again.");
+      setAlertMessage("Failed to update profile. Please try again.");
+      setResendModalVisible(true);
     }
   }, [updateProfile, formData]);
 
   const handleUpdatePin = () => {
     if (pinData.newPin !== pinData.confirmPin) {
-      alert("New PINs do not match!");
+      // alert("New PINs do not match!");
+      setAlertMessage("New PINs do not match!");
+      setResendModalVisible(true);
       return;
     }
     // console.log("Submitting pin data", pinData);
-    alert("This feature will coming soon");
+    // alert("This feature will coming soon");
+    setAlertMessage("This feature will coming soon!");
+    setResendModalVisible(true);
     // dispatch update pin action here
   };
 
@@ -92,6 +102,17 @@ export default function EditAccount() {
       ],
       { cancelable: true }
     );
+  };
+
+  const onClose = async () => {
+    router.push("/account");
+    setAlertModalVisible(false);
+    setAlertMessage("");
+  };
+
+  const onResendClose = async () => {
+    setResendModalVisible(false);
+    setAlertMessage("");
   };
 
   return (
@@ -260,6 +281,18 @@ export default function EditAccount() {
             </View>
           </TouchableOpacity>
         </View>
+
+        <AlertBox
+          visible={alertModalVisible}
+          message={alertMessage}
+          onClose={onClose}
+        />
+
+        <AlertBox
+          visible={resendModalVisible}
+          message={alertMessage}
+          onClose={onResendClose}
+        />
       </ScrollView>
     </>
   );

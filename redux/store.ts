@@ -10,6 +10,8 @@ import wishlistReducer from "@/redux/services/wishlist/wishlistSlice";
 import locationReducer from "@/redux/services/location/locationSlice";
 import addressReducer from "@/redux/services/address/addressSlice";
 import orderReducer from "@/redux/services/order/orderSlice";
+import chatReducer from "@/redux/services/chat/chatSlice";
+import messageReducer from "@/redux/services/messages/messageSlice";
 
 const store = configureStore({
   reducer: {
@@ -24,6 +26,8 @@ const store = configureStore({
     location: locationReducer,
     address: addressReducer,
     order: orderReducer,
+    chat: chatReducer,
+    message: messageReducer,
   },
 });
 

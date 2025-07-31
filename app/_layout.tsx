@@ -1,7 +1,8 @@
 import "react-native-gesture-handler";
 import { AppRegistry, Platform } from "react-native";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import * as Notifications from "expo-notifications";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { DarkTheme, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
@@ -20,6 +21,7 @@ import {
   onMessage,
   setBackgroundMessageHandler,
 } from "@react-native-firebase/messaging";
+// import VideoSplash from "@/components/VideoSplash";
 
 ///////////////////////////////////////////////////////////////////////////////
 // 0️⃣ FCM setup
@@ -36,6 +38,10 @@ Notifications.setNotificationHandler({
   }),
 });
 
+// Notifications.addNotificationReceivedListener((notification) => {
+//   console.log("Received notification:", JSON.stringify(notification, null, 2));
+// });
+
 ///////////////////////////////////////////////////////////////////////////////
 // 2️⃣ Background handler — always schedule a local notification
 setBackgroundMessageHandler(messaging, async (remoteMessage) => {
@@ -44,42 +50,70 @@ setBackgroundMessageHandler(messaging, async (remoteMessage) => {
   const body = remoteMessage.notification?.body ?? data.description ?? "";
 
   await Notifications.scheduleNotificationAsync({
-    content: { title, body, data, sound: "default" },
-    trigger: null,
+    content: {
+      title,
+      body,
+      data,
+      sound: "nawaratt",
+      vibrate: [0],
+    },
+    trigger: { seconds: 0, channelId: "nawaratt" },
   });
 });
 
 export default function RootLayout() {
   const router = useRouter();
 
-  // sync token & IMEI
+  // const [videoDone, setVideoDone] = useState(false);
+  const [fontLoaded] = useFonts({
+    "Saira-Bold": require("../assets/fonts/Saira-Bold.ttf"),
+    "Saira-Medium": require("../assets/fonts/Saira-Medium.ttf"),
+    "Saira-Regular": require("../assets/fonts/Saira-Regular.ttf"),
+    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+  });
+
   usePushTokenSync();
-  SplashScreen.preventAutoHideAsync();
+
+  useEffect(() => {
+    SplashScreen.preventAutoHideAsync().catch(() => {});
+  }, []);
+
+  // useEffect(() => {
+  //   if (videoDone && fontLoaded) {
+  //     SplashScreen.hideAsync();
+  //   }
+  // }, [videoDone, fontLoaded]);
 
   useEffect(() => {
     // Auth interceptor
     registerAuthInterceptor(() => store.dispatch(logout()));
 
-    // Android notification channel
     (async () => {
       if (Platform.OS === "android") {
-        await Notifications.setNotificationChannelAsync("default", {
-          name: "Default",
+        await Notifications.setNotificationChannelAsync("nawaratt", {
+          name: "Nawaratt",
           importance: Notifications.AndroidImportance.MAX,
-          sound: "default",
+          vibrationPattern: [0],
+          sound: "nawaratt",
         });
       }
     })();
 
     // Foreground handler — always schedule
-    const unsubOnMessage = onMessage(messaging, async (remoteMessage) => {
-      const data = (remoteMessage.data ?? {}) as Record<string, string>;
-      const title = remoteMessage.notification?.title ?? data.title ?? "";
-      const body = remoteMessage.notification?.body ?? data.description ?? "";
+    const unsubscribeOnMessage = onMessage(messaging, async (msg) => {
+      const data = (msg.data ?? {}) as Record<string, string>;
+      const title = msg.notification?.title ?? data.title ?? "";
+      const body = msg.notification?.body ?? data.description ?? "";
 
       await Notifications.scheduleNotificationAsync({
-        content: { title, body, data, sound: "default" },
-        trigger: null,
+        content: {
+          title,
+          body,
+          data,
+          vibrate: [0],
+          sound: "nawaratt",
+        },
+        trigger: { seconds: 0, channelId: "nawaratt" },
       });
     });
 
@@ -90,13 +124,13 @@ export default function RootLayout() {
           string,
           string
         >;
-        // console.log("Notification tapped:", JSON.stringify(data));
+        console.log("Notification tapped:", JSON.stringify(data));
 
         if (data.type === "order" && data.order_id) {
           router.push(`/orderDetail?id=${data.order_id}`);
         } else if (data.type === "promotion" && data.discountable_id) {
           router.push(
-            `/productListByCampaign?id=${data.discountable_id}&name=${data.title}`
+            `/productListByCampaign?id=${data.discountable_id}&name=${data.title}&image=${data?.image}&expire=${data?.end_date}`
           );
         } else {
           router.push(`/`);
@@ -105,44 +139,37 @@ export default function RootLayout() {
     );
 
     return () => {
-      unsubOnMessage();
+      unsubscribeOnMessage();
       tapSub.remove();
     };
   }, [router]);
 
-  // Load fonts
-  const [loaded] = useFonts({
-    "Saira-Bold": require("../assets/fonts/Saira-Bold.ttf"),
-    "Saira-Medium": require("../assets/fonts/Saira-Medium.ttf"),
-    "Saira-Regular": require("../assets/fonts/Saira-Regular.ttf"),
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-  });
+  // if (!videoDone) {
+  //   return <VideoSplash onDone={() => setVideoDone(true)} />;
+  // }
 
-  // Hide splash
-  useEffect(() => {
-    if (loaded) SplashScreen.hideAsync();
-  }, [loaded]);
-
-  if (!loaded) return null;
+  if (!fontLoaded) return null;
 
   return (
-    <Provider store={store}>
-      <LinearGradient
-        style={{ flex: 1 }}
-        colors={["#53CAFE", "#2555E7"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-      >
-        <ThemeProvider value={DarkTheme}>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
-          <StatusBar style="light" />
-        </ThemeProvider>
-      </LinearGradient>
-    </Provider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Provider store={store}>
+        <LinearGradient
+          style={{ flex: 1 }}
+          colors={["#53CAFE", "#2555E7"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+        >
+          <ThemeProvider value={DarkTheme}>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen name="+not-found" />
+            </Stack>
+            <StatusBar style="dark" />
+          </ThemeProvider>
+        </LinearGradient>
+      </Provider>
+    </GestureHandlerRootView>
   );
 }
 

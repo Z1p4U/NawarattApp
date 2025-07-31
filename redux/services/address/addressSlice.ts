@@ -15,14 +15,16 @@ import {
 } from "@/constants/config";
 
 interface AddressState {
-  addresses: AllAddressResponse["data"] | null;
+  addresses: AllAddressResponse["data"] | [];
+  totalAddress: number;
   addressDetail: AddressDetailResponse["data"] | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
 
 const initialState: AddressState = {
-  addresses: null,
+  addresses: [],
+  totalAddress: 0,
   addressDetail: null,
   status: "idle",
   error: null,
@@ -93,8 +95,16 @@ const addressSlice = createSlice({
   name: "address",
   initialState,
   reducers: {
-    clearDetail(state) {
+    clearAddressState(state) {
+      state.addresses = [];
+      state.totalAddress = 0;
+      state.status = "idle";
+      state.error = null;
+    },
+    clearAddressDetail(state) {
       state.addressDetail = null;
+      state.status = "idle";
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
@@ -104,13 +114,21 @@ const addressSlice = createSlice({
         state.status = "loading";
         state.error = null;
       })
-      .addCase(
-        loadAddresses.fulfilled,
-        (state, action: PayloadAction<AllAddressResponse>) => {
-          state.status = "succeeded";
-          state.addresses = action.payload.data;
-        }
-      )
+      .addCase(loadAddresses.fulfilled, (state, action) => {
+        const { pagination } = action.meta.arg as {
+          pagination: PaginationPayload;
+        };
+
+        state.addresses =
+          pagination.page === 1
+            ? action.payload.data || []
+            : [...(state.addresses ?? []), ...(action.payload.data ?? [])];
+
+        state.totalAddress = action.payload.meta.total;
+
+        state.status = "succeeded";
+        state.error = null;
+      })
       .addCase(loadAddresses.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload ?? action.error.message ?? null;
@@ -192,5 +210,5 @@ const addressSlice = createSlice({
   },
 });
 
-export const { clearDetail } = addressSlice.actions;
+export const { clearAddressState, clearAddressDetail } = addressSlice.actions;
 export default addressSlice.reducer;

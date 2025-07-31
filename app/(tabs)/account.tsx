@@ -1,4 +1,5 @@
 import HeadSection from "@/components/Account/HeadSection";
+import AlertBox from "@/components/ui/AlertBox";
 import HeadLine from "@/components/ui/HeadLine";
 import useAuth from "@/redux/hooks/auth/useAuth";
 import useUser from "@/redux/hooks/user/useUser";
@@ -23,7 +24,6 @@ export default function Account() {
   const { profileDetail, handleLoadOrderProfile } = useUser();
   const { isAuthenticated, loading } = useAuth();
   const router = useRouter();
-  const [modalVisible, setModalVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -170,7 +170,7 @@ export default function Account() {
                 style={{ marginTop: 20, marginBottom: 30 }}
                 onPress={() => {
                   // console.log("Modal Visible:", modalVisible);
-                  setModalVisible(true);
+                  router.push("/chatList");
                 }}
               >
                 <LinearGradient
@@ -192,24 +192,6 @@ export default function Account() {
               </TouchableOpacity>
             </View>
             {/* Body Section End */}
-
-            <Modal transparent animationType="fade" visible={modalVisible}>
-              <View style={styles.centeredView}>
-                <View style={styles.modalView}>
-                  <Text style={styles.modalText} allowFontScaling={false}>
-                    Chat system will be Coming Soon!
-                  </Text>
-                  <TouchableOpacity
-                    style={[styles.button, styles.buttonClose]}
-                    onPress={() => setModalVisible(!modalVisible)}
-                  >
-                    <Text style={styles.textStyle} allowFontScaling={false}>
-                      OK
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </Modal>
           </ScrollView>
         </SafeAreaView>
       </RouteGuard>
@@ -311,49 +293,13 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     fontFamily: "Saira-Medium",
   },
-
-  centeredView: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#00000099",
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  button: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2,
-  },
   buttonOpen: {
     backgroundColor: "#F194FF",
-  },
-  buttonClose: {
-    backgroundColor: "#2196F3",
   },
   textStyle: {
     color: "white",
     textAlign: "center",
     paddingHorizontal: 40,
-    fontWeight: "500",
-    fontFamily: "Saira-Medium",
-  },
-  modalText: {
-    marginBottom: 16,
-    textAlign: "center",
     fontWeight: "500",
     fontFamily: "Saira-Medium",
   },

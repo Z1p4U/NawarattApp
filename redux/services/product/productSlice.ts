@@ -45,15 +45,35 @@ const initialState: ProductState = {
 /** Thunk: fetch all (regular) products **/
 export const handleFetchAllProductList = createAsyncThunk<
   AllProductResponse,
-  { pagination: PaginationPayload; name: string | null },
+  {
+    pagination: PaginationPayload;
+    category_id?: string | null;
+    brand_id?: string | null;
+    min_price?: number | null;
+    max_price?: number | null;
+    name: string;
+  },
   { rejectValue: string }
->("products/fetchAll", async ({ pagination, name }, { rejectWithValue }) => {
-  try {
-    return await fetchAllProducts(pagination, null, name);
-  } catch (err: any) {
-    return rejectWithValue(err.response?.data || err.message);
+>(
+  "products/fetchAll",
+  async (
+    { pagination, category_id, brand_id, min_price, max_price, name },
+    { rejectWithValue }
+  ) => {
+    try {
+      return await fetchAllProducts(
+        pagination,
+        category_id,
+        brand_id,
+        min_price,
+        max_price,
+        name
+      );
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
   }
-});
+);
 
 export const handleFetchAllBrandProducts = createAsyncThunk<
   AllProductResponse,
