@@ -14,6 +14,13 @@
   "jest": {
     "preset": "jest-expo"
   },
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "listUnknownPackages": false
+      }
+    }
+  },
   "dependencies": {
     "@expo/vector-icons": "~14.0.4",
     "@react-native-async-storage/async-storage": "1.23.1",
@@ -41,7 +48,6 @@
     "expo-status-bar": "~2.0.1",
     "expo-symbols": "~0.2.2",
     "expo-system-ui": "~4.0.8",
-    "expo-updates": "~0.27.4",
     "expo-video": "~2.0.6",
     "expo-web-browser": "~14.0.2",
     "react": "18.3.1",

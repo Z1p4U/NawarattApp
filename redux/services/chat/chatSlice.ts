@@ -55,11 +55,11 @@ export const loadChatDetail = createAsyncThunk<
 
 export const createChat = createAsyncThunk<
   MessageResponse,
-  ChatPayload,
+  void,
   { rejectValue: string }
->("chat/create", async (payload, { rejectWithValue }) => {
+>("chat/create", async (_, { rejectWithValue }) => {
   try {
-    return await fetchCreateChat(payload);
+    return await fetchCreateChat();
   } catch (err: any) {
     return rejectWithValue(err.message);
   }

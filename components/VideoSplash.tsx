@@ -1,83 +1,78 @@
-import React, { useEffect, useState } from "react";
-import { Dimensions, StyleSheet, View, Image } from "react-native";
+import React, { useState } from "react";
+import { View, StyleSheet } from "react-native";
 import * as SplashScreen from "expo-splash-screen";
-import { Asset } from "expo-asset";
-import { useVideoPlayer, VideoView, VideoSource } from "expo-video";
-import { useEvent } from "expo";
+import { useVideoPlayer, VideoView } from "expo-video";
+import { useEventListener } from "expo";
+import { StatusBar } from "expo-status-bar";
 
-type Props = { onDone: () => void };
-
-const VIDEO_SRC: VideoSource = require("../assets/videos/splash.mp4");
-const IMAGE_FALLBACK = require("../assets/images/placeholder.png");
+type Props = {
+  onDone: () => void;
+};
 
 export default function VideoSplash({ onDone }: Props) {
-  const [phase, setPhase] = useState<"loading" | "playing" | "fallback">(
-    "loading"
-  );
+  const [hasHidden, setHasHidden] = useState(false);
 
-  // 1️⃣ Prevent auto‐hide, preload video asset
-  useEffect(() => {
-    SplashScreen.preventAutoHideAsync();
-    Asset.loadAsync(VIDEO_SRC)
-      .then(() => setPhase("playing"))
-      .catch(() => setPhase("fallback"));
-  }, []);
+  // Hide the native splash only once
+  const hideSplashOnce = async () => {
+    if (!hasHidden) {
+      setHasHidden(true);
+      await SplashScreen.hideAsync();
+    }
+  };
 
-  const player = useVideoPlayer(VIDEO_SRC);
+  // 1️⃣ Initialize the player
+  let player;
+  try {
+    player = useVideoPlayer(require("../assets/videos/splash.mp4"), (p) => {
+      p.loop = false;
+      p.play();
+    });
+  } catch (e) {
+    hideSplashOnce();
+    onDone();
+    return null;
+  }
 
-  const { status } = useEvent(player, "statusChange", {
-    status: player.status,
+  // 2️⃣ Listen for statusChange → ready or error
+  useEventListener(player, "statusChange", async (payload) => {
+    const { status, error } = payload;
+    if (status === "readyToPlay") {
+      await hideSplashOnce();
+    }
+    if (status === "error") {
+      console.warn("VideoSplash load/play error:", error);
+      await hideSplashOnce();
+      onDone();
+    }
   });
 
-  useEffect(() => {
-    if (phase === "playing" && status?.isLoaded && !status.isPlaying) {
-      player.play();
-    }
-  }, [phase, status, player]);
-
-  useEffect(() => {
-    if (status?.didJustFinish && phase === "playing") {
-      endSplash();
-    }
-    if (phase === "playing") {
-      const t = setTimeout(() => setPhase("fallback"), 5000);
-      return () => clearTimeout(t);
-    }
-  }, [status, phase]);
-
-  function endSplash() {
-    SplashScreen.hideAsync().finally(onDone);
-  }
-
-  // 6️⃣ Render
-  if (phase === "loading") {
-    return null; // keep native splash
-  }
+  useEventListener(player, "playToEnd", () => {
+    onDone();
+  });
 
   return (
-    <View style={styles.container}>
-      {phase === "fallback" ? (
-        <Image
-          source={IMAGE_FALLBACK}
-          style={styles.fullscreen}
-          resizeMode="cover"
-          onLoadEnd={endSplash}
-        />
-      ) : (
+    <>
+      <StatusBar style="dark" />
+      <View style={styles.container}>
         <VideoView
           player={player}
-          style={styles.fullscreen}
-          contentFit="cover"
+          style={styles.video}
           nativeControls={false}
-          onError={() => setPhase("fallback")}
+          allowsFullscreen={false}
+          allowsPictureInPicture={false}
+          contentFit="cover"
         />
-      )}
-    </View>
+      </View>
+    </>
   );
 }
 
-const { width, height } = Dimensions.get("window");
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#000" },
-  fullscreen: { width, height },
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  video: {
+    flex: 1,
+  },
 });

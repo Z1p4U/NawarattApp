@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
   FlatList,
   Image,
+  Platform,
   RefreshControl,
   StyleSheet,
   Text,
@@ -16,12 +17,17 @@ import useChat from "@/redux/hooks/chat/useChat";
 import useAuth from "@/redux/hooks/auth/useAuth";
 import AddressLoader from "@/components/ui/AddressLoader";
 import Svg, { Path } from "react-native-svg";
+import useChatAction from "@/redux/hooks/chat/useChatAction";
+import AlertBox from "@/components/ui/AlertBox";
 
 export default function ChatBook() {
   const router = useRouter();
   const { chats, loading, reset } = useChat();
+  const { createChat } = useChatAction();
   const { isAuthenticated, loading: authLoading } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [resendModalVisible, setResendModalVisible] = useState(false);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -30,7 +36,6 @@ export default function ChatBook() {
     }
   }, [authLoading, isAuthenticated, router]);
 
-  // Pull‑to‑refresh
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
@@ -38,6 +43,22 @@ export default function ChatBook() {
     } catch {}
     setRefreshing(false);
   }, [reset]);
+
+  const handleSubmit = useCallback(async () => {
+    try {
+      await createChat();
+      setAlertMessage("Chat created successfully!");
+    } catch {
+      setAlertMessage("Failed to create chat. Please try again.");
+    } finally {
+      setResendModalVisible(true);
+    }
+  }, [createChat]);
+
+  const onResendClose = () => {
+    setResendModalVisible(false);
+    setAlertMessage("");
+  };
 
   // Render each chat
   const renderItem = ({ item }: { item: any }) => {
@@ -64,7 +85,7 @@ export default function ChatBook() {
             </Svg>
           </LinearGradient>
           <View>
-            <Text style={styles.notificationCardTitle}>Chat {item?.id}</Text>
+            <Text style={styles.notificationCardTitle}>Chat With Admin</Text>
             <Text style={styles.notificationCardDescription}>
               {item?.last_message
                 ? item?.last_message?.sender?.name
@@ -98,21 +119,6 @@ export default function ChatBook() {
               </Text>
             </LinearGradient>
             <GoBack to="/account" />
-            <TouchableOpacity
-              style={styles.addButtonWrapper}
-              onPress={() => alert("This function will coming soon !")}
-            >
-              <LinearGradient
-                colors={["#54CAFF", "#275AE8"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.newChat}
-              >
-                <Text style={styles.chatText} allowFontScaling={false}>
-                  Create New Chat
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
           </>
         }
         renderItem={renderItem}
@@ -125,13 +131,43 @@ export default function ChatBook() {
             <AddressLoader count={6} />
           ) : (
             <View style={styles.bodyCentered}>
-              <Text style={styles.messageText}>No chats found.</Text>
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text style={styles.messageText}>You don't have any chat.</Text>
+              </View>
+
+              <TouchableOpacity
+                style={styles.addButtonWrapper}
+                onPress={handleSubmit}
+              >
+                <LinearGradient
+                  colors={["#54CAFF", "#275AE8"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.newChat}
+                >
+                  <Text style={styles.chatText} allowFontScaling={false}>
+                    Create A New Chat
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
             </View>
           )
         }
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
+      />
+
+      <AlertBox
+        visible={resendModalVisible}
+        message={alertMessage}
+        onClose={onResendClose}
       />
     </>
   );
@@ -143,7 +179,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   contentContainer: {
-    paddingBottom: 120,
+    paddingBottom: Platform.select({
+      ios: 50,
+      android: 10,
+    }),
     backgroundColor: "#fff",
     flexGrow: 1,
   },
@@ -169,8 +208,7 @@ const styles = StyleSheet.create({
 
   addButtonWrapper: {
     paddingHorizontal: 15,
-    marginTop: 10,
-    marginBottom: 20,
+    marginTop: "auto",
   },
   newChat: {
     paddingVertical: 12,
@@ -218,9 +256,6 @@ const styles = StyleSheet.create({
 
   bodyCentered: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
   },
   messageText: {
     fontSize: 16,

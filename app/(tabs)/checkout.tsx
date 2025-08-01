@@ -75,13 +75,10 @@ export default function Checkout() {
 
   useEffect(() => {
     if (addresses) {
-      setSelectedAddress(
-        (prev) =>
-          addresses?.find(
-            (a) => a?.is_default === true || a?.is_default == 1
-          ) ??
-          addresses[0] ??
-          null
+      setSelectedAddress((prev) =>
+        addresses?.find((a) => a?.is_default === true || a?.is_default == 1)
+          ? addresses[0]
+          : null
       );
     }
   }, []);

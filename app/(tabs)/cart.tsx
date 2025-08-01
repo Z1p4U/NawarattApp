@@ -137,6 +137,8 @@ export default function Cart() {
                   source={
                     item?.pdData?.images && item?.pdData?.images.length > 0
                       ? { uri: item?.pdData?.images[0] }
+                      : item?.pdData?.thumbnail
+                      ? { uri: item?.pdData?.thumbnail }
                       : require("@/assets/images/placeholder.png")
                   }
                   style={styles.pdCardImg}

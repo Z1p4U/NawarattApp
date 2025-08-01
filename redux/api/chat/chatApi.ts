@@ -41,13 +41,10 @@ const fetchChatDetail = async (
   }
 };
 
-const fetchCreateChat = async (
-  payload: ChatPayload
-): Promise<MessageResponse> => {
+const fetchCreateChat = async (): Promise<MessageResponse> => {
   try {
     const response = await axiosInstance.post<MessageResponse>(
-      `${environment.API_URL}/chats`,
-      payload
+      `${environment.API_URL}/chats`
     );
 
     return response?.data;

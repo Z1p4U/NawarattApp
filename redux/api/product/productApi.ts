@@ -25,8 +25,6 @@ const fetchAllProducts = async (
       ...(pagination || {}),
     };
 
-    console.log(params);
-
     const response = await axiosInstance.get<AllProductResponse>(
       `${environment.API_URL}/products`,
       { params }

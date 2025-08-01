@@ -37,10 +37,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.z1p4u.NawarattApp",
-      "permissions": [
-        "INTERNET",
-        "INTERNET"
-      ]
+      "permissions": ["INTERNET", "INTERNET"]
     },
     "web": {
       "bundler": "metro",

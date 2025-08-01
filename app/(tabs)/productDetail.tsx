@@ -45,8 +45,6 @@ export default function ProductDetail() {
   const { isInWishlist } = useWishlist();
   const { isAuthenticated } = useAuth();
 
-  console.log(productDetail);
-
   const [modalVisible, setModalVisible] = useState(false);
   const [alreadyInCart, setAlreadyInCart] = useState(false);
   const [payload, setPayload] = useState({
@@ -274,34 +272,36 @@ export default function ProductDetail() {
               </>
             )}
           </View>
-
-          <View style={styles.row}>
-            {productDetail?.brand && (
-              <ImageBackground
-                source={require("@/assets/images/placeholder.png")}
-                style={styles.shopImg}
-                imageStyle={styles.imageStyle}
-              >
-                <Image
-                  source={
-                    productDetail.brand.image
-                      ? { uri: productDetail.brand.image }
-                      : require("@/assets/images/placeholder.png")
-                  }
-                  style={[styles.shopImg, styles.imageStyle]}
-                />
-              </ImageBackground>
-            )}
-            {productDetail?.brand && (
-              <Link
-                href={`/productListByBrand?id=${productDetail.brand.id}&name=${productDetail.brand.name}`}
-                style={styles.brandName}
-                allowFontScaling={false}
-              >
-                {productDetail.brand.name}
-              </Link>
-            )}
-          </View>
+          {productDetail?.brand && (
+            <View style={{ gap: 10 }}>
+              <Text style={styles.comboTitle} allowFontScaling={false}>
+                Brand
+              </Text>
+              <View style={styles.row}>
+                <ImageBackground
+                  source={require("@/assets/images/placeholder.png")}
+                  style={styles.shopImg}
+                  imageStyle={styles.imageStyle}
+                >
+                  <Image
+                    source={
+                      productDetail.brand.image
+                        ? { uri: productDetail.brand.image }
+                        : require("@/assets/images/placeholder.png")
+                    }
+                    style={[styles.shopImg, styles.imageStyle]}
+                  />
+                </ImageBackground>
+                <Link
+                  href={`/productListByBrand?id=${productDetail.brand.id}&name=${productDetail.brand.name}`}
+                  style={styles.brandName}
+                  allowFontScaling={false}
+                >
+                  {productDetail.brand.name}
+                </Link>
+              </View>
+            </View>
+          )}
 
           {productDetail?.type === "combo" &&
             (productDetail.combo_items ?? []).length > 0 && (

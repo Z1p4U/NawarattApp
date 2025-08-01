@@ -4,9 +4,7 @@ import React, { useEffect, useState } from "react";
 import * as Notifications from "expo-notifications";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { DarkTheme, ThemeProvider } from "@react-navigation/native";
-import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 import { Provider } from "react-redux";
@@ -21,7 +19,8 @@ import {
   onMessage,
   setBackgroundMessageHandler,
 } from "@react-native-firebase/messaging";
-// import VideoSplash from "@/components/VideoSplash";
+import VideoSplash from "@/components/VideoSplash";
+import { useAppReady } from "@/hooks/useAppReady";
 
 ///////////////////////////////////////////////////////////////////////////////
 // 0️⃣ FCM setup
@@ -63,26 +62,9 @@ setBackgroundMessageHandler(messaging, async (remoteMessage) => {
 
 export default function RootLayout() {
   const router = useRouter();
-
-  // const [videoDone, setVideoDone] = useState(false);
-  const [fontLoaded] = useFonts({
-    "Saira-Bold": require("../assets/fonts/Saira-Bold.ttf"),
-    "Saira-Medium": require("../assets/fonts/Saira-Medium.ttf"),
-    "Saira-Regular": require("../assets/fonts/Saira-Regular.ttf"),
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-  });
+  const { isReady, fontsLoaded, handleVideoDone, videoDone } = useAppReady();
 
   usePushTokenSync();
-
-  useEffect(() => {
-    SplashScreen.preventAutoHideAsync().catch(() => {});
-  }, []);
-
-  // useEffect(() => {
-  //   if (videoDone && fontLoaded) {
-  //     SplashScreen.hideAsync();
-  //   }
-  // }, [videoDone, fontLoaded]);
 
   useEffect(() => {
     // Auth interceptor
@@ -144,11 +126,12 @@ export default function RootLayout() {
     };
   }, [router]);
 
-  // if (!videoDone) {
-  //   return <VideoSplash onDone={() => setVideoDone(true)} />;
-  // }
-
-  if (!fontLoaded) return null;
+  if (!fontsLoaded) {
+    return null;
+  }
+  if (!videoDone) {
+    return <VideoSplash onDone={handleVideoDone} />;
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

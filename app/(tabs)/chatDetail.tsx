@@ -405,14 +405,12 @@ const styles = StyleSheet.create({
     color: "#000",
     borderBottomRightRadius: 0,
     marginLeft: 10,
-    textAlign: "justify",
   },
   adminText: {
     backgroundColor: "#53CAFE",
     color: "#fff",
     borderBottomLeftRadius: 0,
     marginRight: 10,
-    textAlign: "justify",
   },
   tsText: {
     fontSize: 10,
