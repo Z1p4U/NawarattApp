@@ -106,7 +106,7 @@ export default function ChatDetail() {
     const hasRepliedMessage = item?.reply_to != null;
 
     return (
-      <>
+      <View key={`msg-${item.id}`}>
         <View
           style={[
             styles.messageRow,
@@ -160,6 +160,7 @@ export default function ChatDetail() {
                     styles.chatText,
                     isAdminMessage ? styles.adminText : styles.userText,
                   ]}
+                  selectable
                 >
                   {item.message}
                 </Text>
@@ -204,11 +205,11 @@ export default function ChatDetail() {
         </View>
 
         {showDateSeparator && (
-          <View style={styles.dateSeparatorRow}>
+          <View key={`sep-${item.id}`} style={styles.dateSeparatorRow}>
             <Text style={styles.dateSeparatorText}>{thisDateStr}</Text>
           </View>
         )}
-      </>
+      </View>
     );
   };
 

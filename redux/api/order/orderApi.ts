@@ -47,10 +47,14 @@ const fetchCreateOrder = async (
   payload: OrderPayload
 ): Promise<MessageResponse> => {
   try {
+    console.log(payload);
+
     const response = await axiosInstance.post<MessageResponse>(
       `${environment.API_URL}/orders`,
       payload
     );
+
+    console.log(response);
 
     return response?.data;
   } catch (error) {

@@ -58,7 +58,7 @@ export default function ProductDetail() {
       discount_price: productDetail?.discount_price,
       category: productDetail?.category?.name,
       thumbnail: productDetail?.thumbnail,
-      discountable_item_id: productDetail?.discount?.id,
+      discountable_item_id: productDetail?.discount?.id || null,
     },
   });
   const [alertMessage, setAlertMessage] = useState("");
@@ -77,7 +77,7 @@ export default function ProductDetail() {
         discount_price: productDetail?.discount_price,
         category: productDetail?.category?.name,
         thumbnail: productDetail?.thumbnail,
-        discountable_item_id: productDetail?.discount?.id,
+        discountable_item_id: productDetail?.discount?.id || null,
       },
     });
   }, [productDetail, productId]);

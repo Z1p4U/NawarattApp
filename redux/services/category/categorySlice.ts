@@ -30,19 +30,22 @@ const initialState: CategoryState = {
 // Fetch All Categories
 export const handleFetchAllCategoryList = createAsyncThunk<
   AllCategoryResponse, // Return type
-  { pagination: PaginationPayload }, // Argument type
+  { pagination: PaginationPayload; is_highlight: boolean }, // Argument type
   { rejectValue: string } // Error handling type
->("categories/fetchAll", async ({ pagination }, { rejectWithValue }) => {
-  try {
-    const response = await fetchAllCategories(pagination);
-    return response;
-  } catch (error: any) {
-    console.error("Category List Fetching error:", error);
-    return rejectWithValue(
-      error.response?.data || "Failed to fetch categories"
-    );
+>(
+  "categories/fetchAll",
+  async ({ pagination, is_highlight }, { rejectWithValue }) => {
+    try {
+      const response = await fetchAllCategories(pagination, is_highlight);
+      return response;
+    } catch (error: any) {
+      console.error("Category List Fetching error:", error);
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch categories"
+      );
+    }
   }
-});
+);
 
 // Fetch All Special Categories
 export const handleFetchAllSpecialCategoryList = createAsyncThunk<

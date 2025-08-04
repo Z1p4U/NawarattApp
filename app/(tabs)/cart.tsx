@@ -12,7 +12,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import HeadLine from "@/components/ui/HeadLine";
 import QuantityControl from "@/components/ui/QuantityControl";
-import { useFocusEffect, useRouter } from "expo-router";
+import { Link, useFocusEffect, useRouter } from "expo-router";
 import AddressLoader from "@/components/ui/AddressLoader";
 import { CartItem } from "@/constants/config";
 
@@ -132,56 +132,61 @@ export default function Cart() {
             </View>
           ) : (
             data.map((item) => (
-              <View key={item.productId} style={styles.pdCard}>
-                <Image
-                  source={
-                    item?.pdData?.images && item?.pdData?.images.length > 0
-                      ? { uri: item?.pdData?.images[0] }
-                      : item?.pdData?.thumbnail
-                      ? { uri: item?.pdData?.thumbnail }
-                      : require("@/assets/images/placeholder.png")
-                  }
-                  style={styles.pdCardImg}
-                />
+              <Link
+                href={`/productDetail?id=${item.productId}`}
+                key={item.productId}
+              >
+                <View style={styles.pdCard}>
+                  <Image
+                    source={
+                      item?.pdData?.images && item?.pdData?.images.length > 0
+                        ? { uri: item?.pdData?.images[0] }
+                        : item?.pdData?.thumbnail
+                        ? { uri: item?.pdData?.thumbnail }
+                        : require("@/assets/images/placeholder.png")
+                    }
+                    style={styles.pdCardImg}
+                  />
 
-                <View style={styles.pdCardInfo}>
-                  <Text
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                    style={styles.pdCardName}
-                    allowFontScaling={false}
-                  >
-                    {item.pdData.name}
-                  </Text>
-                  <Text style={styles.pdCardCat} allowFontScaling={false}>
-                    {item.pdData.category}
-                  </Text>
-                  <View style={styles.pdCardQuantity}>
-                    <Text style={styles.totalText} allowFontScaling={false}>
-                      {item?.total?.toLocaleString()} Ks
+                  <View style={styles.pdCardInfo}>
+                    <Text
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                      style={styles.pdCardName}
+                      allowFontScaling={false}
+                    >
+                      {item.pdData.name}
                     </Text>
-                    {/* Quantity Control */}
-                    <View style={{ width: "100%" }}>
-                      <QuantityControl
-                        count={item.count}
-                        // Pass the unique cart item id to updateQuantity
-                        setCount={(newCount: number) =>
-                          updateQuantity(item.productId, newCount)
-                        }
-                      />
+                    <Text style={styles.pdCardCat} allowFontScaling={false}>
+                      {item.pdData.category}
+                    </Text>
+                    <View style={styles.pdCardQuantity}>
+                      <Text style={styles.totalText} allowFontScaling={false}>
+                        {item?.total?.toLocaleString()} Ks
+                      </Text>
+                      {/* Quantity Control */}
+                      <View style={{ width: "100%" }}>
+                        <QuantityControl
+                          count={item.count}
+                          // Pass the unique cart item id to updateQuantity
+                          setCount={(newCount: number) =>
+                            updateQuantity(item.productId, newCount)
+                          }
+                        />
+                      </View>
                     </View>
                   </View>
+                  {/* ✅ Add Remove Button */}
+                  <TouchableOpacity
+                    onPress={() => removeCartItem(item.productId)}
+                    style={styles.removeBtn}
+                  >
+                    <Text style={styles.removeBtnText} allowFontScaling={false}>
+                      x
+                    </Text>
+                  </TouchableOpacity>
                 </View>
-                {/* ✅ Add Remove Button */}
-                <TouchableOpacity
-                  onPress={() => removeCartItem(item.productId)}
-                  style={styles.removeBtn}
-                >
-                  <Text style={styles.removeBtnText} allowFontScaling={false}>
-                    x
-                  </Text>
-                </TouchableOpacity>
-              </View>
+              </Link>
             ))
           )}
         </View>

@@ -15,7 +15,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LinearGradient } from "expo-linear-gradient";
 import HeadLine from "@/components/ui/HeadLine";
 import Svg, { Path } from "react-native-svg";
-import { useFocusEffect, useRouter } from "expo-router";
+import { Link, useFocusEffect, useRouter } from "expo-router";
 import useAddress from "@/redux/hooks/address/useAddress";
 import { Address, OrderOption, OrderPayload } from "@/constants/config";
 import useAuth from "@/redux/hooks/auth/useAuth";
@@ -76,7 +76,7 @@ export default function Checkout() {
   useEffect(() => {
     if (addresses) {
       setSelectedAddress((prev) =>
-        addresses?.find((a) => a?.is_default === true || a?.is_default == 1)
+        addresses?.find((a) => a?.is_default == true || a?.is_default == 1)
           ? addresses[0]
           : null
       );
@@ -105,8 +105,6 @@ export default function Checkout() {
       alert("Your cart is empty");
       return;
     }
-
-    // <— annotate the payload so TS knows it must be OrderPayload
 
     const payload: OrderPayload = {
       address_book_id: selectedAddress.id,
@@ -275,9 +273,13 @@ export default function Checkout() {
           onPress={() => setAgreed(!agreed)}
         >
           <View style={[styles.radioCircle, agreed && styles.selected]} />
-          <Text style={styles.placeOrderComponentText} allowFontScaling={false}>
+          <Link
+            href={"http://nawarattmedical.com/termsandcondition"}
+            style={styles.placeOrderComponentText}
+            allowFontScaling={false}
+          >
             I&apos;d read and agree to Terms and Conditions
-          </Text>
+          </Link>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={handlePlaceOrder}
@@ -378,6 +380,21 @@ export default function Checkout() {
               ))
             )}
           </ScrollView>
+          <TouchableOpacity
+            style={styles.addButtonWrapper}
+            onPress={() => router.push("/addressCreate")}
+          >
+            <LinearGradient
+              colors={["#54CAFF", "#275AE8"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.newAddress}
+            >
+              <Text style={styles.chatText} allowFontScaling={false}>
+                Add New Address
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
         </SafeAreaView>
       </Modal>
 
@@ -533,7 +550,7 @@ const styles = StyleSheet.create({
   /* Modal styles */
   modalOverlay: {
     flex: 1,
-    backgroundColor: "#00000055",
+    backgroundColor: "#fff",
   },
   modalHeader: {
     flexDirection: "row",
@@ -554,5 +571,23 @@ const styles = StyleSheet.create({
   modalContent: {
     padding: 16,
     backgroundColor: "#fff",
+  },
+  addButtonWrapper: {
+    paddingHorizontal: 15,
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  newAddress: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  chatText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "500",
+    fontFamily: "Saira-Medium",
   },
 });

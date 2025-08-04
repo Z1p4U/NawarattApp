@@ -7,10 +7,11 @@ import {
 import environment from "@/constants/environment";
 
 const fetchAllCategories = async (
-  pagination: PaginationPayload
+  pagination: PaginationPayload,
+  is_highlight: boolean
 ): Promise<AllCategoryResponse> => {
   try {
-    const params = { ...(pagination || {}) };
+    const params = { ...(pagination || {}), is_highlight };
 
     const response = await axiosInstance.get<AllCategoryResponse>(
       `${environment.API_URL}/categories`,
