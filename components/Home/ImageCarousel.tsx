@@ -1,6 +1,4 @@
-import { Campaign } from "@/constants/config";
-import useCampaign from "@/redux/hooks/campaign/useCampaign";
-import { Link } from "expo-router";
+import { AppBanner } from "@/constants/config";
 import React from "react";
 import {
   View,
@@ -8,56 +6,70 @@ import {
   StyleSheet,
   Dimensions,
   ImageBackground,
-  ImageErrorEventData,
-  NativeSyntheticEvent,
 } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
+import { Link } from "expo-router";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
-
 type Placeholder = number;
 interface ImageCarouselProps {
-  campaigns: Campaign[];
+  banners: AppBanner[];
 }
 
 const placeholderImage: Placeholder = require("../../assets/images/banner-placeholder.png");
 
-const ImageCarousel: React.FC<ImageCarouselProps> = ({ campaigns }) => {
-  const renderItem = ({ item }: { item: Campaign }) => {
+const isCampaignBanner = (
+  b: AppBanner
+): b is AppBanner & { discountable: any } =>
+  b.type === "campaign" && (b as any).discountable != null;
+
+const ImageCarousel: React.FC<ImageCarouselProps> = ({ banners }) => {
+  const renderItem = ({ item }: { item: AppBanner }) => {
+    // choose the correct image source depending on banner type
+    const imageUri =
+      isCampaignBanner(item) && item.discountable
+        ? item.discountable.image
+        : (item as any).image;
+
     const thumbnailSource =
-      typeof item.image === "string" ? { uri: item.image } : placeholderImage;
+      typeof imageUri === "string" && imageUri.length > 0
+        ? { uri: imageUri }
+        : placeholderImage;
 
-    // const handleImgError = (e: NativeSyntheticEvent<ImageErrorEventData>) => {
-    //   console.warn(
-    //     `Failed to load image for product ${item.id}:`,
-    //     e.nativeEvent.error
-    //   );
-    // };
-
-    return (
-      <Link
-        href={`/productListByCampaign?id=${item.id}&name=${item?.title}&image=${item?.image}&expire=${item?.end_date}`}
-        style={styles.link}
+    const imageInner = (
+      <ImageBackground
+        source={placeholderImage}
+        style={styles.imageBg}
+        imageStyle={styles.imageStyle}
       >
-        <ImageBackground
-          source={placeholderImage}
-          style={styles.imageBg}
-          imageStyle={styles.imageStyle}
-        >
-          <Image
-            source={thumbnailSource}
-            style={[styles.imageOverlay, styles.imageStyle]}
-            // onError={handleImgError}
-          />
-        </ImageBackground>
-      </Link>
+        <Image
+          source={thumbnailSource}
+          style={[styles.imageOverlay, styles.imageStyle]}
+        />
+      </ImageBackground>
     );
-  };
 
-  // <Image
-  //   source={typeof item?.image === "string" ? { uri: item?.image } : item.image}
-  //   style={styles.carouselImage}
-  // />;
+    // If campaign — wrap in Link and route to discountable details
+    if (isCampaignBanner(item) && item.discountable) {
+      const disc = item.discountable;
+      const href = `/productListByCampaign?id=${encodeURIComponent(
+        String(disc.id)
+      )}&name=${encodeURIComponent(
+        disc.title ?? ""
+      )}&image=${encodeURIComponent(
+        disc.image ?? ""
+      )}&expire=${encodeURIComponent(disc.end_date ?? "")}`;
+
+      return (
+        <Link href={href as any} style={styles.link}>
+          {imageInner}
+        </Link>
+      );
+    }
+
+    // Otherwise info banner — show the image only (not clickable)
+    return <View style={styles.link}>{imageInner}</View>;
+  };
 
   return (
     <View style={styles.carouselContainer}>
@@ -65,7 +77,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ campaigns }) => {
         loop
         width={SCREEN_WIDTH}
         height={SCREEN_HEIGHT * 0.25}
-        data={campaigns}
+        data={banners}
         renderItem={renderItem}
         autoPlay={true}
         autoPlayInterval={5000}

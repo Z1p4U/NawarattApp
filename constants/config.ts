@@ -542,3 +542,26 @@ export interface AllChatResponse {
 }
 
 // Chat
+
+// App Banner
+export type BannerType = "info" | "campaign";
+interface BaseBannerResponse {
+  id: number;
+  type: BannerType;
+  order: string;
+}
+export interface InfoBannerResponse extends BaseBannerResponse {
+  type: "info";
+  image: string;
+}
+export interface CampaignBannerResponse extends BaseBannerResponse {
+  type: "campaign";
+  discountable: Campaign;
+}
+export type AppBanner = InfoBannerResponse | CampaignBannerResponse;
+export interface AllAppBannerResponse {
+  data: AppBanner[];
+  links: Record<string, unknown>;
+  meta: { total: number; last_page: number };
+}
+// App Banner

@@ -20,18 +20,18 @@ import BrandList from "@/components/Home/BrandList";
 import { Link, useRouter } from "expo-router";
 import useAuth from "@/redux/hooks/auth/useAuth";
 import useUser from "@/redux/hooks/user/useUser";
-import useCampaign from "@/redux/hooks/campaign/useCampaign";
 import useCategory from "@/redux/hooks/category/useCategory";
 import useSpecialCategory from "@/redux/hooks/category/useSpecialCategory";
 import useBrand from "@/redux/hooks/brand/useBrand";
 import { SpecialCategory } from "@/constants/config";
+import useAppBanner from "@/redux/hooks/app-banner/useAppBanner";
 
 export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const { isAuthenticated } = useAuth();
   const { profileDetail, handleLoadOrderProfile } = useUser();
-  const { campaigns, handleLoadCampaign } = useCampaign();
+  const { banners, handleLoadBannerList } = useAppBanner();
   const {
     categories,
     loading: categoryLoading,
@@ -49,14 +49,14 @@ export default function HomeScreen() {
     setRefreshing(true);
     Promise.all([
       handleLoadOrderProfile(),
-      handleLoadCampaign(),
+      handleLoadBannerList(),
       handleLoadCategory(),
       handleLoadSpecialCategory(),
       handleLoadBrandList(),
     ]).finally(() => setRefreshing(false));
   }, [
     handleLoadOrderProfile,
-    handleLoadCampaign,
+    handleLoadBannerList,
     handleLoadCategory,
     handleLoadSpecialCategory,
     handleLoadBrandList,
@@ -112,7 +112,7 @@ export default function HomeScreen() {
           </View>
         </LinearGradient>
 
-        <ImageCarousel campaigns={campaigns} />
+        <ImageCarousel banners={banners} />
 
         <View style={styles.discover}>
           <View style={styles.discoverHead}>
@@ -134,7 +134,7 @@ export default function HomeScreen() {
     isAuthenticated,
     profileDetail,
     router,
-    campaigns,
+    banners,
     categories,
     categoryLoading,
   ]);

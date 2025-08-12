@@ -1,5 +1,12 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Platform,
+} from "react-native";
 import Svg, { Path } from "react-native-svg";
 
 interface QuantityControlProps {
@@ -11,9 +18,60 @@ export default function QuantityControl({
   count,
   setCount,
 }: QuantityControlProps) {
+  // keep a local string state so editing doesn't fight numeric coercion
+  const [input, setInput] = useState(String(count));
+
+  // Keep input synced when parent `count` changes (e.g. external updates)
+  useEffect(() => {
+    setInput(String(count));
+  }, [count]);
+
+  const onChange = (text: string) => {
+    const digits = text.replace(/[^0-9]/g, "");
+    setInput(digits);
+
+    // update parent if the number is >= 1 (avoid forcing 1 while user is editing)
+    if (digits !== "") {
+      const n = parseInt(digits, 10);
+      if (!isNaN(n) && n >= 1) {
+        setCount(n);
+      }
+    }
+  };
+
+  const onBlur = () => {
+    // if empty or invalid, fallback to 1
+    if (!input || input.trim() === "") {
+      setCount(1);
+      setInput("1");
+      return;
+    }
+    const n = parseInt(input, 10);
+    if (isNaN(n) || n < 1) {
+      setCount(1);
+      setInput("1");
+    } else {
+      // normalize (remove leading zeros)
+      setCount(n);
+      setInput(String(n));
+    }
+  };
+
+  const decrement = () => {
+    const next = Math.max(1, count - 1);
+    setCount(next);
+    setInput(String(next));
+  };
+
+  const increment = () => {
+    const next = count + 1;
+    setCount(next);
+    setInput(String(next));
+  };
+
   return (
     <View style={styles.row}>
-      <TouchableOpacity onPress={() => setCount(Math.max(1, count - 1))}>
+      <TouchableOpacity onPress={decrement} accessibilityRole="button">
         <LinearGradient
           colors={["#54CAFF", "#275AE8"]}
           start={{ x: 0, y: 0 }}
@@ -27,12 +85,22 @@ export default function QuantityControl({
       </TouchableOpacity>
 
       <View style={styles.quantityTextContainer}>
-        <Text style={styles.quantityText} allowFontScaling={false}>
-          {count}
-        </Text>
+        <TextInput
+          value={input}
+          onChangeText={onChange}
+          onBlur={onBlur}
+          keyboardType={Platform.OS === "ios" ? "number-pad" : "numeric"}
+          returnKeyType="done"
+          maxLength={6}
+          style={styles.quantityText}
+          underlineColorAndroid="transparent"
+          accessible
+          accessibilityLabel="Quantity"
+          textAlign="center"
+        />
       </View>
 
-      <TouchableOpacity onPress={() => setCount(count + 1)}>
+      <TouchableOpacity onPress={increment} accessibilityRole="button">
         <LinearGradient
           colors={["#54CAFF", "#275AE8"]}
           start={{ x: 0, y: 0 }}
@@ -65,19 +133,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   quantityTextContainer: {
-    backgroundColor: "#F2F3F4",
-    width: 55,
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     marginHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 10,
   },
   quantityText: {
+    backgroundColor: "#F2F3F4",
+    width: 55,
+    paddingVertical: 3,
+    borderRadius: 10,
     color: "#00000080",
     fontSize: 16,
     fontWeight: "500",
     fontFamily: "Saira-Medium",
+    padding: 0,
+    minHeight: 20,
   },
 });
