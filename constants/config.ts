@@ -509,8 +509,8 @@ export interface ChatMessage {
 }
 export interface ChatMessagePayload {
   reply_to: number | null;
-  message: string;
-  attachments: any[]; // image , file
+  message?: string;
+  attachments?: any[]; // image , file
 }
 export interface AllChatMessageResponse {
   data: ChatMessage[];

@@ -7,7 +7,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Platform,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import HeadLine from "@/components/ui/HeadLine";
@@ -15,9 +14,15 @@ import GoBack from "@/components/ui/GoBack";
 import { useRouter } from "expo-router";
 import useNotification from "@/redux/hooks/notification/useNotification";
 import useAuth from "@/redux/hooks/auth/useAuth";
+import useGlobalNotification from "@/redux/hooks/notification/useGlobalNotification";
+
+type TabKey = "global" | "user";
 
 export default function Notifications() {
   const router = useRouter();
+  const { isAuthenticated, loading: authLoading } = useAuth();
+
+  // user-specific notifications
   const {
     notifications,
     loading: notificationLoading,
@@ -25,28 +30,63 @@ export default function Notifications() {
     hasMore,
     reset,
   } = useNotification();
-  const { isAuthenticated, loading: authLoading } = useAuth();
 
-  // redirect to login if necessary
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.replace("/login");
-    }
-  }, [authLoading, isAuthenticated, router]);
+  // global notifications
+  const {
+    globalNotifications,
+    loading: globalNotificationLoading,
+    loadMore: loadMoreGlobalNotifications,
+    hasMore: hasMoreGlobalNotifications,
+    reset: resetGlobalNotifications,
+  } = useGlobalNotification();
 
-  // pull‑to‑refresh
+  // UI state
+  const [activeTab, setActiveTab] = useState<TabKey>("global"); // default to global
   const [refreshing, setRefreshing] = useState(false);
+
+  // debounce for infinite scroll
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  // When switching tabs, reset and reload the active tab data
+  useEffect(() => {
+    if (activeTab === "global") {
+      resetGlobalNotifications();
+    } else {
+      // if user attempts to switch to user tab while not authenticated, redirect to login
+      if (!authLoading && !isAuthenticated) {
+        router.push("/login");
+        setActiveTab("global"); // keep them on global
+        return;
+      }
+      reset();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
+
+  // Pull-to-refresh: call the active tab's reset
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    reset(); // clear & reload first page
+    if (activeTab === "global") {
+      resetGlobalNotifications();
+    } else {
+      reset();
+    }
+    // mirror your prior behaviour: short timeout for UX; ideally replace with real completion callback
     setTimeout(() => setRefreshing(false), 800);
-  }, [reset]);
+  }, [activeTab, reset, resetGlobalNotifications]);
 
-  // infinite scroll
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  // infinite scroll handler that delegates to the active list
   const onEndReached = () => {
-    if (!hasMore || notificationLoading) return;
-    if (!debounceRef.current) {
+    if (debounceRef.current) return;
+
+    if (activeTab === "global") {
+      if (globalNotificationLoading || !hasMoreGlobalNotifications) return;
+      debounceRef.current = setTimeout(() => {
+        loadMoreGlobalNotifications();
+        debounceRef.current = null;
+      }, 500);
+    } else {
+      if (notificationLoading || !hasMore) return;
       debounceRef.current = setTimeout(() => {
         loadMore();
         debounceRef.current = null;
@@ -54,16 +94,17 @@ export default function Notifications() {
     }
   };
 
+  // render item: supports both shapes (item may be wrapped in { data: {...} })
   const renderItem = ({ item }: { item: any }) => {
-    const { data } = item;
+    const payload = item?.data ?? item;
     return (
       <TouchableOpacity
         onPress={() => {
-          if (data.type === "order" && data.order_id) {
-            router.push(`/orderDetail?id=${data.order_id}`);
-          } else if (data.type === "promotion" && data.discountable_id) {
+          if (payload.type === "order" && payload.order_id) {
+            router.push(`/orderDetail?id=${payload.order_id}`);
+          } else if (payload.type === "promotion" && payload.discountable_id) {
             router.push(
-              `/productListByCampaign?id=${data.discountable_id}&name=${data.title}&image=${data?.image}&expire=${data?.end_date}`
+              `/productListByCampaign?id=${payload.discountable_id}&name=${payload.title}&image=${payload?.image}&expire=${payload?.end_date}`
             );
           } else {
             router.push("/");
@@ -72,17 +113,26 @@ export default function Notifications() {
         style={styles.notificationCardWrapper}
       >
         <View style={styles.notificationCard}>
-          <Text style={styles.notificationCardTitle}>{data.title}</Text>
+          <Text style={styles.notificationCardTitle}>{payload.title}</Text>
           <Text style={styles.notificationCardDescription}>
-            {data.description}
+            {payload.description}
           </Text>
         </View>
       </TouchableOpacity>
     );
   };
 
+  // choose the active data & flags
+  const activeData =
+    activeTab === "global" ? globalNotifications : notifications;
+  const activeLoading =
+    activeTab === "global" ? globalNotificationLoading : notificationLoading;
+  const activeHasMore =
+    activeTab === "global" ? hasMoreGlobalNotifications : hasMore;
+
+  // Empty component per-tab
   const ListEmpty = () => {
-    if (!isAuthenticated) {
+    if (activeTab === "user" && !isAuthenticated) {
       return (
         <View style={styles.bodyCentered}>
           <Text style={styles.messageText} allowFontScaling={false}>
@@ -96,29 +146,102 @@ export default function Notifications() {
         </View>
       );
     }
-    if (notificationLoading) {
+
+    if (activeLoading) {
       return (
         <View style={styles.bodyCentered}>
           <ActivityIndicator size="large" color="#2555E7" />
         </View>
       );
     }
+
     return (
       <View style={styles.bodyCentered}>
         <Text style={styles.messageText} allowFontScaling={false}>
-          You have no notifications.
+          {activeTab === "global"
+            ? "No global notifications."
+            : "You have no notifications."}
         </Text>
       </View>
     );
   };
 
+  // tab buttons UI
+  const TabsHeader = () => (
+    <View style={styles.tabsRow}>
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={() => setActiveTab("global")}
+        style={styles.tabWrapper}
+      >
+        {activeTab === "global" ? (
+          <LinearGradient
+            colors={["#53CAFE", "#2555E7"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={[styles.tabButton, styles.tabButtonActive]}
+          >
+            <Text style={[styles.tabText, styles.tabTextActive]}>
+              Global Notifications
+            </Text>
+          </LinearGradient>
+        ) : (
+          <View style={[styles.tabButton]}>
+            <Text style={styles.tabText}>Global Notifications</Text>
+          </View>
+        )}
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={() => {
+          if (!isAuthenticated && !authLoading) {
+            router.push("/login");
+            return;
+          }
+          setActiveTab("user");
+        }}
+        style={styles.tabWrapper}
+      >
+        {activeTab === "user" ? (
+          <LinearGradient
+            colors={["#53CAFE", "#2555E7"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={[styles.tabButton, styles.tabButtonActive]}
+          >
+            <Text style={[styles.tabText, styles.tabTextActive]}>
+              Notifications
+            </Text>
+          </LinearGradient>
+        ) : (
+          <View
+            style={[
+              styles.tabButton,
+              !isAuthenticated && !authLoading ? styles.tabButtonDisabled : {},
+            ]}
+          >
+            <Text
+              style={[
+                styles.tabText,
+                !isAuthenticated && !authLoading ? styles.tabTextDisabled : {},
+              ]}
+            >
+              Notifications
+            </Text>
+          </View>
+        )}
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
     <>
       <HeadLine />
       <FlatList
-        style={styles.flatList} // <— add this
-        data={notifications}
-        keyExtractor={(_, idx) => idx.toString()}
+        style={styles.flatList}
+        data={activeData}
+        keyExtractor={(item, idx) => String(item?.id ?? idx)}
         renderItem={renderItem}
         numColumns={1}
         ListHeaderComponent={
@@ -133,12 +256,18 @@ export default function Notifications() {
                 Notifications
               </Text>
             </LinearGradient>
+
             <GoBack to="/" />
+
+            {/* Tabs (right below GoBack) */}
+            <View style={{ paddingHorizontal: 15, paddingTop: 8 }}>
+              <TabsHeader />
+            </View>
           </>
         }
         ListEmptyComponent={ListEmpty}
         ListFooterComponent={
-          hasMore ? (
+          activeHasMore ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color="#2555E7" />
             </View>
@@ -151,7 +280,7 @@ export default function Notifications() {
         }
         contentContainerStyle={[
           styles.container,
-          notifications.length === 0 && styles.containerEmpty,
+          (activeData?.length ?? 0) === 0 && styles.containerEmpty,
         ]}
       />
     </>
@@ -160,7 +289,7 @@ export default function Notifications() {
 
 const styles = StyleSheet.create({
   flatList: {
-    flex: 1, // <— ensure FlatList itself grows
+    flex: 1,
     backgroundColor: "#fff",
   },
   container: {
@@ -187,6 +316,42 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontFamily: "Saira-Medium",
   },
+  // tabs
+  tabsRow: {
+    marginVertical: 10,
+    flexDirection: "row",
+    gap: 10,
+    alignItems: "center",
+  },
+  tabWrapper: {
+    flex: 1,
+  },
+  tabButton: {
+    borderRadius: 12,
+    paddingVertical: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F2F3F4",
+  },
+  tabButtonActive: {
+    // active gradient applied via LinearGradient wrapper
+  },
+  tabButtonDisabled: {
+    opacity: 0.5,
+  },
+  tabText: {
+    fontSize: 14,
+    fontFamily: "Saira-Medium",
+    color: "#333",
+  },
+  tabTextActive: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+  tabTextDisabled: {
+    color: "#999",
+  },
+
   notificationCardWrapper: {
     paddingHorizontal: 15,
     marginTop: 10,

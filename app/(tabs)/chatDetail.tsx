@@ -15,6 +15,10 @@ import {
   FlatListProps,
   TouchableOpacity,
   SafeAreaView,
+  Image,
+  Modal,
+  Pressable,
+  Dimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import HeadLine from "@/components/ui/HeadLine";
@@ -29,6 +33,8 @@ import useUser from "@/redux/hooks/user/useUser";
 import { ChatMessage, ChatMessagePayload } from "@/constants/config";
 import ChatInput from "@/components/Chat/ChatInput";
 
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+
 // helper to format a Date as dd/mm/yy
 const formatDate = (date: Date) => {
   const d = String(date.getDate()).padStart(2, "0");
@@ -36,6 +42,34 @@ const formatDate = (date: Date) => {
   const y = String(date.getFullYear() % 100).padStart(2, "0");
   return `${d}/${m}/${y}`;
 };
+
+function getAttachmentUri(att: any): string | null {
+  if (!att) return null;
+
+  // plain string case
+  if (typeof att === "string") {
+    const s = att.trim();
+    if (s.startsWith("data:")) return s;
+    // assume raw base64, prefix with jpeg mime (server should ideally include mime)
+    return `data:image/jpeg;base64,${s}`;
+  }
+
+  // object case
+  if (typeof att === "object") {
+    if (att.data && typeof att.data === "string") {
+      const s = att.data.trim();
+      if (s.startsWith("data:")) return s;
+      return `data:image/jpeg;base64,${s}`;
+    }
+    // common server key for remote image
+    if (att.url && typeof att.url === "string") return att.url;
+    if (att.path && typeof att.path === "string") return att.path;
+    // sometimes backend returns { type, uri } or { type, url }
+    if (att.uri && typeof att.uri === "string") return att.uri;
+  }
+
+  return null;
+}
 
 export default function ChatDetail() {
   const router = useRouter();
@@ -53,6 +87,10 @@ export default function ChatDetail() {
 
   const [refreshing, setRefreshing] = useState(false);
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
+
+  // full screen image modal
+  const [imageModalVisible, setImageModalVisible] = useState(false);
+  const [imageModalUri, setImageModalUri] = useState<string | null>(null);
 
   // guard
   useEffect(() => {
@@ -92,6 +130,40 @@ export default function ChatDetail() {
     }
   }, [chatMessages]);
 
+  const renderAttachments = (item: ChatMessage) => {
+    const atts = item.attachments ?? null;
+    if (!Array.isArray(atts) || atts.length === 0) return null;
+
+    const uris: string[] = [];
+    for (const a of atts) {
+      const uri = getAttachmentUri(a);
+      if (uri) uris.push(uri);
+    }
+    if (uris.length === 0) return null;
+
+    return (
+      <View style={styles.attachmentsContainer}>
+        {uris.map((uri, i) => (
+          <TouchableOpacity
+            key={`att-${item.id}-${i}`}
+            activeOpacity={0.85}
+            onPress={() => {
+              setImageModalUri(uri);
+              setImageModalVisible(true);
+            }}
+            style={styles.attachmentTouchable}
+          >
+            <Image
+              source={{ uri }}
+              style={styles.attachmentImage}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
+        ))}
+      </View>
+    );
+  };
+
   const renderItem: FlatListProps<ChatMessage>["renderItem"] = ({
     item,
     index,
@@ -107,6 +179,12 @@ export default function ChatDetail() {
 
     return (
       <View key={`msg-${item.id}`}>
+        {showDateSeparator && (
+          <View key={`sep-${item.id}`} style={styles.dateSeparatorRow}>
+            <Text style={styles.dateSeparatorText}>{thisDateStr}</Text>
+          </View>
+        )}
+
         <View
           style={[
             styles.messageRow,
@@ -130,7 +208,9 @@ export default function ChatDetail() {
                 numberOfLines={1}
                 ellipsizeMode="tail"
               >
-                {item?.reply_to?.message}
+                {item?.reply_to?.message
+                  ? item?.reply_to?.message
+                  : " @Attachment"}
               </Text>
             )}
 
@@ -155,15 +235,21 @@ export default function ChatDetail() {
               )}
 
               <View style={styles.bubble}>
-                <Text
-                  style={[
-                    styles.chatText,
-                    isAdminMessage ? styles.adminText : styles.userText,
-                  ]}
-                  selectable
-                >
-                  {item.message}
-                </Text>
+                {/* attachments (images) */}
+                {renderAttachments(item)}
+
+                {/* text */}
+                {item.message ? (
+                  <Text
+                    style={[
+                      styles.chatText,
+                      isAdminMessage ? styles.adminText : styles.userText,
+                    ]}
+                    selectable
+                  >
+                    {item.message}
+                  </Text>
+                ) : null}
               </View>
 
               {isAdminMessage && (
@@ -196,19 +282,15 @@ export default function ChatDetail() {
                   : {},
               ]}
             >
-              {new Date(item.created_at).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
+              {item.created_at
+                ? new Date(item.created_at).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : ""}
             </Text>
           </View>
         </View>
-
-        {showDateSeparator && (
-          <View key={`sep-${item.id}`} style={styles.dateSeparatorRow}>
-            <Text style={styles.dateSeparatorText}>{thisDateStr}</Text>
-          </View>
-        )}
       </View>
     );
   };
@@ -308,9 +390,68 @@ export default function ChatDetail() {
         onSend={handleSend}
         clearReply={() => setReplyTo(null)}
       />
+
+      {/* Image modal */}
+      <Modal
+        visible={imageModalVisible}
+        transparent={true}
+        onRequestClose={() => setImageModalVisible(false)}
+      >
+        <View style={modalStyles.overlay}>
+          <Pressable
+            style={modalStyles.backdrop}
+            onPress={() => setImageModalVisible(false)}
+          />
+          <View style={modalStyles.content}>
+            {imageModalUri ? (
+              <Image
+                source={{ uri: imageModalUri }}
+                style={modalStyles.fullImage}
+                resizeMode="contain"
+              />
+            ) : null}
+            <TouchableOpacity
+              onPress={() => setImageModalVisible(false)}
+              style={modalStyles.closeBtn}
+            >
+              <Text style={{ color: "#fff" }}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
+
+const modalStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.8)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  content: {
+    width: SCREEN_WIDTH,
+    maxHeight: SCREEN_HEIGHT * 0.9,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 12,
+  },
+  fullImage: {
+    width: "100%",
+    height: SCREEN_HEIGHT * 0.8,
+  },
+  closeBtn: {
+    marginTop: 12,
+    backgroundColor: "#333",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+});
 
 const styles = StyleSheet.create({
   safe: {
@@ -480,5 +621,23 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 5,
     fontFamily: "Saira-Medium",
+  },
+
+  /* Attachment styles */
+  attachmentsContainer: {
+    marginBottom: 8,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  attachmentTouchable: {
+    marginBottom: 6,
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  attachmentImage: {
+    width: 160,
+    height: 100,
+    borderRadius: 8,
   },
 });

@@ -21,4 +21,23 @@ const fetchAllNotifications = async (
   }
 };
 
-export { fetchAllNotifications };
+const fetchAllGlobalNotifications = async (
+  imei: string,
+  pagination?: PaginationPayload
+): Promise<AllNotificationResponse> => {
+  try {
+    const params = { imei, ...(pagination || {}) };
+
+    const response = await axiosInstance.get<AllNotificationResponse>(
+      `${environment.API_URL}/global-notifications`,
+      { params }
+    );
+
+    return response?.data;
+  } catch (error) {
+    console.error("Failed to fetch wishlists:", error);
+    throw error;
+  }
+};
+
+export { fetchAllNotifications, fetchAllGlobalNotifications };

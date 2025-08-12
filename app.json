@@ -83,7 +83,13 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-video"
+      "expo-video",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Allow Nawaratt to access your microphone."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
