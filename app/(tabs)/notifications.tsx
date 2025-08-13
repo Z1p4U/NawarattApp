@@ -15,6 +15,8 @@ import { useRouter } from "expo-router";
 import useNotification from "@/redux/hooks/notification/useNotification";
 import useAuth from "@/redux/hooks/auth/useAuth";
 import useGlobalNotification from "@/redux/hooks/notification/useGlobalNotification";
+import useNotificationAction from "@/redux/hooks/notification/useNotificationAction";
+import Svg, { Defs, Path, Stop } from "react-native-svg";
 
 type TabKey = "global" | "user";
 
@@ -30,7 +32,6 @@ export default function Notifications() {
     hasMore,
     reset,
   } = useNotification();
-
   // global notifications
   const {
     globalNotifications,
@@ -39,6 +40,8 @@ export default function Notifications() {
     hasMore: hasMoreGlobalNotifications,
     reset: resetGlobalNotifications,
   } = useGlobalNotification();
+
+  const { readAllNotifications, readNotification } = useNotificationAction();
 
   // UI state
   const [activeTab, setActiveTab] = useState<TabKey>("global"); // default to global
@@ -62,6 +65,17 @@ export default function Notifications() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
+
+  const formatDate = (iso: string) => {
+    const d = new Date(iso);
+    return `${String(d.getDate()).padStart(2, "0")}-${String(
+      d.getMonth() + 1
+    ).padStart(2, "0")}-${d.getFullYear()}`;
+  };
+  const formatTime = (iso: string) => {
+    const d = new Date(iso);
+    return `${d.getHours()} : ${d.getMinutes()}`;
+  };
 
   // Pull-to-refresh: call the active tab's reset
   const onRefresh = useCallback(() => {
@@ -96,11 +110,13 @@ export default function Notifications() {
 
   // render item: supports both shapes (item may be wrapped in { data: {...} })
   const renderItem = ({ item }: { item: any }) => {
-    const payload = item?.data ?? item;
+    const payload = item?.data;
+    const unread = !item?.read_at || item?.read_at === null;
     return (
       <TouchableOpacity
         onPress={() => {
           if (payload.type === "order" && payload.order_id) {
+            readNotification(item?.id);
             router.push(`/orderDetail?id=${payload.order_id}`);
           } else if (payload.type === "promotion" && payload.discountable_id) {
             router.push(
@@ -112,11 +128,77 @@ export default function Notifications() {
         }}
         style={styles.notificationCardWrapper}
       >
-        <View style={styles.notificationCard}>
-          <Text style={styles.notificationCardTitle}>{payload.title}</Text>
+        <View
+          style={[
+            styles.notificationCard,
+            unread
+              ? { backgroundColor: "#e7f3ff" }
+              : { backgroundColor: "#F8F8F8" },
+          ]}
+        >
+          <Text
+            style={[
+              styles.notificationCardTitle,
+              unread
+                ? { fontWeight: "600", fontFamily: "Saira-Bold" }
+                : { fontWeight: "500", fontFamily: "Saira-Medium" },
+            ]}
+          >
+            {payload.title}
+          </Text>
           <Text style={styles.notificationCardDescription}>
             {payload.description}
           </Text>
+          <View style={styles.notificationCardDateContainerDiv}>
+            <View style={styles.notificationCardDateContainer}>
+              <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+                <Path
+                  d="M8.5 14a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5zm0 3.5a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5zm4.75-4.75a1.25 1.25 0 11-2.5 0 1.25 1.25 0 012.5 0zM12 17.5a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5zm4.75-4.75a1.25 1.25 0 11-2.5 0 1.25 1.25 0 012.5 0z"
+                  fill="#0000004D"
+                  fillOpacity={1}
+                />
+                <Path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M8 3.25a.75.75 0 01.75.75v.75h6.5V4a.75.75 0 111.5 0v.758a7.8 7.8 0 01.425.022c.38.03.736.098 1.073.27a2.75 2.75 0 011.202 1.202c.172.337.24.693.27 1.073.03.365.03.81.03 1.345v7.66c0 .535 0 .98-.03 1.345-.03.38-.098.736-.27 1.073a2.75 2.75 0 01-1.201 1.202c-.338.172-.694.24-1.074.27-.365.03-.81.03-1.344.03H8.17c-.535 0-.98 0-1.345-.03-.38-.03-.736-.098-1.073-.27a2.75 2.75 0 01-1.202-1.2c-.172-.338-.24-.694-.27-1.074-.03-.365-.03-.81-.03-1.344V8.67c0-.535 0-.98.03-1.345.03-.38.098-.736.27-1.073A2.75 2.75 0 015.752 5.05c.337-.172.693-.24 1.073-.27.131-.01.273-.018.425-.022V4A.75.75 0 018 3.25zM7.25 6.5v-.242a5.999 5.999 0 00-.303.017c-.287.023-.424.065-.514.111a1.25 1.25 0 00-.547.547c-.046.09-.088.227-.111.514-.024.296-.025.68-.025 1.253v.55h12.5V8.7c0-.572 0-.957-.025-1.253-.023-.287-.065-.424-.111-.514a1.25 1.25 0 00-.547-.547c-.09-.046-.227-.088-.515-.111a6.006 6.006 0 00-.302-.017V6.5a.75.75 0 11-1.5 0v-.25h-6.5v.25a.75.75 0 01-1.5 0zm11 3.75H5.75v6.05c0 .572 0 .957.025 1.252.023.288.065.425.111.515.12.236.311.427.547.547.09.046.227.088.514.111.296.024.68.025 1.253.025h7.6c.572 0 .957 0 1.252-.025.288-.023.425-.065.515-.111a1.25 1.25 0 00.547-.547c.046-.09.088-.227.111-.515.024-.295.025-.68.025-1.252v-6.05z"
+                  fill="#0000004D"
+                  fillOpacity={1}
+                />
+                <Path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M9.75 7.75A.75.75 0 0110.5 7h3a.75.75 0 110 1.5h-3a.75.75 0 01-.75-.75z"
+                  fill="#0000004D"
+                  fillOpacity={1}
+                />
+              </Svg>
+              <Text style={styles.notificationCardDate}>
+                {formatDate(item?.created_at)}
+              </Text>
+            </View>
+            <View style={styles.notificationCardDateContainer}>
+              <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
+                <Path
+                  d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"
+                  stroke="#0000004D"
+                  strokeWidth={2}
+                  strokeLinejoin="round"
+                  strokeOpacity={1}
+                />
+                <Path
+                  d="M12.004 6v6.005l4.24 4.24"
+                  stroke="#0000004D"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeOpacity={1}
+                />
+              </Svg>
+              <Text style={styles.notificationCardDate}>
+                {formatTime(item?.created_at)}
+              </Text>
+            </View>
+          </View>
         </View>
       </TouchableOpacity>
     );
@@ -141,7 +223,7 @@ export default function Notifications() {
               {" "}
               log in{" "}
             </Text>
-            to view your notifications.
+            to view your order information.
           </Text>
         </View>
       );
@@ -159,8 +241,8 @@ export default function Notifications() {
       <View style={styles.bodyCentered}>
         <Text style={styles.messageText} allowFontScaling={false}>
           {activeTab === "global"
-            ? "No global notifications."
-            : "You have no notifications."}
+            ? "No notifications."
+            : "You have no order information."}
         </Text>
       </View>
     );
@@ -169,29 +251,6 @@ export default function Notifications() {
   // tab buttons UI
   const TabsHeader = () => (
     <View style={styles.tabsRow}>
-      <TouchableOpacity
-        activeOpacity={0.85}
-        onPress={() => setActiveTab("global")}
-        style={styles.tabWrapper}
-      >
-        {activeTab === "global" ? (
-          <LinearGradient
-            colors={["#53CAFE", "#2555E7"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={[styles.tabButton, styles.tabButtonActive]}
-          >
-            <Text style={[styles.tabText, styles.tabTextActive]}>
-              Global Notifications
-            </Text>
-          </LinearGradient>
-        ) : (
-          <View style={[styles.tabButton]}>
-            <Text style={styles.tabText}>Global Notifications</Text>
-          </View>
-        )}
-      </TouchableOpacity>
-
       <TouchableOpacity
         activeOpacity={0.85}
         onPress={() => {
@@ -211,7 +270,7 @@ export default function Notifications() {
             style={[styles.tabButton, styles.tabButtonActive]}
           >
             <Text style={[styles.tabText, styles.tabTextActive]}>
-              Notifications
+              Order Information
             </Text>
           </LinearGradient>
         ) : (
@@ -227,8 +286,31 @@ export default function Notifications() {
                 !isAuthenticated && !authLoading ? styles.tabTextDisabled : {},
               ]}
             >
+              Order Information
+            </Text>
+          </View>
+        )}
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={() => setActiveTab("global")}
+        style={styles.tabWrapper}
+      >
+        {activeTab === "global" ? (
+          <LinearGradient
+            colors={["#53CAFE", "#2555E7"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={[styles.tabButton, styles.tabButtonActive]}
+          >
+            <Text style={[styles.tabText, styles.tabTextActive]}>
               Notifications
             </Text>
+          </LinearGradient>
+        ) : (
+          <View style={[styles.tabButton]}>
+            <Text style={styles.tabText}> Notifications</Text>
           </View>
         )}
       </TouchableOpacity>
@@ -263,6 +345,18 @@ export default function Notifications() {
             <View style={{ paddingHorizontal: 15, paddingTop: 8 }}>
               <TabsHeader />
             </View>
+
+            {activeTab === "user" ? (
+              <View style={styles.clearContainer}>
+                <TouchableOpacity onPress={readAllNotifications}>
+                  <Text style={styles.clearText} allowFontScaling={false}>
+                    Mark All As Read
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <></>
+            )}
           </>
         }
         ListEmptyComponent={ListEmpty}
@@ -352,24 +446,49 @@ const styles = StyleSheet.create({
     color: "#999",
   },
 
+  clearContainer: {
+    paddingHorizontal: 20,
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginVertical: 10,
+  },
+  clearText: {
+    fontSize: 14,
+    color: "#ff0000",
+    fontFamily: "Saira-Bold",
+    letterSpacing: 1,
+  },
+
   notificationCardWrapper: {
     paddingHorizontal: 15,
     marginTop: 10,
   },
   notificationCard: {
-    backgroundColor: "#F8F8F8",
     padding: 20,
     borderRadius: 10,
     gap: 10,
   },
   notificationCardTitle: {
     fontSize: 16,
-    fontWeight: "500",
     color: "#000",
-    fontFamily: "Saira-Medium",
   },
   notificationCardDescription: {
     fontSize: 14,
+    color: "#0000004D",
+    fontFamily: "Saira-Medium",
+  },
+  notificationCardDateContainerDiv: {
+    flexDirection: "row",
+    gap: 15,
+    alignItems: "center",
+  },
+  notificationCardDateContainer: {
+    flexDirection: "row",
+    gap: 5,
+    alignItems: "center",
+  },
+  notificationCardDate: {
+    fontSize: 12,
     color: "#0000004D",
     fontFamily: "Saira-Medium",
   },

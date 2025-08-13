@@ -1,9 +1,13 @@
 import axiosInstance from "@/constants/axios";
-import { AllNotificationResponse, PaginationPayload } from "@/constants/config";
+import {
+  AllNotificationResponse,
+  MessageResponse,
+  PaginationPayload,
+} from "@/constants/config";
 import environment from "@/constants/environment";
 
 const fetchAllNotifications = async (
-  imei: string,
+  imei?: string,
   pagination?: PaginationPayload
 ): Promise<AllNotificationResponse> => {
   try {
@@ -22,7 +26,7 @@ const fetchAllNotifications = async (
 };
 
 const fetchAllGlobalNotifications = async (
-  imei: string,
+  imei?: string,
   pagination?: PaginationPayload
 ): Promise<AllNotificationResponse> => {
   try {
@@ -40,4 +44,33 @@ const fetchAllGlobalNotifications = async (
   }
 };
 
-export { fetchAllNotifications, fetchAllGlobalNotifications };
+const fetchReadNotification = async (id: number): Promise<MessageResponse> => {
+  try {
+    const response = await axiosInstance.get<MessageResponse>(
+      `${environment.API_URL}/notifications/${id}`
+    );
+    return response?.data;
+  } catch (error) {
+    console.error("Failed to fetch read notifications :", error);
+    throw error;
+  }
+};
+
+const fetchReadAllNotification = async (): Promise<MessageResponse> => {
+  try {
+    const response = await axiosInstance.post<MessageResponse>(
+      `${environment.API_URL}/mark-all-as-read`
+    );
+    return response?.data;
+  } catch (error) {
+    console.error("Failed to fetch read all notifications: ", error);
+    throw error;
+  }
+};
+
+export {
+  fetchAllNotifications,
+  fetchAllGlobalNotifications,
+  fetchReadNotification,
+  fetchReadAllNotification,
+};

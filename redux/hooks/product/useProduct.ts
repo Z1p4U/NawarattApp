@@ -31,6 +31,7 @@ export default function useProduct() {
         pagination,
         category_id: catId,
         brand_id: brandId,
+        tag_ids: null,
         min_price: minPrice,
         max_price: maxPrice,
         name,

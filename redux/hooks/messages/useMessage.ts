@@ -13,7 +13,7 @@ const useMessage = (id: any) => {
     status: chatMessageStatus,
     totalChatMessage,
   } = useSelector((state: RootState) => state.message);
-  const [pagination, setPagination] = useState({ page: 1, size: 12 });
+  const [pagination, setPagination] = useState({ page: 1, size: 50 });
 
   useEffect(() => {
     dispatch(clearMessageState());

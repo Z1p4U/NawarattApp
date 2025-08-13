@@ -1,8 +1,14 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { AllNotificationResponse, PaginationPayload } from "@/constants/config";
+import {
+  AllNotificationResponse,
+  MessageResponse,
+  PaginationPayload,
+} from "@/constants/config";
 import {
   fetchAllGlobalNotifications,
   fetchAllNotifications,
+  fetchReadAllNotification,
+  fetchReadNotification,
 } from "@/redux/api/notification/notificationApi";
 
 /** --------------- State Interfaces --------------- **/
@@ -30,7 +36,7 @@ const initialState: NotificationState = {
 // Fetch All Notifications
 export const handleFetchAllNotifications = createAsyncThunk<
   AllNotificationResponse,
-  { imei: string; pagination: PaginationPayload },
+  { imei?: string; pagination: PaginationPayload },
   { rejectValue: string }
 >(
   "notifications/fetchAll",
@@ -49,7 +55,7 @@ export const handleFetchAllNotifications = createAsyncThunk<
 
 export const handleFetchAllGlobalNotifications = createAsyncThunk<
   AllNotificationResponse,
-  { imei: string; pagination: PaginationPayload },
+  { imei?: string; pagination: PaginationPayload },
   { rejectValue: string }
 >(
   "notifications/fetchAllGlobal",
@@ -65,6 +71,34 @@ export const handleFetchAllGlobalNotifications = createAsyncThunk<
     }
   }
 );
+
+export const handleFetchReadNotifications = createAsyncThunk<
+  MessageResponse,
+  number,
+  { rejectValue: string }
+>("notifications/fetchReadNotification", async (id, { rejectWithValue }) => {
+  try {
+    return await fetchReadNotification(id);
+  } catch (err: any) {
+    return rejectWithValue(err.response?.data || err.message);
+  }
+});
+
+export const handleFetchReadAllNotifications = createAsyncThunk<
+  MessageResponse,
+  void,
+  { rejectValue: string }
+>("notifications/fetchReadAllNotification", async (_, { rejectWithValue }) => {
+  try {
+    const response = await fetchReadAllNotification();
+    return response;
+  } catch (error: any) {
+    console.error("Read All Notifications Fetching error:", error);
+    return rejectWithValue(
+      error.response?.data || "Failed to read all notifications"
+    );
+  }
+});
 
 /** --------------- Slice --------------- **/
 const notificationSlice = createSlice({
@@ -131,6 +165,30 @@ const notificationSlice = createSlice({
       .addCase(handleFetchAllGlobalNotifications.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload || "Notification list fetch failed";
+      })
+
+      // Fetch Read Notification
+      .addCase(handleFetchReadNotifications.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(handleFetchReadNotifications.fulfilled, (state) => {
+        state.status = "succeeded";
+      })
+      .addCase(handleFetchReadNotifications.rejected, (state) => {
+        state.status = "failed";
+        state.error = "Read notification failed";
+      })
+
+      // Fetch Read All Notifications
+      .addCase(handleFetchReadAllNotifications.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(handleFetchReadAllNotifications.fulfilled, (state) => {
+        state.status = "succeeded";
+      })
+      .addCase(handleFetchReadAllNotifications.rejected, (state) => {
+        state.status = "failed";
+        state.error = "Read all notifications failed";
       });
   },
 });

@@ -135,6 +135,7 @@ export default function Cart() {
               <Link
                 href={`/productDetail?id=${item.productId}`}
                 key={item.productId}
+                style={{ marginBottom: 20 }}
               >
                 <View style={styles.pdCard}>
                   <Image
@@ -276,7 +277,6 @@ const styles = StyleSheet.create({
     gap: 12,
     borderRadius: 15,
     overflow: "hidden",
-    marginBottom: 20,
   },
   pdCardImg: {
     width: 75,

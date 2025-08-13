@@ -113,6 +113,9 @@ export default function orderPay() {
       // Alert.alert("Error", "Failed to process payment. Please try again.");
       setAlertMessage("Failed to process payment. Please try again.");
       setResendModalVisible(true);
+    } finally {
+      setImageBase64("");
+      setCaption("");
     }
   }, [payOrder, orderDetail, orderId, imageBase64, caption, router]);
 

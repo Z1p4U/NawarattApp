@@ -273,17 +273,26 @@ export default function Checkout() {
           onPress={() => setAgreed(!agreed)}
         >
           <View style={[styles.radioCircle, agreed && styles.selected]} />
-          <Link
-            href={"http://nawarattmedical.com/termsandcondition"}
-            style={styles.placeOrderComponentText}
-            allowFontScaling={false}
-          >
-            I&apos;d read and agree to Terms and Conditions
-          </Link>
+          <Text style={styles.placeOrderComponentText}>
+            I&apos;d read and agree to{" "}
+            <Link
+              href={"http://nawarattmedical.com/termsandcondition"}
+              style={[
+                styles.placeOrderComponentText,
+                { fontWeight: 600, fontFamily: "Saira-Bold" },
+              ]}
+              allowFontScaling={false}
+            >
+              Terms and Conditions
+            </Link>
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={handlePlaceOrder}
-          style={styles.placeOrderBtn}
+          style={[
+            styles.placeOrderBtn,
+            !agreed ? { opacity: 0.6 } : { opacity: 1 },
+          ]}
           disabled={orderLoading || !agreed}
         >
           <LinearGradient

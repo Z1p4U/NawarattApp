@@ -31,7 +31,6 @@ const fetchSendChatMessage = async (
   payload: ChatMessagePayload
 ): Promise<MessageResponse> => {
   try {
-    console.log("payload", payload);
     const response = await axiosInstance.post<MessageResponse>(
       `${environment.API_URL}/chats/${id}/messages`,
       payload

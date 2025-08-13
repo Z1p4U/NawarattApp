@@ -158,8 +158,15 @@ export interface UserData {
     total: number;
     submitted: number | null;
     confirmed: number | null;
+    payment_pending: number | null;
+    delivering: number | null;
     delivered: number | null;
     canceled: number | null;
+  };
+  noti_stats: {
+    total: number | string;
+    total_unread: number | string;
+    total_read: number | string;
   };
 }
 export interface ProfileResponse {
@@ -277,7 +284,7 @@ export interface Product {
     is_highlight: boolean;
     image: string | null;
   };
-  tags: { id: number; name: string }[];
+  tags: { id: number; name: string; status: string }[];
   thumbnail: string;
   images: { id: number; url: string }[];
   // only on detail:

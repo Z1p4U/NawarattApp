@@ -15,12 +15,14 @@ import {
 interface ProductState {
   products: AllProductResponse["data"];
   brandProducts: AllProductResponse["data"];
+  tagProducts: AllProductResponse["data"];
   specialCategoriesProducts: SpecialCategoryProductResponse["data"];
   campaignProducts: AllProductResponse["data"];
   productDetail: ProductDetailResponse["data"] | null;
   relatedProduct: ProductDetailResponse["related_product"] | null;
   totalProduct: number;
   totalBrandProducts: number;
+  totalTagProducts: number;
   totalSpecialCategoriesProducts: number;
   totalCampaignProducts: number;
   status: "idle" | "loading" | "succeeded" | "failed";
@@ -30,10 +32,12 @@ interface ProductState {
 const initialState: ProductState = {
   products: [],
   brandProducts: [],
+  tagProducts: [],
   specialCategoriesProducts: [],
   campaignProducts: [],
   totalProduct: 0,
   totalBrandProducts: 0,
+  totalTagProducts: 0,
   totalSpecialCategoriesProducts: 0,
   totalCampaignProducts: 0,
   productDetail: null,
@@ -49,6 +53,7 @@ export const handleFetchAllProductList = createAsyncThunk<
     pagination: PaginationPayload;
     category_id?: string | null;
     brand_id?: string | null;
+    tag_ids?: string | null;
     min_price?: number | null;
     max_price?: number | null;
     name: string;
@@ -57,7 +62,7 @@ export const handleFetchAllProductList = createAsyncThunk<
 >(
   "products/fetchAll",
   async (
-    { pagination, category_id, brand_id, min_price, max_price, name },
+    { pagination, category_id, brand_id, tag_ids, min_price, max_price, name },
     { rejectWithValue }
   ) => {
     try {
@@ -65,6 +70,7 @@ export const handleFetchAllProductList = createAsyncThunk<
         pagination,
         category_id,
         brand_id,
+        tag_ids,
         min_price,
         max_price,
         name
@@ -83,7 +89,38 @@ export const handleFetchAllBrandProducts = createAsyncThunk<
   "products/fetchBrandProducts",
   async ({ pagination, brand_id }, { rejectWithValue }) => {
     try {
-      return await fetchAllProducts(pagination, brand_id);
+      return await fetchAllProducts(
+        pagination,
+        null,
+        brand_id,
+        null,
+        null,
+        null,
+        ""
+      );
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
+
+export const handleFetchAllTagProducts = createAsyncThunk<
+  AllProductResponse,
+  { pagination: PaginationPayload; tag_ids: string | null },
+  { rejectValue: string }
+>(
+  "products/fetchTagProducts",
+  async ({ pagination, tag_ids }, { rejectWithValue }) => {
+    try {
+      return await fetchAllProducts(
+        pagination,
+        null,
+        null,
+        tag_ids,
+        null,
+        null,
+        ""
+      );
     } catch (err: any) {
       return rejectWithValue(err.response?.data || err.message);
     }
@@ -156,6 +193,12 @@ const productSlice = createSlice({
       state.status = "idle";
       state.error = null;
     },
+    clearTagProductState(state) {
+      state.tagProducts = [];
+      state.totalTagProducts = 0;
+      state.status = "idle";
+      state.error = null;
+    },
     clearCampaignProductState(state) {
       state.campaignProducts = [];
       state.totalCampaignProducts = 0;
@@ -216,6 +259,31 @@ const productSlice = createSlice({
         state.error = null;
       })
       .addCase(handleFetchAllBrandProducts.rejected, (state, { payload }) => {
+        state.status = "failed";
+        state.error = payload ?? "Failed to fetch products";
+      });
+
+    // — Tag Product List —
+    builder
+      .addCase(handleFetchAllTagProducts.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(handleFetchAllTagProducts.fulfilled, (state, action) => {
+        const { pagination } = action.meta.arg as {
+          pagination: PaginationPayload;
+        };
+
+        state.tagProducts =
+          pagination.page === 1
+            ? action.payload.data || []
+            : [...(state.tagProducts ?? []), ...(action.payload.data ?? [])];
+
+        state.totalTagProducts = action.payload.meta.total;
+
+        state.status = "succeeded";
+        state.error = null;
+      })
+      .addCase(handleFetchAllTagProducts.rejected, (state, { payload }) => {
         state.status = "failed";
         state.error = payload ?? "Failed to fetch products";
       });
@@ -306,6 +374,7 @@ const productSlice = createSlice({
 export const {
   clearProductState,
   clearBrandProductState,
+  clearTagProductState,
   clearCategoryProductState,
   clearProductDetailState,
   clearCampaignProductState,

@@ -11,6 +11,7 @@ const fetchAllProducts = async (
   pagination: PaginationPayload,
   category_id?: string | null,
   brand_id?: string | null,
+  tag_ids?: string | null,
   min_price?: number | null,
   max_price?: number | null,
   name?: string
@@ -19,6 +20,7 @@ const fetchAllProducts = async (
     const params = {
       category_id,
       brand_id,
+      tag_ids,
       min_price,
       max_price,
       name,

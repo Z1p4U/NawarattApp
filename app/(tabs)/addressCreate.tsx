@@ -218,8 +218,15 @@ export default function AddressCreate() {
 
             {/* Submit */}
             <TouchableOpacity
-              onPress={handleSubmit}
-              disabled={!isFormValid || status === "loading"}
+              onPress={() => {
+                if (isFormValid) {
+                  handleSubmit();
+                } else {
+                  setAlertMessage("Please fill in all required fields.");
+                  setResendModalVisible(true);
+                }
+              }}
+              disabled={status === "loading"}
             >
               <LinearGradient
                 colors={["#54CAFF", "#275AE8"]}
@@ -231,6 +238,7 @@ export default function AddressCreate() {
               </LinearGradient>
             </TouchableOpacity>
           </View>
+
           <AlertBox
             visible={alertModalVisible}
             message={alertMessage}

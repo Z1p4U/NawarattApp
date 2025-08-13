@@ -1,5 +1,3 @@
-// components/ui/AlertBox.tsx
-
 import React from "react";
 import {
   Modal,
@@ -9,6 +7,7 @@ import {
   StyleSheet,
   GestureResponderEvent,
   SafeAreaView,
+  Dimensions,
 } from "react-native";
 
 type AlertBoxProps = {
@@ -17,6 +16,8 @@ type AlertBoxProps = {
   buttonText?: string;
   onClose: (event: GestureResponderEvent) => void;
 };
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export default function AlertBox({
   visible,
@@ -65,6 +66,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+    width: SCREEN_WIDTH * 0.8,
   },
   modalText: {
     marginBottom: 16,

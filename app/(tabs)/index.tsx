@@ -26,6 +26,9 @@ import useBrand from "@/redux/hooks/brand/useBrand";
 import { SpecialCategory } from "@/constants/config";
 import useAppBanner from "@/redux/hooks/app-banner/useAppBanner";
 
+const male: number = require("../../assets/images/user.png");
+const female: number = require("../../assets/images/userFemale.png");
+
 export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
@@ -74,7 +77,9 @@ export default function HomeScreen() {
         >
           <View style={styles.row}>
             <Image
-              source={require("@/assets/images/user.png")}
+              source={
+                profileDetail?.data?.user_data?.gender == "male" ? male : female
+              }
               style={styles.avatar}
             />
             <View style={styles.center}>
@@ -108,6 +113,15 @@ export default function HomeScreen() {
                   />
                 </G>
               </Svg>
+              {profileDetail?.data?.noti_stats?.total_unread ? (
+                <View style={styles?.iconCount}>
+                  <Text style={styles?.iconCountText} allowFontScaling={false}>
+                    {profileDetail?.data?.noti_stats?.total_unread}
+                  </Text>
+                </View>
+              ) : (
+                <></>
+              )}
             </TouchableOpacity>
           </View>
         </LinearGradient>
@@ -249,6 +263,23 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 100,
     backgroundColor: "#FFFFFFB2",
+  },
+  iconCount: {
+    position: "absolute",
+    backgroundColor: "#ff0000",
+    top: -6,
+    right: -6,
+    width: 24,
+    height: 24,
+    borderRadius: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  iconCountText: {
+    fontSize: 14,
+    fontWeight: 500,
+    color: "#fff",
+    fontFamily: "Saira-Medium",
   },
 
   // ————— DISCOVER —————

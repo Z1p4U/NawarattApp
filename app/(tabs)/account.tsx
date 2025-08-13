@@ -55,7 +55,7 @@ export default function Account() {
             }
           >
             {/* Head Section Start */}
-            <HeadSection data={profileDetail} />
+            <HeadSection data={profileDetail?.data} />
             {/* Head Section End */}
 
             {/* Body Section Start */}
@@ -115,6 +115,65 @@ export default function Account() {
                   </Text>
                 </TouchableOpacity>
 
+                <TouchableOpacity
+                  style={styles.iconBlock}
+                  onPress={() =>
+                    router.push("/orderHistory?status=payment_pending")
+                  }
+                >
+                  <View style={styles.icon}>
+                    <Svg width={22} height={25} viewBox="0 0 26 25" fill="none">
+                      <Path
+                        d="M4.5.75C3.875.75 3.375 1 3 1.5l-1.625 2C1 4 .75 4.5.75 5.125V20.75c0 1.375 1.125 2.5 2.5 2.5h10.375c-.25-.75-.375-1.625-.375-2.5 0-4.125 3.375-7.5 7.5-7.5.875 0 1.75.125 2.5.375v-8.5C23.25 4.5 23 4 22.625 3.5l-1.75-2.125C20.625 1 20.125.75 19.5.75h-15zM4.375 2h15L20.5 3.25H3.375l1-1.25zM4.5 15.75H12v3.75H4.5v-3.75zm19.125 1l-4.5 4.5-2-2-1.375 1.5 3.5 3.75 6-6-1.625-1.75z"
+                        fill="#363636"
+                      />
+                    </Svg>
+                    <View style={styles?.iconCount}>
+                      <Text
+                        style={styles?.iconCountText}
+                        allowFontScaling={false}
+                      >
+                        {profileDetail?.data?.order_stats?.payment_pending}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text
+                    style={styles.iconText}
+                    allowFontScaling={false}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    Payment Pending
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.iconBlock}
+                  onPress={() => router.push("/orderHistory?status=delivering")}
+                >
+                  <View style={styles.icon}>
+                    <Svg width={22} height={25} viewBox="0 0 26 25" fill="none">
+                      <Path
+                        d="M4.5.75C3.875.75 3.375 1 3 1.5l-1.625 2C1 4 .75 4.5.75 5.125V20.75c0 1.375 1.125 2.5 2.5 2.5h10.375c-.25-.75-.375-1.625-.375-2.5 0-4.125 3.375-7.5 7.5-7.5.875 0 1.75.125 2.5.375v-8.5C23.25 4.5 23 4 22.625 3.5l-1.75-2.125C20.625 1 20.125.75 19.5.75h-15zM4.375 2h15L20.5 3.25H3.375l1-1.25zM4.5 15.75H12v3.75H4.5v-3.75zm19.125 1l-4.5 4.5-2-2-1.375 1.5 3.5 3.75 6-6-1.625-1.75z"
+                        fill="#363636"
+                      />
+                    </Svg>
+                    <View style={styles?.iconCount}>
+                      <Text
+                        style={styles?.iconCountText}
+                        allowFontScaling={false}
+                      >
+                        {profileDetail?.data?.order_stats?.delivering}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={styles.iconText} allowFontScaling={false}>
+                    Delivering
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.iconList}>
                 <TouchableOpacity
                   style={styles.iconBlock}
                   onPress={() => router.push("/orderHistory?status=delivered")}
@@ -235,6 +294,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "center",
+    alignItems: "center",
     gap: 20,
   },
   iconBlock: {
@@ -273,6 +333,7 @@ const styles = StyleSheet.create({
     fontWeight: 500,
     color: "#000000",
     fontFamily: "Saira-Medium",
+    width: 70,
   },
 
   chat: {

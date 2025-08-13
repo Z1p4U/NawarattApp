@@ -4,8 +4,12 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Svg, { ClipPath, Defs, G, Path, Rect } from "react-native-svg";
 import { useRouter } from "expo-router";
 import useWishlist from "@/redux/hooks/wishlist/useWishlist";
+import { UserData } from "@/constants/config";
 
-const HeadSection = ({ data }: any) => {
+const male: number = require("../../assets/images/user.png");
+const female: number = require("../../assets/images/userFemale.png");
+
+const HeadSection = ({ data }: { data: UserData | undefined }) => {
   const router = useRouter();
   const { total: totalWishlist } = useWishlist();
 
@@ -22,15 +26,15 @@ const HeadSection = ({ data }: any) => {
         </Text>
         <View style={styles.center}>
           <Image
-            source={require("@/assets/images/user.png")}
+            source={data?.user_data?.gender == "male" ? male : female}
             style={styles.avatar}
           />
 
           <Text style={styles.name} allowFontScaling={false}>
-            {data?.data?.name}
+            {data?.name}
           </Text>
           <Text style={styles.phone} allowFontScaling={false}>
-            {data?.data?.phone}
+            {data?.phone}
           </Text>
         </View>
 
@@ -69,7 +73,7 @@ const HeadSection = ({ data }: any) => {
             style={styles.barBlock}
           >
             <Text style={styles.barNumber} allowFontScaling={false}>
-              {data?.data?.order_stats?.total}
+              {data?.order_stats?.total}
             </Text>
             <Text style={styles.barText} allowFontScaling={false}>
               Order in Total
@@ -111,6 +115,15 @@ const HeadSection = ({ data }: any) => {
                 />
               </G>
             </Svg>
+            {data?.noti_stats?.total_unread ? (
+              <View style={styles?.iconCount}>
+                <Text style={styles?.iconCountText} allowFontScaling={false}>
+                  {data?.noti_stats?.total_unread}
+                </Text>
+              </View>
+            ) : (
+              <></>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -220,5 +233,23 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 1000,
     backgroundColor: "#FFFFFFB2",
+  },
+
+  iconCount: {
+    position: "absolute",
+    backgroundColor: "#ff0000",
+    top: -6,
+    right: -6,
+    width: 24,
+    height: 24,
+    borderRadius: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  iconCountText: {
+    fontSize: 14,
+    fontWeight: 500,
+    color: "#fff",
+    fontFamily: "Saira-Medium",
   },
 });

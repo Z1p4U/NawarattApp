@@ -263,11 +263,12 @@ export default function ProductDetail() {
                   Category :{" "}
                 </Text>
                 <Link
-                  style={styles.productCategoryActiveText}
                   allowFontScaling={false}
                   href={`/productListByCategory?id=${productDetail.category?.id}&name=${productDetail.category?.name}`}
                 >
-                  {productDetail.category.name}
+                  <Text style={styles.productCategoryActiveText}>
+                    {productDetail.category.name}
+                  </Text>
                 </Link>
               </>
             )}
@@ -294,11 +295,37 @@ export default function ProductDetail() {
                 </ImageBackground>
                 <Link
                   href={`/productListByBrand?id=${productDetail.brand.id}&name=${productDetail.brand.name}`}
-                  style={styles.brandName}
                   allowFontScaling={false}
                 >
-                  {productDetail.brand.name}
+                  <Text style={styles.brandName}>
+                    {productDetail.brand.name}
+                  </Text>
                 </Link>
+              </View>
+            </View>
+          )}
+
+          {productDetail?.tags.length != 0 && (
+            <View style={{ gap: 10 }}>
+              <Text style={styles.comboTitle} allowFontScaling={false}>
+                Tags
+              </Text>
+              <View style={styles.comboRelatedContainer}>
+                {productDetail?.tags?.map((tag) => (
+                  <TouchableOpacity
+                    onPress={() =>
+                      router.push(
+                        `/productListByTag?id=${tag.id}&name=${tag.name}`
+                      )
+                    }
+                    key={tag.id}
+                    style={styles.comboItemRow}
+                  >
+                    <Text style={styles.comboItemText} allowFontScaling={false}>
+                      {tag?.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
               </View>
             </View>
           )}

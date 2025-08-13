@@ -71,6 +71,23 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ banners }) => {
     return <View style={styles.link}>{imageInner}</View>;
   };
 
+  if (!banners || banners?.length == 0) {
+    return (
+      <View style={styles.carouselContainer}>
+        <ImageBackground
+          source={placeholderImage}
+          style={styles.imageBg}
+          imageStyle={styles.imageStyle}
+        >
+          <Image
+            source={placeholderImage}
+            style={[styles.imageOverlay, styles.imageStyle]}
+          />
+        </ImageBackground>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.carouselContainer}>
       <Carousel

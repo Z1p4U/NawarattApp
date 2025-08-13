@@ -1,4 +1,3 @@
-// components/Catalog/FilterModal.tsx
 import React, {
   forwardRef,
   useImperativeHandle,
@@ -57,7 +56,6 @@ const FilterModal = forwardRef<FilterSheetRef, FilterSheetProps>(
     const [minPrice, setMinPrice] = useState<number | null>(initialMinPrice);
     const [maxPrice, setMaxPrice] = useState<number | null>(initialMaxPrice);
 
-    // sync when parent props change
     useEffect(() => {
       setCatId(initialCatId);
       setBrandId(initialBrandId);
@@ -65,7 +63,6 @@ const FilterModal = forwardRef<FilterSheetRef, FilterSheetProps>(
       setMaxPrice(initialMaxPrice);
     }, [initialCatId, initialBrandId, initialMinPrice, initialMaxPrice]);
 
-    // expose .open()/.close()
     useImperativeHandle(ref, () => ({
       open: () => sheetRef.current?.open(),
       close: () => sheetRef.current?.close(),
