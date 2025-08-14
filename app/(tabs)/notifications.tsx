@@ -16,7 +16,8 @@ import useNotification from "@/redux/hooks/notification/useNotification";
 import useAuth from "@/redux/hooks/auth/useAuth";
 import useGlobalNotification from "@/redux/hooks/notification/useGlobalNotification";
 import useNotificationAction from "@/redux/hooks/notification/useNotificationAction";
-import Svg, { Defs, Path, Stop } from "react-native-svg";
+import Svg, { Path } from "react-native-svg";
+import useLocalGlobalReads from "@/hooks/useLocalGlobalReads";
 
 type TabKey = "global" | "user";
 
@@ -24,7 +25,6 @@ export default function Notifications() {
   const router = useRouter();
   const { isAuthenticated, loading: authLoading } = useAuth();
 
-  // user-specific notifications
   const {
     notifications,
     loading: notificationLoading,
@@ -32,7 +32,6 @@ export default function Notifications() {
     hasMore,
     reset,
   } = useNotification();
-  // global notifications
   const {
     globalNotifications,
     loading: globalNotificationLoading,
@@ -40,11 +39,16 @@ export default function Notifications() {
     hasMore: hasMoreGlobalNotifications,
     reset: resetGlobalNotifications,
   } = useGlobalNotification();
-
   const { readAllNotifications, readNotification } = useNotificationAction();
+  const { markRead, markAllRead, isRead } = useLocalGlobalReads(); //local-storage
+
+  useEffect(() => {
+    reset();
+    resetGlobalNotifications();
+  }, []);
 
   // UI state
-  const [activeTab, setActiveTab] = useState<TabKey>("global"); // default to global
+  const [activeTab, setActiveTab] = useState<TabKey>("global");
   const [refreshing, setRefreshing] = useState(false);
 
   // debounce for infinite scroll
@@ -66,15 +70,20 @@ export default function Notifications() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
-  const formatDate = (iso: string) => {
+  // Helpers to format date/time
+  const formatDate = (iso: string | undefined | null) => {
+    if (!iso) return "";
     const d = new Date(iso);
     return `${String(d.getDate()).padStart(2, "0")}-${String(
       d.getMonth() + 1
     ).padStart(2, "0")}-${d.getFullYear()}`;
   };
-  const formatTime = (iso: string) => {
+  const formatTime = (iso: string | undefined | null) => {
+    if (!iso) return "";
     const d = new Date(iso);
-    return `${d.getHours()} : ${d.getMinutes()}`;
+    return `${String(d.getHours()).padStart(2, "0")} : ${String(
+      d.getMinutes()
+    ).padStart(2, "0")}`;
   };
 
   // Pull-to-refresh: call the active tab's reset
@@ -85,11 +94,10 @@ export default function Notifications() {
     } else {
       reset();
     }
-    // mirror your prior behaviour: short timeout for UX; ideally replace with real completion callback
     setTimeout(() => setRefreshing(false), 800);
   }, [activeTab, reset, resetGlobalNotifications]);
 
-  // infinite scroll handler that delegates to the active list
+  // infinite scroll handler delegates to active list
   const onEndReached = () => {
     if (debounceRef.current) return;
 
@@ -108,23 +116,56 @@ export default function Notifications() {
     }
   };
 
-  // render item: supports both shapes (item may be wrapped in { data: {...} })
+  // get stable string id (works with both shapes)
+  const getItemId = (item: any): string | null => {
+    if (!item) return null;
+    const cand = item?.id ?? item?.data?.id ?? item?.data?.notification_id;
+    if (cand == null) return null;
+    return String(cand);
+  };
+
+  // Render item supports both shapes (top-level item or wrapper with data)
   const renderItem = ({ item }: { item: any }) => {
-    const payload = item?.data;
-    const unread = !item?.read_at || item?.read_at === null;
+    const payload = item?.data ?? item;
+    const id = getItemId(item);
+    // unread: server-driven for user tab (read_at), local-driven for global
+    const unread =
+      activeTab === "user"
+        ? !item?.read_at // server field
+        : !(id && isRead(id));
+
     return (
       <TouchableOpacity
         onPress={() => {
-          if (payload.type === "order" && payload.order_id) {
-            readNotification(item?.id);
+          if (payload?.type === "order" && payload?.order_id) {
+            if (activeTab === "user") {
+              readNotification(item?.id);
+            } else if (id) {
+              markRead(id);
+            }
             router.push(`/orderDetail?id=${payload.order_id}`);
-          } else if (payload.type === "promotion" && payload.discountable_id) {
+            return;
+          }
+
+          if (payload?.type === "promotion" && payload?.discountable_id) {
+            if (activeTab === "user") {
+              readNotification(item?.id);
+            } else if (id) {
+              markRead(id);
+            }
             router.push(
               `/productListByCampaign?id=${payload.discountable_id}&name=${payload.title}&image=${payload?.image}&expire=${payload?.end_date}`
             );
-          } else {
-            router.push("/");
+            return;
           }
+
+          // fallback: mark read and go home
+          if (activeTab === "user") {
+            readNotification(item?.id);
+          } else if (id) {
+            markRead(id);
+          }
+          router.push("/");
         }}
         style={styles.notificationCardWrapper}
       >
@@ -144,38 +185,37 @@ export default function Notifications() {
                 : { fontWeight: "500", fontFamily: "Saira-Medium" },
             ]}
           >
-            {payload.title}
+            {payload?.title}
           </Text>
           <Text style={styles.notificationCardDescription}>
-            {payload.description}
+            {payload?.description}
           </Text>
+
           <View style={styles.notificationCardDateContainerDiv}>
             <View style={styles.notificationCardDateContainer}>
               <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
                 <Path
                   d="M8.5 14a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5zm0 3.5a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5zm4.75-4.75a1.25 1.25 0 11-2.5 0 1.25 1.25 0 012.5 0zM12 17.5a1.25 1.25 0 100-2.5 1.25 1.25 0 000 2.5zm4.75-4.75a1.25 1.25 0 11-2.5 0 1.25 1.25 0 012.5 0z"
                   fill="#0000004D"
-                  fillOpacity={1}
                 />
                 <Path
                   fillRule="evenodd"
                   clipRule="evenodd"
                   d="M8 3.25a.75.75 0 01.75.75v.75h6.5V4a.75.75 0 111.5 0v.758a7.8 7.8 0 01.425.022c.38.03.736.098 1.073.27a2.75 2.75 0 011.202 1.202c.172.337.24.693.27 1.073.03.365.03.81.03 1.345v7.66c0 .535 0 .98-.03 1.345-.03.38-.098.736-.27 1.073a2.75 2.75 0 01-1.201 1.202c-.338.172-.694.24-1.074.27-.365.03-.81.03-1.344.03H8.17c-.535 0-.98 0-1.345-.03-.38-.03-.736-.098-1.073-.27a2.75 2.75 0 01-1.202-1.2c-.172-.338-.24-.694-.27-1.074-.03-.365-.03-.81-.03-1.344V8.67c0-.535 0-.98.03-1.345.03-.38.098-.736.27-1.073A2.75 2.75 0 015.752 5.05c.337-.172.693-.24 1.073-.27.131-.01.273-.018.425-.022V4A.75.75 0 018 3.25zM7.25 6.5v-.242a5.999 5.999 0 00-.303.017c-.287.023-.424.065-.514.111a1.25 1.25 0 00-.547.547c-.046.09-.088.227-.111.514-.024.296-.025.68-.025 1.253v.55h12.5V8.7c0-.572 0-.957-.025-1.253-.023-.287-.065-.424-.111-.514a1.25 1.25 0 00-.547-.547c-.09-.046-.227-.088-.515-.111a6.006 6.006 0 00-.302-.017V6.5a.75.75 0 11-1.5 0v-.25h-6.5v.25a.75.75 0 01-1.5 0zm11 3.75H5.75v6.05c0 .572 0 .957.025 1.252.023.288.065.425.111.515.12.236.311.427.547.547.09.046.227.088.514.111.296.024.68.025 1.253.025h7.6c.572 0 .957 0 1.252-.025.288-.023.425-.065.515-.111a1.25 1.25 0 00.547-.547c.046-.09.088-.227.111-.515.024-.295.025-.68.025-1.252v-6.05z"
                   fill="#0000004D"
-                  fillOpacity={1}
                 />
                 <Path
                   fillRule="evenodd"
                   clipRule="evenodd"
                   d="M9.75 7.75A.75.75 0 0110.5 7h3a.75.75 0 110 1.5h-3a.75.75 0 01-.75-.75z"
                   fill="#0000004D"
-                  fillOpacity={1}
                 />
               </Svg>
               <Text style={styles.notificationCardDate}>
-                {formatDate(item?.created_at)}
+                {formatDate(item?.created_at ?? item?.data?.created_at)}
               </Text>
             </View>
+
             <View style={styles.notificationCardDateContainer}>
               <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
                 <Path
@@ -183,7 +223,6 @@ export default function Notifications() {
                   stroke="#0000004D"
                   strokeWidth={2}
                   strokeLinejoin="round"
-                  strokeOpacity={1}
                 />
                 <Path
                   d="M12.004 6v6.005l4.24 4.24"
@@ -191,11 +230,10 @@ export default function Notifications() {
                   strokeWidth={2}
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeOpacity={1}
                 />
               </Svg>
               <Text style={styles.notificationCardDate}>
-                {formatTime(item?.created_at)}
+                {formatTime(item?.created_at ?? item?.data?.created_at)}
               </Text>
             </View>
           </View>
@@ -346,17 +384,30 @@ export default function Notifications() {
               <TabsHeader />
             </View>
 
-            {activeTab === "user" ? (
-              <View style={styles.clearContainer}>
+            {/* Mark all as read: server for user, local for global */}
+            <View style={styles.clearContainer}>
+              {activeTab === "user" ? (
                 <TouchableOpacity onPress={readAllNotifications}>
                   <Text style={styles.clearText} allowFontScaling={false}>
                     Mark All As Read
                   </Text>
                 </TouchableOpacity>
-              </View>
-            ) : (
-              <></>
-            )}
+              ) : (
+                <TouchableOpacity
+                  onPress={() => {
+                    const ids = (globalNotifications ?? [])
+                      .map((g: any) => getItemId(g))
+                      .filter(Boolean) as string[];
+                    if (ids.length === 0) return;
+                    markAllRead(ids);
+                  }}
+                >
+                  <Text style={styles.clearText} allowFontScaling={false}>
+                    Mark All As Read
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
           </>
         }
         ListEmptyComponent={ListEmpty}
@@ -427,9 +478,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "#F2F3F4",
   },
-  tabButtonActive: {
-    // active gradient applied via LinearGradient wrapper
-  },
+  tabButtonActive: {},
   tabButtonDisabled: {
     opacity: 0.5,
   },

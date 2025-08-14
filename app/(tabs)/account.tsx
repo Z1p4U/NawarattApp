@@ -85,7 +85,12 @@ export default function Account() {
                       </Text>
                     </View>
                   </View>
-                  <Text style={styles.iconText} allowFontScaling={false}>
+                  <Text
+                    style={styles.iconText}
+                    allowFontScaling={false}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
                     Submitted
                   </Text>
                 </TouchableOpacity>
@@ -110,7 +115,12 @@ export default function Account() {
                       </Text>
                     </View>
                   </View>
-                  <Text style={styles.iconText} allowFontScaling={false}>
+                  <Text
+                    style={styles.iconText}
+                    allowFontScaling={false}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
                     Confirmed
                   </Text>
                 </TouchableOpacity>
@@ -132,6 +142,8 @@ export default function Account() {
                       <Text
                         style={styles?.iconCountText}
                         allowFontScaling={false}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
                       >
                         {profileDetail?.data?.order_stats?.payment_pending}
                       </Text>
@@ -143,7 +155,7 @@ export default function Account() {
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
-                    Payment Pending
+                    To Pay
                   </Text>
                 </TouchableOpacity>
 
@@ -167,7 +179,12 @@ export default function Account() {
                       </Text>
                     </View>
                   </View>
-                  <Text style={styles.iconText} allowFontScaling={false}>
+                  <Text
+                    style={styles.iconText}
+                    allowFontScaling={false}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
                     Delivering
                   </Text>
                 </TouchableOpacity>
@@ -194,7 +211,12 @@ export default function Account() {
                       </Text>
                     </View>
                   </View>
-                  <Text style={styles.iconText} allowFontScaling={false}>
+                  <Text
+                    style={styles.iconText}
+                    allowFontScaling={false}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
                     Delivered
                   </Text>
                 </TouchableOpacity>
@@ -219,7 +241,12 @@ export default function Account() {
                       </Text>
                     </View>
                   </View>
-                  <Text style={styles.iconText} allowFontScaling={false}>
+                  <Text
+                    style={styles.iconText}
+                    allowFontScaling={false}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
                     Cancelled
                   </Text>
                 </TouchableOpacity>
@@ -334,6 +361,7 @@ const styles = StyleSheet.create({
     color: "#000000",
     fontFamily: "Saira-Medium",
     width: 70,
+    textAlign: "center",
   },
 
   chat: {
