@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -16,8 +16,8 @@ import SearchComponent from "@/components/ui/SearchComponent";
 import ProductCard from "@/components/ui/ProductCard";
 import useProduct from "@/redux/hooks/product/useProduct";
 import FilterModal, { FilterSheetRef } from "@/components/Catalog/FilterModal";
-import useCategory from "@/redux/hooks/category/useCategory";
-import useBrand from "@/redux/hooks/brand/useBrand";
+import useCatalogCategory from "@/redux/hooks/category/useCatalogCategory";
+import useCatalogBrand from "@/redux/hooks/brand/useCatalogBrand";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CARD_WIDTH = (SCREEN_WIDTH - 15 * 2 - 10) / 2;
@@ -42,8 +42,8 @@ export default function Catalog() {
     handleSearch,
     handleFilterSubmit,
   } = useProduct();
-  const { categories } = useCategory();
-  const { brands } = useBrand();
+  const { categories } = useCatalogCategory();
+  const { brands } = useCatalogBrand();
 
   const onFilterPress = useCallback(() => {
     filterRef.current?.open();

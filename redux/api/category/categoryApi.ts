@@ -8,7 +8,7 @@ import environment from "@/constants/environment";
 
 const fetchAllCategories = async (
   pagination: PaginationPayload,
-  is_highlight: boolean
+  is_highlight: boolean | null
 ): Promise<AllCategoryResponse> => {
   try {
     const params = { ...(pagination || {}), is_highlight };

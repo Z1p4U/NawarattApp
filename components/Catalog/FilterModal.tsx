@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   TextInput,
   StyleSheet,
+  ScrollView,
 } from "react-native";
 import RBSheet from "react-native-raw-bottom-sheet";
 import { Brand, Category } from "@/constants/config";
@@ -82,96 +83,98 @@ const FilterModal = forwardRef<FilterSheetRef, FilterSheetProps>(
           container: styles.sheetContainer,
         }}
       >
-        {/* Categories */}
-        <Text style={styles.section}>Categories</Text>
-        <View style={styles.row}>
-          {categories?.map((c) => {
-            const sel = catId === String(c.id);
-            return (
-              <TouchableOpacity
-                key={c.id}
-                style={[styles.btn, sel && styles.btnSel]}
-                onPress={() => setCatId(sel ? null : String(c.id))}
-              >
-                <View style={[styles.radio, sel && styles.radioSel]} />
-                <Text style={styles.btnText}>{c.name}</Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+        <ScrollView>
+          {/* Categories */}
+          <Text style={styles.section}>Categories</Text>
+          <View style={styles.row}>
+            {categories?.map((c) => {
+              const sel = catId === String(c.id);
+              return (
+                <TouchableOpacity
+                  key={c.id}
+                  style={[styles.btn, sel && styles.btnSel]}
+                  onPress={() => setCatId(sel ? null : String(c.id))}
+                >
+                  <View style={[styles.radio, sel && styles.radioSel]} />
+                  <Text style={styles.btnText}>{c.name}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
 
-        {/* Brands */}
-        {brands && (
-          <>
-            <Text style={styles.section}>Brands</Text>
-            <View style={styles.row}>
-              {brands.map((b) => {
-                const sel = brandId === String(b.id);
-                return (
-                  <TouchableOpacity
-                    key={b.id}
-                    style={[styles.btn, sel && styles.btnSel]}
-                    onPress={() => setBrandId(sel ? null : String(b.id))}
-                  >
-                    <View style={[styles.radio, sel && styles.radioSel]} />
-                    <Text style={styles.btnText}>{b.name}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </>
-        )}
+          {/* Brands */}
+          {brands && (
+            <>
+              <Text style={styles.section}>Brands</Text>
+              <View style={styles.row}>
+                {brands.map((b) => {
+                  const sel = brandId === String(b.id);
+                  return (
+                    <TouchableOpacity
+                      key={b.id}
+                      style={[styles.btn, sel && styles.btnSel]}
+                      onPress={() => setBrandId(sel ? null : String(b.id))}
+                    >
+                      <View style={[styles.radio, sel && styles.radioSel]} />
+                      <Text style={styles.btnText}>{b.name}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </>
+          )}
 
-        {/* Price */}
-        <Text style={styles.section}>Price Range</Text>
-        <View
-          style={[
-            styles.row,
-            {
-              marginVertical: 20,
-            },
-          ]}
-        >
-          <TextInput
-            style={styles.input}
-            keyboardType="numeric"
-            value={minPrice?.toString() ?? ""}
-            placeholder="100"
-            onChangeText={(t) => setMinPrice(Number(t) || 0)}
-          />
-          <Text
-            style={{
-              marginHorizontal: 8,
-              color: "#00000080",
-              fontFamily: "Saira-Medium",
-            }}
+          {/* Price */}
+          <Text style={styles.section}>Price Range</Text>
+          <View
+            style={[
+              styles.row,
+              {
+                marginVertical: 20,
+              },
+            ]}
           >
-            to
-          </Text>
-          <TextInput
-            style={styles.input}
-            keyboardType="numeric"
-            value={maxPrice?.toString() ?? ""}
-            placeholder="10,000"
-            onChangeText={(t) => setMaxPrice(Number(t) || 0)}
-          />
-        </View>
-
-        <TouchableOpacity
-          style={styles.addButtonWrapper}
-          onPress={_handleApply}
-        >
-          <LinearGradient
-            colors={["#275AE8", "#54CAFF"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.newAddress}
-          >
-            <Text style={styles.chatText} allowFontScaling={false}>
-              Done
+            <TextInput
+              style={styles.input}
+              keyboardType="numeric"
+              value={minPrice?.toString() ?? ""}
+              placeholder="100"
+              onChangeText={(t) => setMinPrice(Number(t) || 0)}
+            />
+            <Text
+              style={{
+                marginHorizontal: 8,
+                color: "#00000080",
+                fontFamily: "Saira-Medium",
+              }}
+            >
+              to
             </Text>
-          </LinearGradient>
-        </TouchableOpacity>
+            <TextInput
+              style={styles.input}
+              keyboardType="numeric"
+              value={maxPrice?.toString() ?? ""}
+              placeholder="10,000"
+              onChangeText={(t) => setMaxPrice(Number(t) || 0)}
+            />
+          </View>
+
+          <TouchableOpacity
+            style={styles.addButtonWrapper}
+            onPress={_handleApply}
+          >
+            <LinearGradient
+              colors={["#275AE8", "#54CAFF"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.newAddress}
+            >
+              <Text style={styles.chatText} allowFontScaling={false}>
+                Done
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </ScrollView>
       </RBSheet>
     );
   }
@@ -201,8 +204,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#275AE8",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
     borderRadius: 100,
     marginRight: 8,
     marginBottom: 8,
@@ -216,8 +219,8 @@ const styles = StyleSheet.create({
     fontFamily: "Saira-Medium",
   },
   radio: {
-    width: 16,
-    height: 16,
+    width: 14,
+    height: 14,
     borderRadius: 8,
     borderWidth: 3,
     borderColor: "#fff",

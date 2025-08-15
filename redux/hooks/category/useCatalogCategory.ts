@@ -1,21 +1,25 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
-import { handleFetchAllCategoryList } from "@/redux/services/category/categorySlice";
+import { handleFetchAllCatalogCategoryList } from "@/redux/services/category/categorySlice";
 import { AllCategoryResponse } from "@/constants/config";
 
-const useCategory = () => {
+const useCatalogCategory = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { categories } = useSelector((state: RootState) => state.category);
-  const [pagination, setPagination] = useState({ page: 1, size: 20 });
+  const { catalogCategories } = useSelector(
+    (state: RootState) => state.category
+  );
+  const [pagination, setPagination] = useState({ page: 1, size: 1000 });
   const [loading, setLoading] = useState(false);
-  const [is_highlight, setIsHighlight] = useState<boolean | null>(true);
+  const [is_highlight, setIsHighlight] = useState<boolean | null>(null);
 
   useEffect(() => {
     const fetchAllCategories = async () => {
       if (loading) return;
       setLoading(true);
-      await dispatch(handleFetchAllCategoryList({ pagination, is_highlight }));
+      await dispatch(
+        handleFetchAllCatalogCategoryList({ pagination, is_highlight })
+      );
       setLoading(false);
     };
 
@@ -26,7 +30,7 @@ const useCategory = () => {
     useCallback(async (): Promise<AllCategoryResponse | void> => {
       try {
         await dispatch(
-          handleFetchAllCategoryList({ pagination, is_highlight })
+          handleFetchAllCatalogCategoryList({ pagination, is_highlight })
         );
       } catch (err) {
         console.error("Failed to load Category:", err);
@@ -34,7 +38,7 @@ const useCategory = () => {
     }, [dispatch]);
 
   return {
-    categories,
+    categories: catalogCategories,
     loading,
     pagination,
     isHighlight: is_highlight,
@@ -44,4 +48,4 @@ const useCategory = () => {
   };
 };
 
-export default useCategory;
+export default useCatalogCategory;

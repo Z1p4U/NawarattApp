@@ -5,6 +5,7 @@ import { AllBrandResponse, PaginationPayload } from "@/constants/config";
 /** --------------- State Interfaces --------------- **/
 interface BrandState {
   brands: AllBrandResponse["data"] | null;
+  catalogBrand: AllBrandResponse["data"] | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
@@ -12,6 +13,7 @@ interface BrandState {
 /** --------------- Initial State --------------- **/
 const initialState: BrandState = {
   brands: null,
+  catalogBrand: null,
   status: "idle",
   error: null,
 };
@@ -21,10 +23,28 @@ const initialState: BrandState = {
 // Fetch All Brands
 export const handleFetchAllBrandList = createAsyncThunk<
   AllBrandResponse, // Return type
-  { pagination: PaginationPayload; is_highlight: boolean }, // Argument type
+  { pagination: PaginationPayload; is_highlight: boolean | null }, // Argument type
   { rejectValue: string } // Error handling type
 >(
   "brands/fetchAll",
+  async ({ pagination, is_highlight }, { rejectWithValue }) => {
+    try {
+      const response = await fetchAllBrands(pagination, is_highlight);
+      // console.log("Brand List Fetching success:", response);
+      return response;
+    } catch (error: any) {
+      console.error("Brand List Fetching error:", error);
+      return rejectWithValue(error.response?.data || "Failed to fetch brands");
+    }
+  }
+);
+
+export const handleFetchAllCatalogBrandList = createAsyncThunk<
+  AllBrandResponse, // Return type
+  { pagination: PaginationPayload; is_highlight: boolean | null }, // Argument type
+  { rejectValue: string } // Error handling type
+>(
+  "brands/fetchAllCatalogBrand",
   async ({ pagination, is_highlight }, { rejectWithValue }) => {
     try {
       const response = await fetchAllBrands(pagination, is_highlight);
@@ -60,6 +80,20 @@ const brandSlice = createSlice({
         state.brands = action.payload.data;
       })
       .addCase(handleFetchAllBrandList.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload || "Brand list fetch failed";
+      })
+
+      // Fetch All Catalog Brands
+      .addCase(handleFetchAllCatalogBrandList.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(handleFetchAllCatalogBrandList.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.error = null;
+        state.brands = action.payload.data;
+      })
+      .addCase(handleFetchAllCatalogBrandList.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload || "Brand list fetch failed";
       });

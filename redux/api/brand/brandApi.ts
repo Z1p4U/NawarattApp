@@ -4,7 +4,7 @@ import environment from "@/constants/environment";
 
 const fetchAllBrands = async (
   pagination: PaginationPayload,
-  is_highlight: boolean
+  is_highlight: boolean | null
 ): Promise<AllBrandResponse> => {
   try {
     const params = { ...(pagination || {}), is_highlight };

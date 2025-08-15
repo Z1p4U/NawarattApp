@@ -12,6 +12,7 @@ import {
 /** --------------- State Interfaces --------------- **/
 interface CategoryState {
   categories: AllCategoryResponse["data"] | null;
+  catalogCategories: AllCategoryResponse["data"] | null;
   specialCategories: AllSpecialCategoryResponse["data"] | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
@@ -20,6 +21,7 @@ interface CategoryState {
 /** --------------- Initial State --------------- **/
 const initialState: CategoryState = {
   categories: null,
+  catalogCategories: null,
   specialCategories: null,
   status: "idle",
   error: null,
@@ -30,10 +32,29 @@ const initialState: CategoryState = {
 // Fetch All Categories
 export const handleFetchAllCategoryList = createAsyncThunk<
   AllCategoryResponse, // Return type
-  { pagination: PaginationPayload; is_highlight: boolean }, // Argument type
+  { pagination: PaginationPayload; is_highlight: boolean | null }, // Argument type
   { rejectValue: string } // Error handling type
 >(
   "categories/fetchAll",
+  async ({ pagination, is_highlight }, { rejectWithValue }) => {
+    try {
+      const response = await fetchAllCategories(pagination, is_highlight);
+      return response;
+    } catch (error: any) {
+      console.error("Category List Fetching error:", error);
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch categories"
+      );
+    }
+  }
+);
+
+export const handleFetchAllCatalogCategoryList = createAsyncThunk<
+  AllCategoryResponse, // Return type
+  { pagination: PaginationPayload; is_highlight: boolean | null }, // Argument type
+  { rejectValue: string } // Error handling type
+>(
+  "categories/fetchAllCatalogCategories",
   async ({ pagination, is_highlight }, { rejectWithValue }) => {
     try {
       const response = await fetchAllCategories(pagination, is_highlight);
@@ -94,6 +115,20 @@ const categorySlice = createSlice({
         state.categories = action.payload.data;
       })
       .addCase(handleFetchAllCategoryList.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload || "Category list fetch failed";
+      })
+
+      // Fetch All catalog categories
+      .addCase(handleFetchAllCatalogCategoryList.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(handleFetchAllCatalogCategoryList.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.error = null;
+        state.catalogCategories = action.payload.data;
+      })
+      .addCase(handleFetchAllCatalogCategoryList.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload || "Category list fetch failed";
       })
