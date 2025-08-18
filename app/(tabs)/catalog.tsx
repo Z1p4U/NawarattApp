@@ -18,6 +18,7 @@ import useProduct from "@/redux/hooks/product/useProduct";
 import FilterModal, { FilterSheetRef } from "@/components/Catalog/FilterModal";
 import useCatalogCategory from "@/redux/hooks/category/useCatalogCategory";
 import useCatalogBrand from "@/redux/hooks/brand/useCatalogBrand";
+import useCatalogTag from "@/redux/hooks/tag/useCatalogTag";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CARD_WIDTH = (SCREEN_WIDTH - 15 * 2 - 10) / 2;
@@ -34,6 +35,7 @@ export default function Catalog() {
     name,
     catId,
     brandId,
+    tagId,
     minPrice,
     maxPrice,
     loadMore,
@@ -44,6 +46,7 @@ export default function Catalog() {
   } = useProduct();
   const { categories } = useCatalogCategory();
   const { brands } = useCatalogBrand();
+  const { tags } = useCatalogTag();
 
   const onFilterPress = useCallback(() => {
     filterRef.current?.open();
@@ -130,12 +133,14 @@ export default function Catalog() {
           ref={filterRef}
           categories={categories}
           brands={brands}
+          tags={tags}
           initialCatId={catId}
           initialBrandId={brandId}
+          initialTagId={tagId}
           initialMinPrice={minPrice}
           initialMaxPrice={maxPrice}
-          onApply={(c, b, min, max) => {
-            handleFilterSubmit(c, b, min, max);
+          onApply={(c, b, t, min, max) => {
+            handleFilterSubmit(c, b, t, min, max);
           }}
         />
       </SafeAreaView>

@@ -21,6 +21,7 @@ export default function useProduct() {
   const [name, setName] = useState<string>("");
   const [catId, setCatId] = useState<string | null>(null);
   const [brandId, setBrandId] = useState<string | null>(null);
+  const [tagId, setTagId] = useState<string | null>(null);
   const [minPrice, setMinPrice] = useState<number | null>(null);
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
 
@@ -31,13 +32,13 @@ export default function useProduct() {
         pagination,
         category_id: catId,
         brand_id: brandId,
-        tag_ids: null,
+        tag_ids: tagId,
         min_price: minPrice,
         max_price: maxPrice,
         name,
       })
     );
-  }, [dispatch, pagination, name, catId, brandId, minPrice, maxPrice]);
+  }, [dispatch, pagination, name, catId, brandId, tagId, minPrice, maxPrice]);
 
   const loading = status === "loading";
   const hasMore = products.length < totalProduct;
@@ -54,6 +55,7 @@ export default function useProduct() {
     setName("");
     setCatId(null);
     setBrandId(null);
+    setTagId(null);
     setMinPrice(null);
     setMaxPrice(null);
   }, [dispatch]);
@@ -71,6 +73,7 @@ export default function useProduct() {
     (
       newCat: string | null,
       newBrand: string | null,
+      newTag: string | null,
       newMin: number | null,
       newMax: number | null
     ) => {
@@ -78,6 +81,7 @@ export default function useProduct() {
       setPagination({ page: 1, size: 1000 });
       setCatId(newCat);
       setBrandId(newBrand);
+      setTagId(newTag);
       setMinPrice(newMin);
       setMaxPrice(newMax);
     },
@@ -91,11 +95,13 @@ export default function useProduct() {
     name,
     catId,
     brandId,
+    tagId,
     minPrice,
     maxPrice,
     setName,
     setCatId,
     setBrandId,
+    setTagId,
     setMinPrice,
     setMaxPrice,
     loadMore,

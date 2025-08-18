@@ -11,7 +11,12 @@ const fetchAllNotifications = async (
   pagination?: PaginationPayload
 ): Promise<AllNotificationResponse> => {
   try {
-    const params = { imei, ...(pagination || {}) };
+    const params = {
+      imei,
+      ...(pagination || {}),
+      sort_order: "desc",
+      sort_field: "created_at",
+    };
 
     const response = await axiosInstance.get<AllNotificationResponse>(
       `${environment.API_URL}/notifications`,
@@ -30,7 +35,12 @@ const fetchAllGlobalNotifications = async (
   pagination?: PaginationPayload
 ): Promise<AllNotificationResponse> => {
   try {
-    const params = { imei, ...(pagination || {}) };
+    const params = {
+      imei,
+      ...(pagination || {}),
+      sort_order: "desc",
+      sort_field: "created_at",
+    };
 
     const response = await axiosInstance.get<AllNotificationResponse>(
       `${environment.API_URL}/global-notifications`,

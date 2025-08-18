@@ -91,7 +91,7 @@ const brandSlice = createSlice({
       .addCase(handleFetchAllCatalogBrandList.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.error = null;
-        state.brands = action.payload.data;
+        state.catalogBrand = action.payload.data;
       })
       .addCase(handleFetchAllCatalogBrandList.rejected, (state, action) => {
         state.status = "failed";

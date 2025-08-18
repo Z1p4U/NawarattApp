@@ -13,7 +13,7 @@ import {
   ScrollView,
 } from "react-native";
 import RBSheet from "react-native-raw-bottom-sheet";
-import { Brand, Category } from "@/constants/config";
+import { Brand, Category, Tag } from "@/constants/config";
 import { LinearGradient } from "expo-linear-gradient";
 
 export type FilterSheetRef = {
@@ -24,13 +24,16 @@ export type FilterSheetRef = {
 export interface FilterSheetProps {
   categories: Category[] | null;
   brands: Brand[] | null;
+  tags: Tag[] | null;
   initialCatId: string | null;
   initialBrandId: string | null;
+  initialTagId: string | null;
   initialMinPrice: number | null;
   initialMaxPrice: number | null;
   onApply: (
     catId: string | null,
     brandId: string | null,
+    tagId: string | null,
     minPrice: number | null,
     maxPrice: number | null
   ) => void;
@@ -41,8 +44,10 @@ const FilterModal = forwardRef<FilterSheetRef, FilterSheetProps>(
     {
       categories,
       brands,
+      tags,
       initialCatId,
       initialBrandId,
+      initialTagId,
       initialMinPrice,
       initialMaxPrice,
       onApply,
@@ -54,12 +59,14 @@ const FilterModal = forwardRef<FilterSheetRef, FilterSheetProps>(
     // local state so user can cancel
     const [catId, setCatId] = useState<string | null>(initialCatId);
     const [brandId, setBrandId] = useState<string | null>(initialBrandId);
+    const [tagId, setTagId] = useState<string | null>(initialTagId);
     const [minPrice, setMinPrice] = useState<number | null>(initialMinPrice);
     const [maxPrice, setMaxPrice] = useState<number | null>(initialMaxPrice);
 
     useEffect(() => {
       setCatId(initialCatId);
       setBrandId(initialBrandId);
+      setTagId(initialTagId);
       setMinPrice(initialMinPrice);
       setMaxPrice(initialMaxPrice);
     }, [initialCatId, initialBrandId, initialMinPrice, initialMaxPrice]);
@@ -70,20 +77,20 @@ const FilterModal = forwardRef<FilterSheetRef, FilterSheetProps>(
     }));
 
     const _handleApply = () => {
-      onApply(catId, brandId, minPrice, maxPrice);
+      onApply(catId, brandId, tagId, minPrice, maxPrice);
       sheetRef.current?.close();
     };
 
     return (
       <RBSheet
         ref={sheetRef}
-        height={400}
+        height={600}
         openDuration={250}
         customStyles={{
           container: styles.sheetContainer,
         }}
       >
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
           {/* Categories */}
           <Text style={styles.section}>Categories</Text>
           <View style={styles.row}>
@@ -117,6 +124,28 @@ const FilterModal = forwardRef<FilterSheetRef, FilterSheetProps>(
                     >
                       <View style={[styles.radio, sel && styles.radioSel]} />
                       <Text style={styles.btnText}>{b.name}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </>
+          )}
+
+          {/* Tags */}
+          {tags && (
+            <>
+              <Text style={styles.section}>Tags</Text>
+              <View style={styles.row}>
+                {tags.map((t) => {
+                  const sel = tagId === String(t.id);
+                  return (
+                    <TouchableOpacity
+                      key={t.id}
+                      style={[styles.btn, sel && styles.btnSel]}
+                      onPress={() => setTagId(sel ? null : String(t.id))}
+                    >
+                      <View style={[styles.radio, sel && styles.radioSel]} />
+                      <Text style={styles.btnText}>{t.name}</Text>
                     </TouchableOpacity>
                   );
                 })}

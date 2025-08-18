@@ -224,6 +224,20 @@ export interface AllBrandResponse {
 }
 // Brand
 
+// Brand
+export interface Tag {
+  id: number;
+  name: string;
+  status: string;
+  is_highlight: boolean;
+}
+export interface AllTagResponse {
+  data: Tag[];
+  links: Record<string, unknown>;
+  meta: Record<string, number>;
+}
+// Brand
+
 // Category
 export interface Category {
   id: number;
