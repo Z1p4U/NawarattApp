@@ -1,6 +1,6 @@
 // export const BASE_URL = "https://dev.nawarattmedical.com/api";
 export const BASE_URL = "https://nawarattmedical.com/api";
-// export const BASE_URL = "http://127.0.0.1:8000/api";
+// export const BASE_URL = "https://003bcb076719.ngrok-free.app/api";
 
 const environment = {
   API_URL: `${BASE_URL}`,

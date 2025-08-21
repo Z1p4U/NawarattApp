@@ -1,48 +1,48 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
-import { handleFetchAllCatalogBrandList } from "@/redux/services/brand/brandSlice";
-import { AllBrandResponse } from "@/constants/config";
+import { handleFetchAllCatalogPaymentList } from "@/redux/services/payment/paymentSlice";
+import { AllPaymentResponse } from "@/constants/config";
 
-const useCatalogBrand = () => {
+const useCatalogPayment = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { catalogBrand } = useSelector((state: RootState) => state.brand);
+  const { catalogPayment } = useSelector((state: RootState) => state.payment);
   const [pagination, setPagination] = useState({ page: 1, size: 1000 });
   const [loading, setLoading] = useState(false);
   const [is_highlight, setIsHighlight] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const fetchAllBrands = async () => {
+    const fetchAllPayments = async () => {
       if (loading) return;
       setLoading(true);
       await dispatch(
-        handleFetchAllCatalogBrandList({ pagination, is_highlight })
+        handleFetchAllCatalogPaymentList({ pagination, is_highlight })
       );
       setLoading(false);
     };
-    fetchAllBrands();
+    fetchAllPayments();
   }, [dispatch, pagination]);
 
-  const handleLoadBrandList =
-    useCallback(async (): Promise<AllBrandResponse | void> => {
+  const handleLoadPaymentList =
+    useCallback(async (): Promise<AllPaymentResponse | void> => {
       try {
         await dispatch(
-          handleFetchAllCatalogBrandList({ pagination, is_highlight })
+          handleFetchAllCatalogPaymentList({ pagination, is_highlight })
         );
       } catch (err) {
-        console.error("Failed to load Brand:", err);
+        console.error("Failed to load Payment:", err);
       }
     }, [dispatch]);
 
   return {
-    brands: catalogBrand,
+    payments: catalogPayment,
     loading,
     pagination,
     is_highlight,
     setPagination,
     setIsHighlight,
-    handleLoadBrandList,
+    handleLoadPaymentList,
   };
 };
 
-export default useCatalogBrand;
+export default useCatalogPayment;

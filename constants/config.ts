@@ -224,7 +224,7 @@ export interface AllBrandResponse {
 }
 // Brand
 
-// Brand
+// Tag
 export interface Tag {
   id: number;
   name: string;
@@ -236,7 +236,24 @@ export interface AllTagResponse {
   links: Record<string, unknown>;
   meta: Record<string, number>;
 }
-// Brand
+// Tag
+
+// Payment
+export interface Payment {
+  id: number;
+  name: string;
+  account: string;
+  status: string;
+  is_highlight: boolean;
+  icon: string;
+  qr: string;
+}
+export interface AllPaymentResponse {
+  data: Payment[];
+  links: Record<string, unknown>;
+  meta: Record<string, number>;
+}
+// Payment
 
 // Category
 export interface Category {

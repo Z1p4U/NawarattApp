@@ -5,6 +5,7 @@ import campaignReducer from "@/redux/services/campaign/campaignSlice";
 import brandReducer from "@/redux/services/brand/brandSlice";
 import categoryReducer from "@/redux/services/category/categorySlice";
 import tagReducer from "@/redux/services/tag/tagSlice";
+import paymentReducer from "@/redux/services/payment/paymentSlice";
 import appBannerReducer from "@/redux/services/app-banner/appBannerSlice";
 import userReducer from "@/redux/services/user/userSlice";
 import notificationReducer from "@/redux/services/notification/notificationSlice";
@@ -23,6 +24,7 @@ const store = configureStore({
     brand: brandReducer,
     category: categoryReducer,
     tag: tagReducer,
+    payment: paymentReducer,
     banner: appBannerReducer,
     user: userReducer,
     notification: notificationReducer,

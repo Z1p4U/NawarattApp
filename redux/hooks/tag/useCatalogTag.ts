@@ -7,7 +7,7 @@ import { AllTagResponse } from "@/constants/config";
 const useCatalogTag = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { catalogTag } = useSelector((state: RootState) => state.tag);
-  const [pagination, setPagination] = useState({ page: 1, size: 9 });
+  const [pagination, setPagination] = useState({ page: 1, size: 1000 });
   const [loading, setLoading] = useState(false);
   const [is_highlight, setIsHighlight] = useState<boolean | null>(null);
 

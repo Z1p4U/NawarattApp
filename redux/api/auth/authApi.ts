@@ -71,6 +71,9 @@ export async function fetchLogin(
     `${environment.API_URL}/login`,
     body
   );
+
+  console.log(data);
+
   return data;
 }
 

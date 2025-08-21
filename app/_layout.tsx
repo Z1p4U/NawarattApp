@@ -106,7 +106,7 @@ export default function RootLayout() {
           string,
           string
         >;
-        console.log("Notification tapped:", JSON.stringify(data));
+        // console.log("Notification tapped:", JSON.stringify(data));
 
         if (data.type === "order" && data.order_id) {
           router.push(`/orderDetail?id=${data.order_id}`);
