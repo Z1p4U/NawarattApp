@@ -307,7 +307,7 @@ export default function orderPay() {
                     </Text>
 
                     <Text style={styles.detailLabel}>Account</Text>
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                       onPress={() => {
                         if (selectedPayment?.account) {
                           Clipboard.setString(selectedPayment.account);
@@ -317,7 +317,7 @@ export default function orderPay() {
                       <Text style={styles.detailValue}>
                         {selectedPayment ? selectedPayment.account : ""}
                       </Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
 
                     <View style={styles.copyContainer}>
                       <Text style={styles.detailValue}>

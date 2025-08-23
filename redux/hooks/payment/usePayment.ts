@@ -9,7 +9,7 @@ const usePayment = () => {
   const { payments } = useSelector((state: RootState) => state.payment);
   const [pagination, setPagination] = useState({ page: 1, size: 100 });
   const [loading, setLoading] = useState(false);
-  const [is_highlight, setIsHighlight] = useState<boolean | null>(null);
+  const [is_highlight, setIsHighlight] = useState<boolean | null>(true);
 
   useEffect(() => {
     const fetchAllPayments = async () => {
